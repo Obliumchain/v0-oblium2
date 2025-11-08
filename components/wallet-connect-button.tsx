@@ -34,12 +34,7 @@ export function WalletConnectButton({
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [showIOSOptions, setShowIOSOptions] = useState(false)
-
-  useEffect(() => {
-    if (isIOS() && !isPhantomBrowser()) {
-      console.log("[v0] iOS device detected outside Phantom browser")
-    }
-  }, [])
+  const [isProcessing, setIsProcessing] = useState(false)
 
   useEffect(() => {
     const handleConnection = async () => {
@@ -75,31 +70,44 @@ export function WalletConnectButton({
   }, [connected, publicKey, onConnect])
 
   const handleConnect = async () => {
-    setError(null)
-    setSuccessMessage(null)
-
-    // If on iOS and not in Phantom browser, show options
-    if (isIOS() && !isPhantomBrowser()) {
-      setShowIOSOptions(true)
-
-      // Try to use universal link connection first
-      try {
-        console.log("[v0] Attempting iOS universal link connection")
-        const phantomWallet = wallets.find((w) => w.adapter.name === "Phantom")
-        if (phantomWallet) {
-          await select(phantomWallet.adapter.name)
-          // The wallet adapter will handle the universal link automatically
-        } else {
-          console.log("[v0] Phantom wallet not found in adapters")
-        }
-      } catch (err) {
-        console.log("[v0] Universal link connection failed, showing manual options", err)
-      }
+    if (isProcessing || connecting) {
+      console.log("[v0] Connection already in progress, ignoring tap")
       return
     }
 
-    // Standard connection for desktop/Android or Phantom browser
-    setVisible(true)
+    setIsProcessing(true)
+    setError(null)
+    setSuccessMessage(null)
+
+    try {
+      const isiOSDevice = isIOS()
+      const isInPhantom = isPhantomBrowser()
+
+      console.log("[v0] Connect button pressed - iOS:", isiOSDevice, "Phantom Browser:", isInPhantom)
+
+      // If on iOS and not in Phantom browser, show iOS options
+      if (isiOSDevice && !isInPhantom) {
+        console.log("[v0] Showing iOS connection options")
+        setShowIOSOptions(true)
+
+        // Try to connect via universal link
+        const phantomWallet = wallets.find((w) => w.adapter.name === "Phantom")
+        if (phantomWallet) {
+          try {
+            await select(phantomWallet.adapter.name)
+          } catch (err) {
+            console.log("[v0] Auto-select failed, user will choose manually", err)
+          }
+        }
+      } else {
+        console.log("[v0] Opening wallet modal")
+        setVisible(true)
+      }
+    } finally {
+      setTimeout(() => {
+        setIsProcessing(false)
+      }, 1000)
+    }
   }
 
   const handleDisconnect = async () => {
@@ -118,7 +126,6 @@ export function WalletConnectButton({
     const currentUrl = window.location.href
     const appUrl = encodeURIComponent(currentUrl)
 
-    // Use Phantom's universal link with connect endpoint
     const phantomUniversalLink = `https://phantom.app/ul/v1/connect?app_url=${appUrl}&cluster=${process.env.NEXT_PUBLIC_SOLANA_NETWORK || "devnet"}&redirect_link=${appUrl}`
 
     console.log("[v0] Opening Phantom via universal link")
@@ -166,8 +173,8 @@ export function WalletConnectButton({
 
   return (
     <div className="space-y-2">
-      <GlowButton onClick={handleConnect} disabled={connecting} variant={variant} className="w-full">
-        {connecting ? "Connecting..." : "Connect Wallet"}
+      <GlowButton onClick={handleConnect} disabled={connecting || isProcessing} variant={variant} className="w-full">
+        {connecting || isProcessing ? "Connecting..." : "Connect Wallet"}
       </GlowButton>
 
       {showIOSOptions && (
@@ -179,7 +186,6 @@ export function WalletConnectButton({
               <p className="text-xs text-foreground/70 mb-3">Choose how you'd like to connect your Phantom wallet:</p>
 
               <div className="space-y-2">
-                {/* Option 1: Universal Link (Direct Connection) */}
                 <button
                   onClick={connectViaUniversalLink}
                   className="w-full p-3 bg-primary/10 hover:bg-primary/20 border border-primary/30 rounded-lg transition-colors text-left"
@@ -193,7 +199,6 @@ export function WalletConnectButton({
                   </div>
                 </button>
 
-                {/* Option 2: Phantom Browser */}
                 <button
                   onClick={openInPhantomBrowser}
                   className="w-full p-3 bg-accent/10 hover:bg-accent/20 border border-accent/30 rounded-lg transition-colors text-left"
