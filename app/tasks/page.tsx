@@ -18,6 +18,7 @@ interface Task {
   task_type: string
   action_url: string | null
   completed: boolean
+  is_daily_repeatable: boolean
 }
 
 export default function TasksPage() {
@@ -48,15 +49,30 @@ export default function TasksPage() {
 
       if (tasksError) throw tasksError
 
+      const todayEST = new Date().toLocaleDateString("en-US", { timeZone: "America/New_York" })
+      const todayDate = new Date(todayEST).toISOString().split("T")[0]
+
       // Get user's completed tasks
       const { data: completions, error: completionsError } = await supabase
         .from("task_completions")
-        .select("task_id")
+        .select("task_id, completed_date")
         .eq("user_id", user.id)
 
       if (completionsError) throw completionsError
 
-      const completedTaskIds = new Set(completions?.map((c) => c.task_id) || [])
+      const completedTaskIds = new Set(
+        completions
+          ?.filter((c) => {
+            const task = allTasks?.find((t) => t.id === c.task_id)
+            // If daily task, only count as completed if done today
+            if (task?.is_daily_repeatable) {
+              return c.completed_date === todayDate
+            }
+            // For non-daily tasks, always count as completed
+            return true
+          })
+          .map((c) => c.task_id) || [],
+      )
 
       // Merge tasks with completion status
       const tasksWithStatus = allTasks?.map((task) => ({
@@ -66,7 +82,7 @@ export default function TasksPage() {
 
       setTasks(tasksWithStatus || [])
     } catch (error) {
-      console.error("[v0] Error loading tasks:", error)
+      console.error("Error loading tasks:", error)
     } finally {
       setLoading(false)
     }
@@ -98,9 +114,13 @@ export default function TasksPage() {
       // Update local state
       setTasks(tasks.map((task) => (task.id === taskId ? { ...task, completed: true } : task)))
 
-      alert(`Task completed! You earned ${data.pointsAwarded} points!`)
+      if (data.isDaily) {
+        alert(`Daily check-in completed! You earned ${data.pointsAwarded} points! Come back tomorrow for more!`)
+      } else {
+        alert(`Task completed! You earned ${data.pointsAwarded} points!`)
+      }
     } catch (error) {
-      console.error("[v0] Error completing task:", error)
+      console.error("Error completing task:", error)
       alert("Failed to complete task. Please try again.")
     } finally {
       setCompletingTask(null)
@@ -158,11 +178,18 @@ export default function TasksPage() {
               key={task.id}
               className={`p-6 h-full flex flex-col transition-all duration-300 ${
                 task.completed ? "border-success/50 bg-success/5" : "hover:border-primary/50"
-              }`}
+              } ${task.is_daily_repeatable && !task.completed ? "ring-2 ring-accent/30" : ""}`}
             >
               {/* Header */}
               <div className="flex items-start justify-between mb-4">
-                <div className="text-4xl">{task.icon}</div>
+                <div className="flex items-center gap-2">
+                  <div className="text-4xl">{task.icon}</div>
+                  {task.is_daily_repeatable && (
+                    <span className="text-xs bg-accent/20 text-accent px-2 py-1 rounded-full font-semibold">
+                      {t("daily") || "DAILY"}
+                    </span>
+                  )}
+                </div>
                 {task.completed && (
                   <div className="w-6 h-6 rounded-full bg-success flex items-center justify-center">
                     <span className="text-white text-sm font-bold">✓</span>

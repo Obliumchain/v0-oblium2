@@ -1,11 +1,11 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useWallet } from "@solana/wallet-adapter-react"
+import { useWallet, useConnection } from "@solana/wallet-adapter-react"
 import { createClient } from "@/lib/supabase/client"
 import { LiquidCard } from "@/components/ui/liquid-card"
 import { GlowButton } from "@/components/ui/glow-button"
-import { createBoosterPurchaseTransaction } from "@/lib/solana/transfer-token"
+import { PublicKey, SystemProgram, Transaction, LAMPORTS_PER_SOL } from "@solana/web3.js"
 import { RECIPIENT_WALLET, validateRecipientWallet } from "@/lib/solana/config"
 import { useLanguage } from "@/lib/language-context"
 
@@ -31,7 +31,8 @@ export function BoosterShop({ walletAddress, userId, onPurchaseSuccess }: Booste
   const [isPurchasing, setIsPurchasing] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const { t } = useLanguage()
-  const { wallet, connected } = useWallet()
+  const { publicKey, sendTransaction, connected } = useWallet()
+  const { connection } = useConnection()
 
   useEffect(() => {
     const loadBoosters = async () => {
@@ -63,13 +64,8 @@ export function BoosterShop({ walletAddress, userId, onPurchaseSuccess }: Booste
   }, [])
 
   const handlePurchaseBooster = async (booster: Booster) => {
-    if (!connected || !wallet) {
+    if (!connected || !publicKey) {
       setError("Please connect your Phantom wallet first")
-      return
-    }
-
-    if (!walletAddress) {
-      setError("Wallet address not available")
       return
     }
 
@@ -87,23 +83,35 @@ export function BoosterShop({ walletAddress, userId, onPurchaseSuccess }: Booste
     setError(null)
 
     try {
-      const { solana } = window as any
-
-      if (!solana?.isPhantom) {
-        throw new Error("Phantom wallet not detected. Please ensure Phantom is installed and connected.")
-      }
-
       console.log("[v0] Creating Solana transaction for", booster.price_sol, "SOL")
 
-      const transaction = await createBoosterPurchaseTransaction(walletAddress, RECIPIENT_WALLET, booster.price_sol)
+      const recipientPubkey = new PublicKey(RECIPIENT_WALLET)
+      const lamports = Math.round(booster.price_sol * LAMPORTS_PER_SOL)
 
-      console.log("[v0] Requesting wallet signature...")
+      const transaction = new Transaction().add(
+        SystemProgram.transfer({
+          fromPubkey: publicKey,
+          toPubkey: recipientPubkey,
+          lamports,
+        }),
+      )
 
-      const { signature } = await solana.signAndSendTransaction(transaction)
+      const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash()
+      transaction.recentBlockhash = blockhash
+      transaction.feePayer = publicKey
 
-      console.log("[v0] Transaction signed with signature:", signature)
+      console.log("[v0] Sending transaction...")
 
-      await solana.connection.confirmTransaction(signature, "confirmed")
+      const signature = await sendTransaction(transaction, connection)
+
+      console.log("[v0] Transaction sent with signature:", signature)
+      console.log("[v0] Confirming transaction...")
+
+      await connection.confirmTransaction({
+        signature,
+        blockhash,
+        lastValidBlockHeight,
+      })
 
       console.log("[v0] Transaction confirmed. Recording purchase in database...")
 

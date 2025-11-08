@@ -34,21 +34,43 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Task not found or inactive", errorId }, { status: 404 })
     }
 
-    const { data: existingCompletion } = await supabase
-      .from("task_completions")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("task_id", taskId)
-      .maybeSingle()
+    if (task.is_daily_repeatable) {
+      // Check if user can complete this daily task today
+      const { data: canComplete, error: checkError } = await supabase.rpc("can_complete_daily_task", {
+        p_user_id: user.id,
+        p_task_id: taskId,
+      })
 
-    if (existingCompletion) {
-      return NextResponse.json({ error: "Task already completed", errorId }, { status: 400 })
+      if (checkError) {
+        console.error(`[${errorId}] Failed to check daily task:`, checkError)
+        return NextResponse.json({ error: "Failed to verify daily task", errorId }, { status: 500 })
+      }
+
+      if (!canComplete) {
+        return NextResponse.json(
+          { error: "Daily task already completed today. Come back tomorrow!", errorId },
+          { status: 400 },
+        )
+      }
+    } else {
+      // For non-daily tasks, check if already completed (original logic)
+      const { data: existingCompletion } = await supabase
+        .from("task_completions")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("task_id", taskId)
+        .maybeSingle()
+
+      if (existingCompletion) {
+        return NextResponse.json({ error: "Task already completed", errorId }, { status: 400 })
+      }
     }
 
     const { error: completionError } = await supabase.from("task_completions").insert({
       user_id: user.id,
       task_id: taskId,
       points_awarded: task.reward,
+      completed_date: new Date().toISOString().split("T")[0], // Store date in YYYY-MM-DD format
     })
 
     if (completionError) {
@@ -71,6 +93,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       pointsAwarded: task.reward,
+      isDaily: task.is_daily_repeatable || false,
     })
   } catch (error) {
     console.error(`[${errorId}] Task completion error:`, error)
