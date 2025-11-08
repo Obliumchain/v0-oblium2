@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useWallet } from "@solana/wallet-adapter-react"
 import { createClient } from "@/lib/supabase/client"
 import { LiquidCard } from "@/components/ui/liquid-card"
 import { GlowButton } from "@/components/ui/glow-button"
@@ -30,20 +31,25 @@ export function BoosterShop({ walletAddress, userId, onPurchaseSuccess }: Booste
   const [isPurchasing, setIsPurchasing] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const { t } = useLanguage()
+  const { wallet, connected } = useWallet()
 
   useEffect(() => {
     const loadBoosters = async () => {
       try {
         console.log("[v0] Loading boosters from database...")
         const supabase = createClient()
-        const { data, error: fetchError } = await supabase.from("boosters").select("*").eq("active", true)
+        const { data, error: fetchError } = await supabase
+          .from("boosters")
+          .select("*")
+          .eq("active", true)
+          .eq("duration_hours", 120)
 
         if (fetchError) {
           console.error("[v0] Error fetching boosters:", fetchError)
           throw fetchError
         }
 
-        console.log("[v0] Boosters loaded:", data?.length || 0, "items")
+        console.log("[v0] 5-day boosters loaded:", data?.length || 0, "items")
         setBoosters(data || [])
       } catch (err) {
         console.error("[v0] Error loading boosters:", err)
@@ -57,8 +63,13 @@ export function BoosterShop({ walletAddress, userId, onPurchaseSuccess }: Booste
   }, [])
 
   const handlePurchaseBooster = async (booster: Booster) => {
+    if (!connected || !wallet) {
+      setError("Please connect your Phantom wallet first")
+      return
+    }
+
     if (!walletAddress) {
-      setError("Please connect your wallet first")
+      setError("Wallet address not available")
       return
     }
 
@@ -79,7 +90,7 @@ export function BoosterShop({ walletAddress, userId, onPurchaseSuccess }: Booste
       const { solana } = window as any
 
       if (!solana?.isPhantom) {
-        throw new Error("Phantom wallet not found. Please install Phantom wallet.")
+        throw new Error("Phantom wallet not detected. Please ensure Phantom is installed and connected.")
       }
 
       console.log("[v0] Creating Solana transaction for", booster.price_sol, "SOL")
@@ -177,13 +188,13 @@ export function BoosterShop({ walletAddress, userId, onPurchaseSuccess }: Booste
 
               <GlowButton
                 onClick={() => handlePurchaseBooster(booster)}
-                disabled={isPurchasing === booster.id || !walletAddress}
+                disabled={isPurchasing === booster.id || !connected}
                 className="w-full"
               >
                 {isPurchasing === booster.id ? t("processing") : t("buyNow")}
               </GlowButton>
 
-              {!walletAddress && <p className="text-xs text-center text-foreground/40">{t("connectWalletToBuy")}</p>}
+              {!connected && <p className="text-xs text-center text-foreground/40">{t("connectWalletToBuy")}</p>}
             </div>
           </LiquidCard>
         ))}

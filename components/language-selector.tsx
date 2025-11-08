@@ -4,7 +4,7 @@ import { useLanguage, type Language } from "@/lib/language-context"
 import { useState } from "react"
 
 const languages = [
-  { code: "en" as Language, name: "English", flag: "🇬🇧" },
+  { code: "en" as Language, name: "English", flag: "🇺🇸" },
   { code: "es" as Language, name: "Español", flag: "🇪🇸" },
   { code: "fr" as Language, name: "Français", flag: "🇫🇷" },
   { code: "ar" as Language, name: "العربية", flag: "🇸🇦" },

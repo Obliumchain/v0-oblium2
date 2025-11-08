@@ -17,9 +17,15 @@ export function SolanaWalletProvider({ children }: { children: ReactNode }) {
 
   const wallets = useMemo(() => [new PhantomWalletAdapter()], [])
 
+  const shouldAutoConnect = useMemo(() => {
+    if (typeof window === "undefined") return false
+    // Only auto-connect on desktop or if already in Phantom's in-app browser
+    return window.innerWidth > 768 || window.phantom?.solana?.isPhantom === true
+  }, [])
+
   return (
     <ConnectionProvider endpoint={endpoint}>
-      <WalletProvider wallets={wallets} autoConnect>
+      <WalletProvider wallets={wallets} autoConnect={shouldAutoConnect}>
         <WalletModalProvider>{children}</WalletModalProvider>
       </WalletProvider>
     </ConnectionProvider>

@@ -4,12 +4,23 @@ import { useState, useEffect } from "react"
 import { useWallet } from "@solana/wallet-adapter-react"
 import { useWalletModal } from "@solana/wallet-adapter-react-ui"
 import { GlowButton } from "@/components/ui/glow-button"
+import { Info } from "lucide-react"
 
 interface WalletConnectButtonProps {
   onConnect?: (wallet: any) => void
   onDisconnect?: () => void
   walletAddress?: string | null
   variant?: "primary" | "accent" | "secondary"
+}
+
+const isIOS = () => {
+  if (typeof window === "undefined") return false
+  return /iPhone|iPad|iPod/i.test(navigator.userAgent)
+}
+
+const isPhantomBrowser = () => {
+  if (typeof window === "undefined") return false
+  return window.phantom?.solana?.isPhantom === true
 }
 
 export function WalletConnectButton({
@@ -22,6 +33,13 @@ export function WalletConnectButton({
   const { setVisible } = useWalletModal()
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [showIOSInstructions, setShowIOSInstructions] = useState(false)
+
+  useEffect(() => {
+    if (isIOS() && !isPhantomBrowser()) {
+      setShowIOSInstructions(true)
+    }
+  }, [])
 
   useEffect(() => {
     const handleConnection = async () => {
@@ -59,6 +77,12 @@ export function WalletConnectButton({
   const handleConnect = () => {
     setError(null)
     setSuccessMessage(null)
+
+    if (isIOS() && !isPhantomBrowser()) {
+      setShowIOSInstructions(true)
+      return
+    }
+
     setVisible(true)
   }
 
@@ -71,6 +95,12 @@ export function WalletConnectButton({
     } catch (err) {
       setError(err instanceof Error ? err.message : "Disconnection failed")
     }
+  }
+
+  const openInPhantom = () => {
+    const currentUrl = window.location.href
+    const phantomUrl = `https://phantom.app/ul/browse/${encodeURIComponent(currentUrl)}?ref=oblium`
+    window.location.href = phantomUrl
   }
 
   const formatAddress = (address: string) => {
@@ -109,6 +139,28 @@ export function WalletConnectButton({
       <GlowButton onClick={handleConnect} disabled={connecting} variant={variant} className="w-full">
         {connecting ? "Connecting..." : "Connect Wallet"}
       </GlowButton>
+
+      {showIOSInstructions && (
+        <div className="p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg space-y-3">
+          <div className="flex items-start gap-3">
+            <Info className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <h4 className="text-sm font-semibold text-blue-400 mb-2">iOS Users: Open in Phantom App</h4>
+              <p className="text-xs text-foreground/70 mb-3">
+                Wallet connections on iOS Safari are not supported due to browser limitations. To connect your wallet:
+              </p>
+              <ol className="text-xs text-foreground/70 space-y-1 list-decimal list-inside mb-3">
+                <li>Click the button below to open this page in Phantom</li>
+                <li>Your wallet will automatically connect</li>
+                <li>Continue using Oblium from within the Phantom app</li>
+              </ol>
+              <GlowButton onClick={openInPhantom} variant="accent" className="w-full">
+                Open in Phantom App
+              </GlowButton>
+            </div>
+          </div>
+        </div>
+      )}
 
       {error && (
         <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
