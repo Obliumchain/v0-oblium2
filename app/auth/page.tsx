@@ -55,6 +55,8 @@ export default function AuthPage() {
 
         if (data.user && referralCode.trim()) {
           try {
+            console.log("[v0] Processing referral code:", referralCode.trim())
+
             const response = await fetch("/api/referral/process", {
               method: "POST",
               headers: {
@@ -67,6 +69,8 @@ export default function AuthPage() {
 
             if (!response.ok) {
               console.error("[v0] Referral processing failed:", result.error)
+            } else {
+              console.log("[v0] Referral processed successfully:", result)
             }
           } catch (referralError) {
             console.error("[v0] Referral processing error:", referralError)

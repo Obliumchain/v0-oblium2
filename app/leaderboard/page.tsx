@@ -25,6 +25,8 @@ export default function LeaderboardPage() {
       try {
         const supabase = createClient()
 
+        console.log("[v0] Loading leaderboard data...")
+
         // Get all profiles ordered by points
         const { data: profiles, error } = await supabase
           .from("profiles")
@@ -33,6 +35,8 @@ export default function LeaderboardPage() {
           .limit(100)
 
         if (error) throw error
+
+        console.log("[v0] Profiles loaded:", profiles?.length)
 
         if (profiles) {
           // Get referral counts for each user
@@ -43,16 +47,20 @@ export default function LeaderboardPage() {
                 .select("*", { count: "exact", head: true })
                 .eq("referrer_id", profile.id)
 
+              const displayName =
+                profile.nickname && profile.nickname.trim() ? profile.nickname : `Miner-${profile.id.substring(0, 6)}`
+
               return {
                 rank: index + 1,
                 id: profile.id,
-                nickname: profile.nickname || "Anonymous",
+                nickname: displayName,
                 points: profile.points || 0,
                 referrals: count || 0,
               }
             }),
           )
 
+          console.log("[v0] Leaderboard data processed:", leaderboardData)
           setLeaderboard(leaderboardData)
         }
       } catch (error) {

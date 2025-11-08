@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { useWallet } from "@solana/wallet-adapter-react"
 import { useWalletModal } from "@solana/wallet-adapter-react-ui"
 import { GlowButton } from "@/components/ui/glow-button"
-import { Info } from "lucide-react"
+import { Info, ExternalLink } from "lucide-react"
 
 interface WalletConnectButtonProps {
   onConnect?: (wallet: any) => void
@@ -29,15 +29,15 @@ export function WalletConnectButton({
   walletAddress: propWalletAddress,
   variant = "primary",
 }: WalletConnectButtonProps) {
-  const { publicKey, disconnect, connected, connecting } = useWallet()
+  const { publicKey, disconnect, connected, connecting, select, wallets } = useWallet()
   const { setVisible } = useWalletModal()
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [showIOSInstructions, setShowIOSInstructions] = useState(false)
+  const [showIOSOptions, setShowIOSOptions] = useState(false)
 
   useEffect(() => {
     if (isIOS() && !isPhantomBrowser()) {
-      setShowIOSInstructions(true)
+      console.log("[v0] iOS device detected outside Phantom browser")
     }
   }, [])
 
@@ -57,7 +57,7 @@ export function WalletConnectButton({
 
           if (data.success) {
             if (data.bonus_awarded > 0) {
-              setSuccessMessage(`Wallet connected! You earned ${data.bonus_awarded} points! 🎉`)
+              setSuccessMessage(`Wallet connected! You earned ${data.bonus_awarded} points!`)
             } else {
               setSuccessMessage("Wallet connected successfully!")
             }
@@ -74,15 +74,31 @@ export function WalletConnectButton({
     handleConnection()
   }, [connected, publicKey, onConnect])
 
-  const handleConnect = () => {
+  const handleConnect = async () => {
     setError(null)
     setSuccessMessage(null)
 
+    // If on iOS and not in Phantom browser, show options
     if (isIOS() && !isPhantomBrowser()) {
-      setShowIOSInstructions(true)
+      setShowIOSOptions(true)
+
+      // Try to use universal link connection first
+      try {
+        console.log("[v0] Attempting iOS universal link connection")
+        const phantomWallet = wallets.find((w) => w.adapter.name === "Phantom")
+        if (phantomWallet) {
+          await select(phantomWallet.adapter.name)
+          // The wallet adapter will handle the universal link automatically
+        } else {
+          console.log("[v0] Phantom wallet not found in adapters")
+        }
+      } catch (err) {
+        console.log("[v0] Universal link connection failed, showing manual options", err)
+      }
       return
     }
 
+    // Standard connection for desktop/Android or Phantom browser
     setVisible(true)
   }
 
@@ -92,15 +108,29 @@ export function WalletConnectButton({
       onDisconnect?.()
       setSuccessMessage(null)
       setError(null)
+      setShowIOSOptions(false)
     } catch (err) {
       setError(err instanceof Error ? err.message : "Disconnection failed")
     }
   }
 
-  const openInPhantom = () => {
+  const connectViaUniversalLink = () => {
     const currentUrl = window.location.href
-    const phantomUrl = `https://phantom.app/ul/browse/${encodeURIComponent(currentUrl)}?ref=oblium`
-    window.location.href = phantomUrl
+    const appUrl = encodeURIComponent(currentUrl)
+
+    // Use Phantom's universal link with connect endpoint
+    const phantomUniversalLink = `https://phantom.app/ul/v1/connect?app_url=${appUrl}&cluster=${process.env.NEXT_PUBLIC_SOLANA_NETWORK || "devnet"}&redirect_link=${appUrl}`
+
+    console.log("[v0] Opening Phantom via universal link")
+    window.location.href = phantomUniversalLink
+  }
+
+  const openInPhantomBrowser = () => {
+    const currentUrl = window.location.href
+    const phantomBrowserUrl = `https://phantom.app/ul/browse/${encodeURIComponent(currentUrl)}?ref=oblium`
+
+    console.log("[v0] Opening in Phantom browser")
+    window.location.href = phantomBrowserUrl
   }
 
   const formatAddress = (address: string) => {
@@ -140,23 +170,47 @@ export function WalletConnectButton({
         {connecting ? "Connecting..." : "Connect Wallet"}
       </GlowButton>
 
-      {showIOSInstructions && (
+      {showIOSOptions && (
         <div className="p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg space-y-3">
           <div className="flex items-start gap-3">
             <Info className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
             <div className="flex-1">
-              <h4 className="text-sm font-semibold text-blue-400 mb-2">iOS Users: Open in Phantom App</h4>
-              <p className="text-xs text-foreground/70 mb-3">
-                Wallet connections on iOS Safari are not supported due to browser limitations. To connect your wallet:
+              <h4 className="text-sm font-semibold text-blue-400 mb-2">iOS Wallet Connection</h4>
+              <p className="text-xs text-foreground/70 mb-3">Choose how you'd like to connect your Phantom wallet:</p>
+
+              <div className="space-y-2">
+                {/* Option 1: Universal Link (Direct Connection) */}
+                <button
+                  onClick={connectViaUniversalLink}
+                  className="w-full p-3 bg-primary/10 hover:bg-primary/20 border border-primary/30 rounded-lg transition-colors text-left"
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-sm font-medium text-primary mb-1">Quick Connect</div>
+                      <div className="text-xs text-foreground/60">Opens Phantom to approve connection</div>
+                    </div>
+                    <ExternalLink className="w-4 h-4 text-primary" />
+                  </div>
+                </button>
+
+                {/* Option 2: Phantom Browser */}
+                <button
+                  onClick={openInPhantomBrowser}
+                  className="w-full p-3 bg-accent/10 hover:bg-accent/20 border border-accent/30 rounded-lg transition-colors text-left"
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-sm font-medium text-accent mb-1">Use Phantom Browser</div>
+                      <div className="text-xs text-foreground/60">Full experience in Phantom app</div>
+                    </div>
+                    <ExternalLink className="w-4 h-4 text-accent" />
+                  </div>
+                </button>
+              </div>
+
+              <p className="text-xs text-foreground/50 mt-3 text-center">
+                iOS Safari doesn't support direct wallet injection
               </p>
-              <ol className="text-xs text-foreground/70 space-y-1 list-decimal list-inside mb-3">
-                <li>Click the button below to open this page in Phantom</li>
-                <li>Your wallet will automatically connect</li>
-                <li>Continue using Oblium from within the Phantom app</li>
-              </ol>
-              <GlowButton onClick={openInPhantom} variant="accent" className="w-full">
-                Open in Phantom App
-              </GlowButton>
             </div>
           </div>
         </div>
