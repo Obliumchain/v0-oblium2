@@ -29,17 +29,17 @@ export function WalletConnectButton({
   walletAddress: propWalletAddress,
   variant = "primary",
 }: WalletConnectButtonProps) {
-  const { publicKey, disconnect, connected, connecting, select, wallets } = useWallet()
+  const { publicKey, disconnect, connected, connecting } = useWallet()
   const { setVisible } = useWalletModal()
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [showIOSOptions, setShowIOSOptions] = useState(false)
-  const [isProcessing, setIsProcessing] = useState(false)
 
   useEffect(() => {
     const handleConnection = async () => {
       if (connected && publicKey) {
         const walletAddress = publicKey.toString()
+        console.log("[v0] Wallet connected:", walletAddress)
 
         try {
           const response = await fetch("/api/wallet/connect", {
@@ -61,6 +61,7 @@ export function WalletConnectButton({
             setError(data.error || "Failed to save wallet connection")
           }
         } catch (err) {
+          console.error("[v0] Connection error:", err)
           setError(err instanceof Error ? err.message : "Connection failed")
         }
       }
@@ -69,45 +70,23 @@ export function WalletConnectButton({
     handleConnection()
   }, [connected, publicKey, onConnect])
 
-  const handleConnect = async () => {
-    if (isProcessing || connecting) {
-      console.log("[v0] Connection already in progress, ignoring tap")
-      return
-    }
-
-    setIsProcessing(true)
+  const handleConnect = () => {
     setError(null)
     setSuccessMessage(null)
 
-    try {
-      const isiOSDevice = isIOS()
-      const isInPhantom = isPhantomBrowser()
+    const isiOSDevice = isIOS()
+    const isInPhantom = isPhantomBrowser()
 
-      console.log("[v0] Connect button pressed - iOS:", isiOSDevice, "Phantom Browser:", isInPhantom)
+    console.log("[v0] Connect clicked - iOS:", isiOSDevice, "InPhantom:", isInPhantom, "Connecting:", connecting)
 
-      // If on iOS and not in Phantom browser, show iOS options
-      if (isiOSDevice && !isInPhantom) {
-        console.log("[v0] Showing iOS connection options")
-        setShowIOSOptions(true)
-
-        // Try to connect via universal link
-        const phantomWallet = wallets.find((w) => w.adapter.name === "Phantom")
-        if (phantomWallet) {
-          try {
-            await select(phantomWallet.adapter.name)
-          } catch (err) {
-            console.log("[v0] Auto-select failed, user will choose manually", err)
-          }
-        }
-      } else {
-        console.log("[v0] Opening wallet modal")
-        setVisible(true)
-      }
-    } finally {
-      setTimeout(() => {
-        setIsProcessing(false)
-      }, 1000)
+    if (isiOSDevice && !isInPhantom) {
+      console.log("[v0] iOS Safari detected - showing iOS options")
+      setShowIOSOptions(true)
+      return
     }
+
+    console.log("[v0] Opening wallet modal for Android/Desktop")
+    setVisible(true)
   }
 
   const handleDisconnect = async () => {
@@ -173,8 +152,8 @@ export function WalletConnectButton({
 
   return (
     <div className="space-y-2">
-      <GlowButton onClick={handleConnect} disabled={connecting || isProcessing} variant={variant} className="w-full">
-        {connecting || isProcessing ? "Connecting..." : "Connect Wallet"}
+      <GlowButton onClick={handleConnect} disabled={connecting} variant={variant} className="w-full">
+        {connecting ? "Connecting..." : "Connect Wallet"}
       </GlowButton>
 
       {showIOSOptions && (
