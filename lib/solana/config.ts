@@ -28,11 +28,29 @@ export const SOLANA_CONFIG = {
 
 function getRpcUrl(): string {
   const cluster = getSolanaCluster()
+
+  // Check if custom RPC URL is provided in environment variables
+  const customRpcUrl = process.env.NEXT_PUBLIC_SOLANA_RPC_URL
+  if (customRpcUrl) {
+    console.log(`[v0] Using custom RPC endpoint for ${cluster}`)
+    return customRpcUrl
+  }
+
+  if (cluster === "mainnet-beta") {
+    console.error(
+      "[v0] PRODUCTION WARNING: NEXT_PUBLIC_SOLANA_RPC_URL not set!\n" +
+        "Using public RPC endpoint which has severe rate limits and will cause transaction failures.\n" +
+        "Please add your Syndica RPC URL to environment variables immediately.",
+    )
+  }
+
+  // Default public RPC endpoints (not recommended for production)
   const rpcMap: Record<SolanaCluster, string> = {
     devnet: "https://api.devnet.solana.com",
     testnet: "https://api.testnet.solana.com",
     "mainnet-beta": "https://api.mainnet-beta.solana.com",
   }
+
   return rpcMap[cluster]
 }
 

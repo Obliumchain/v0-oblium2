@@ -1,4 +1,4 @@
--- Function to process referral rewards
+-- Update referral rewards: both referrer and referee get 500 points
 CREATE OR REPLACE FUNCTION process_referral_reward(
   p_referrer_code TEXT,
   p_new_user_id UUID
@@ -11,7 +11,6 @@ DECLARE
   v_referrer_id UUID;
   v_referral_exists BOOLEAN;
 BEGIN
-  -- Added detailed logging and fixed reward amounts
   RAISE LOG 'Processing referral for code: % and user: %', p_referrer_code, p_new_user_id;
   
   -- Check if referral code exists and get referrer ID
@@ -19,7 +18,6 @@ BEGIN
   FROM profiles
   WHERE referral_code = p_referrer_code;
   
-  -- If referrer not found, return false
   IF v_referrer_id IS NULL THEN
     RAISE LOG 'Referrer not found for code: %', p_referrer_code;
     RETURN FALSE;
@@ -37,7 +35,6 @@ BEGIN
     WHERE referred_user_id = p_new_user_id
   ) INTO v_referral_exists;
   
-  -- If user already used a referral code, return false
   IF v_referral_exists THEN
     RAISE LOG 'User % already has a referral', p_new_user_id;
     RETURN FALSE;
@@ -49,9 +46,9 @@ BEGIN
   
   RAISE LOG 'Referral relationship created between % and %', v_referrer_id, p_new_user_id;
   
-  -- Award 250 points to referrer (person who shared the code)
+  -- Award 500 points to referrer (person who shared the code)
   UPDATE profiles
-  SET points = points + 250
+  SET points = points + 500
   WHERE id = v_referrer_id;
   
   -- Award 500 points to new user (person who used the code)
@@ -59,7 +56,7 @@ BEGIN
   SET points = points + 500
   WHERE id = p_new_user_id;
   
-  RAISE LOG 'Referral rewards awarded: 250 to referrer %, 500 to new user %', v_referrer_id, p_new_user_id;
+  RAISE LOG 'Referral rewards awarded: 500 to referrer %, 500 to new user %', v_referrer_id, p_new_user_id;
   
   RETURN TRUE;
 END;

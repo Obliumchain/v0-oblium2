@@ -21,12 +21,16 @@ export default function AuthPage() {
   const [error, setError] = useState<string | null>(null)
   const [isSignUp, setIsSignUp] = useState(false)
   const [repeatPassword, setRepeatPassword] = useState("")
+  const [referralMessage, setReferralMessage] = useState<string | null>(null)
+  const [referralSuccess, setReferralSuccess] = useState(false)
   const { t } = useLanguage()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setError(null)
+    setReferralMessage(null)
+    setReferralSuccess(false)
 
     const supabase = createClient()
 
@@ -47,6 +51,7 @@ export default function AuthPage() {
             emailRedirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || `${window.location.origin}/dashboard`,
             data: {
               nickname: nickname.trim(),
+              referral_code: referralCode.trim() || null,
             },
           },
         })
@@ -69,11 +74,17 @@ export default function AuthPage() {
 
             if (!response.ok) {
               console.error("[v0] Referral processing failed:", result.error)
+              setReferralMessage(`Referral code issue: ${result.error}. You can still use the app!`)
+              setReferralSuccess(false)
             } else {
               console.log("[v0] Referral processed successfully:", result)
+              setReferralMessage(result.message || "Referral code applied! You and your referrer earned bonus points!")
+              setReferralSuccess(true)
             }
           } catch (referralError) {
             console.error("[v0] Referral processing error:", referralError)
+            setReferralMessage("Could not process referral code, but your account was created successfully!")
+            setReferralSuccess(false)
           }
         }
 
@@ -173,12 +184,28 @@ export default function AuthPage() {
                   placeholder={t("referralCodePlaceholder")}
                   className="w-full px-4 py-3 bg-background/50 border border-accent/30 rounded-lg text-foreground placeholder:text-foreground/30 focus:outline-none focus:border-accent focus:shadow-lg focus:shadow-accent/20 transition-all duration-300"
                 />
+                <p className="text-xs text-foreground/50 mt-1">
+                  Enter a friend's referral code to earn 500 bonus points!
+                </p>
               </div>
             )}
 
             {error && (
               <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
                 <p className="text-sm text-red-400">{error}</p>
+              </div>
+            )}
+
+            {referralMessage && (
+              <div
+                className={`p-3 border rounded-lg ${
+                  referralSuccess ? "bg-green-500/10 border-green-500/30" : "bg-yellow-500/10 border-yellow-500/30"
+                }`}
+              >
+                <p className={`text-sm ${referralSuccess ? "text-green-400" : "text-yellow-400"}`}>
+                  {referralSuccess ? "✓ " : "⚠️ "}
+                  {referralMessage}
+                </p>
               </div>
             )}
 
@@ -199,6 +226,8 @@ export default function AuthPage() {
               onClick={() => {
                 setIsSignUp(!isSignUp)
                 setError(null)
+                setReferralMessage(null)
+                setReferralSuccess(false)
               }}
               className="text-primary hover:underline font-bold"
             >

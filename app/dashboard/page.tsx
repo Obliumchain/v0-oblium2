@@ -43,6 +43,7 @@ export default function DashboardPage() {
   const [isClaiming, setIsClaiming] = useState(false)
   const [referralCopied, setReferralCopied] = useState(false)
   const [showWalletNotification, setShowWalletNotification] = useState(false)
+  const [referralCount, setReferralCount] = useState(0)
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -64,6 +65,13 @@ export default function DashboardPage() {
         setUserProfile(profile)
 
         setOblm(Math.floor(profile.points / 10000) * 200)
+
+        const { count } = await supabase
+          .from("referrals")
+          .select("*", { count: "exact", head: true })
+          .eq("referrer_id", user.id)
+
+        setReferralCount(count || 0)
 
         if (profile.mining_started_at) {
           const miningStart = new Date(profile.mining_started_at)
@@ -383,6 +391,9 @@ export default function DashboardPage() {
                 <div className="text-xs text-foreground/60 mb-2">{t("yourReferralCode")}</div>
                 <div className="text-2xl font-display font-bold text-accent">
                   {userProfile?.referral_code || "Loading..."}
+                </div>
+                <div className="text-xs text-foreground/60 mt-2">
+                  {referralCount} {referralCount === 1 ? "friend" : "friends"} referred · Earn 500 points per referral!
                 </div>
               </div>
             </div>

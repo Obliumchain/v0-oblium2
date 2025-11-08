@@ -10,6 +10,15 @@ import { LanguageSelector } from "@/components/language-selector"
 export default function WelcomePage() {
   const { t } = useLanguage()
 
+  const miningSteps = [
+    { icon: "✅", text: "Install Phantom Wallet" },
+    { icon: "🌐", text: "Open Oblium website using the Phantom browser" },
+    { icon: "🪪", text: "Create your account & verify your email" },
+    { icon: "🔐", text: "Log in to your dashboard" },
+    { icon: "💎", text: "Start earning Oblium Points" },
+    { icon: "🔗", text: "Connect your wallet" },
+  ]
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-[#0a0015] to-background overflow-hidden">
       <BackgroundAnimation />
@@ -18,7 +27,7 @@ export default function WelcomePage() {
         <LanguageSelector />
       </div>
 
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4">
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-20">
         <div className="text-center animate-fade-in">
           {/* Logo */}
           <div className="mb-8 animate-slide-up" style={{ animationDelay: "0s" }}>
@@ -47,6 +56,27 @@ export default function WelcomePage() {
             <button className="px-8 py-4 text-lg font-display font-bold rounded-lg border-2 border-primary text-primary hover:bg-primary/10 transition-all duration-300">
               {t("learnMore")}
             </button>
+          </div>
+
+          <div className="mt-16 max-w-2xl mx-auto animate-slide-up" style={{ animationDelay: "0.25s" }}>
+            <div className="glass-panel p-8 rounded-3xl border-2 border-primary/30">
+              <h3 className="text-2xl md:text-3xl font-display font-bold text-primary mb-6 flex items-center justify-center gap-2">
+                How to Start Mining
+              </h3>
+              <div className="space-y-4">
+                {miningSteps.map((step, index) => (
+                  <div
+                    key={index}
+                    className="flex items-start gap-4 p-4 rounded-xl bg-background/40 hover:bg-background/60 transition-all duration-300 group"
+                  >
+                    <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
+                      {step.icon}
+                    </div>
+                    <p className="text-foreground/90 text-left text-base md:text-lg font-medium pt-2">{step.text}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
 
           {/* Features Grid */}
