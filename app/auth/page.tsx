@@ -59,7 +59,6 @@ export default function AuthPage() {
           email,
           password,
           options: {
-            emailRedirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || `${window.location.origin}/dashboard`,
             data: {
               nickname: nickname.trim(),
               referral_code: referralCode.trim() || null,
@@ -67,15 +66,23 @@ export default function AuthPage() {
           },
         })
 
-        if (signUpError) throw signUpError
+        if (signUpError) {
+          if (signUpError.message.includes("rate limit")) {
+            setIsLoading(false)
+            return
+          } else if (signUpError.message.includes("already registered")) {
+            throw new Error("This email is already registered. Try signing in instead.")
+          } else if (signUpError.message.includes("invalid email")) {
+            throw new Error("Please enter a valid email address.")
+          } else {
+            throw signUpError
+          }
+        }
 
         if (data.user && referralCode.trim()) {
-          // Wait a moment for profile to be created by trigger
           await new Promise((resolve) => setTimeout(resolve, 2000))
 
           try {
-            console.log("[v0] Attempting to process referral code:", referralCode.trim())
-
             const response = await fetch("/api/referral/process", {
               method: "POST",
               headers: {
@@ -88,21 +95,15 @@ export default function AuthPage() {
 
             if (!response.ok) {
               console.error("[v0] Referral error:", result)
-              setReferralMessage(`Referral code issue: ${result.error}. You can still use the app!`)
-              setReferralSuccess(false)
             } else {
               console.log("[v0] Referral success:", result)
-              setReferralMessage(result.message || "Referral processed! You both earned 500 points!")
-              setReferralSuccess(true)
             }
           } catch (referralError) {
             console.error("[v0] Referral processing exception:", referralError)
-            setReferralMessage("Could not process referral code, but your account was created successfully!")
-            setReferralSuccess(false)
           }
         }
 
-        router.push("/auth/check-email")
+        router.push("/dashboard")
       } else {
         const { error: loginError } = await supabase.auth.signInWithPassword({
           email,
@@ -115,7 +116,9 @@ export default function AuthPage() {
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred")
     } finally {
-      setIsLoading(false)
+      if (!isLoading) {
+        setIsLoading(false)
+      }
     }
   }
 
@@ -248,12 +251,6 @@ export default function AuthPage() {
               {isSignUp ? t("signIn") : t("createAccount")}
             </button>
           </div>
-
-          {isSignUp && (
-            <div className="mt-4 p-3 bg-accent/10 border border-accent/30 rounded-lg">
-              <p className="text-xs text-accent/80">{t("confirmationEmailSent")}</p>
-            </div>
-          )}
         </LiquidCard>
       </div>
     </div>
