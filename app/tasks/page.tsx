@@ -25,6 +25,7 @@ export default function TasksPage() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(true)
   const [completingTask, setCompletingTask] = useState<string | null>(null)
+  const [showBonusModal, setShowBonusModal] = useState(false)
   const router = useRouter()
   const supabase = createClient()
   const { t } = useLanguage()
@@ -114,7 +115,9 @@ export default function TasksPage() {
       // Update local state
       setTasks(tasks.map((task) => (task.id === taskId ? { ...task, completed: true } : task)))
 
-      if (data.isDaily) {
+      if (data.bonusAwarded) {
+        setShowBonusModal(true)
+      } else if (data.isDaily) {
         alert(`Daily check-in completed! You earned ${data.pointsAwarded} points! Come back tomorrow for more!`)
       } else {
         alert(`Task completed! You earned ${data.pointsAwarded} points!`)
@@ -143,6 +146,22 @@ export default function TasksPage() {
     <div className="min-h-screen bg-gradient-to-br from-background via-[#0a0015] to-background pb-32 lg:pb-8">
       <BackgroundAnimation />
       <Navigation />
+
+      {showBonusModal && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <LiquidCard className="max-w-md w-full p-8 text-center border-2 border-accent animate-in zoom-in-95">
+            <div className="text-6xl mb-4 animate-bounce">🎉</div>
+            <h2 className="text-3xl font-display font-bold text-accent mb-4">Congratulations!</h2>
+            <p className="text-lg text-foreground mb-6">
+              You've completed all tasks and earned your
+              <span className="block text-4xl font-display font-bold text-primary my-4">10,000 BONUS POINTS!</span>
+            </p>
+            <GlowButton onClick={() => setShowBonusModal(false)} className="w-full">
+              Awesome! 🚀
+            </GlowButton>
+          </LiquidCard>
+        </div>
+      )}
 
       {/* Main Content */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 py-8">

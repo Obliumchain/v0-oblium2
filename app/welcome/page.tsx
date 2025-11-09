@@ -53,9 +53,11 @@ export default function WelcomePage() {
             <Link href="/auth">
               <GlowButton>{t("startMining")}</GlowButton>
             </Link>
-            <button className="px-8 py-4 text-lg font-display font-bold rounded-lg border-2 border-primary text-primary hover:bg-primary/10 transition-all duration-300">
-              {t("learnMore")}
-            </button>
+            <Link href="https://learnmore.obliumtoken.com/" target="_blank" rel="noopener noreferrer">
+              <button className="px-8 py-4 text-lg font-display font-bold rounded-lg border-2 border-primary text-primary hover:bg-primary/10 transition-all duration-300">
+                {t("learnMore")}
+              </button>
+            </Link>
           </div>
 
           <div className="mt-16 max-w-2xl mx-auto animate-slide-up" style={{ animationDelay: "0.25s" }}>

@@ -20,6 +20,7 @@ interface UserProfile {
   last_claim_at: string | null
   has_auto_claim: boolean
   referral_code: string
+  task_completion_bonus_awarded: boolean
 }
 
 interface ActiveBooster {
@@ -45,6 +46,7 @@ export default function DashboardPage() {
   const [referralLinkCopied, setReferralLinkCopied] = useState(false)
   const [showWalletNotification, setShowWalletNotification] = useState(false)
   const [referralCount, setReferralCount] = useState(0)
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false)
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -110,6 +112,15 @@ export default function DashboardPage() {
           const hasAutoClaim = boosters.some((b: any) => b.boosters?.type === "auto_claim")
           if (hasAutoClaim !== profile.has_auto_claim) {
             await supabase.from("profiles").update({ has_auto_claim: hasAutoClaim }).eq("id", user.id)
+          }
+        }
+
+        if (!profile.task_completion_bonus_awarded && profile.points === 0) {
+          // Check if this is their first visit to dashboard
+          const hasSeenWelcome = localStorage.getItem(`welcome_shown_${user.id}`)
+          if (!hasSeenWelcome) {
+            setShowWelcomeModal(true)
+            localStorage.setItem(`welcome_shown_${user.id}`, "true")
           }
         }
       } catch (error) {
@@ -253,6 +264,25 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-gradient-to-br from-background via-[#0a0015] to-background pb-32 lg:pb-8">
       <BackgroundAnimation />
       <Navigation />
+
+      {showWelcomeModal && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <LiquidCard className="max-w-lg w-full p-8 text-center border-2 border-primary animate-in zoom-in-95">
+            <div className="text-6xl mb-4">🎁</div>
+            <h2 className="text-3xl font-display font-bold text-primary mb-4">Welcome to Oblium!</h2>
+            <p className="text-lg text-foreground/80 mb-6">
+              Complete <span className="font-bold text-accent">ALL tasks</span> to unlock a massive
+              <span className="block text-4xl font-display font-bold text-primary my-4">10,000 POINT BONUS!</span>
+            </p>
+            <p className="text-sm text-foreground/60 mb-6">
+              Head to the Tasks page and complete every task to claim your reward. Don't miss out!
+            </p>
+            <GlowButton onClick={() => setShowWelcomeModal(false)} className="w-full">
+              Let's Get Started! 🚀
+            </GlowButton>
+          </LiquidCard>
+        </div>
+      )}
 
       {showWalletNotification && (
         <div className="fixed top-24 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-top">
