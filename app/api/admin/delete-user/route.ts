@@ -1,6 +1,8 @@
 import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
 
+const ADMIN_EMAIL = "obliumchain@obliumtoken.com"
+
 export async function POST(request: Request) {
   try {
     const supabase = await createClient()
@@ -15,10 +17,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    // Get the admin's profile
-    const { data: adminProfile } = await supabase.from("profiles").select("is_admin").eq("id", user.id).single()
-
-    if (!adminProfile?.is_admin) {
+    if (user.email !== ADMIN_EMAIL) {
+      console.log("[v0] Unauthorized admin API access attempt:", user.email)
       return NextResponse.json({ error: "Unauthorized - Admin only" }, { status: 403 })
     }
 

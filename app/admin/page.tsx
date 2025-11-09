@@ -41,8 +41,15 @@ export default function AdminPage() {
         return
       }
 
-      // For now, any logged-in user can access admin
-      // You can add additional checks here
+      const ADMIN_EMAIL = "obliumchain@obliumtoken.com"
+
+      if (user.email !== ADMIN_EMAIL) {
+        console.log("[v0] Unauthorized access attempt to admin panel:", user.email)
+        setIsAuthorized(false)
+        setIsLoading(false)
+        return
+      }
+
       setIsAuthorized(true)
       await loadUsers()
     } catch (error) {
