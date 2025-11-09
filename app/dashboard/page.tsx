@@ -42,6 +42,7 @@ export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [isClaiming, setIsClaiming] = useState(false)
   const [referralCopied, setReferralCopied] = useState(false)
+  const [referralLinkCopied, setReferralLinkCopied] = useState(false)
   const [showWalletNotification, setShowWalletNotification] = useState(false)
   const [referralCount, setReferralCount] = useState(0)
 
@@ -211,6 +212,15 @@ export default function DashboardPage() {
     }
   }
 
+  const copyReferralLink = () => {
+    if (userProfile?.referral_code && typeof window !== "undefined") {
+      const referralLink = `${window.location.origin}/?ref=${userProfile.referral_code}`
+      navigator.clipboard.writeText(referralLink)
+      setReferralLinkCopied(true)
+      setTimeout(() => setReferralLinkCopied(false), 2000)
+    }
+  }
+
   const handleWalletConnect = async (wallet: any) => {
     const supabase = createClient()
     const { data: profile } = await supabase.from("profiles").select("*").eq("id", userProfile?.id).single()
@@ -270,7 +280,7 @@ export default function DashboardPage() {
 
           <LiquidCard className="p-8 text-center">
             <div className="text-foreground/60 text-sm mb-2">{t("oblmTokens")}</div>
-            <div className="text-5xl font-display font-black text-accent">{oblm}</div>
+            <div className="text-5xl font-display font-bold text-accent">{oblm}</div>
             <div className="h-1 bg-gradient-to-r from-accent to-primary rounded-full mt-4" />
           </LiquidCard>
 
@@ -397,10 +407,18 @@ export default function DashboardPage() {
                 </div>
               </div>
             </div>
-            <GlowButton onClick={copyReferral} className="w-full md:w-auto" variant="accent">
-              {referralCopied ? `✓ ${t("copied")}` : t("copyCode")}
-            </GlowButton>
+            <div className="flex flex-col gap-3 w-full md:w-auto">
+              <GlowButton onClick={copyReferral} className="w-full md:w-auto" variant="accent">
+                {referralCopied ? `✓ ${t("copied")}` : t("copyCode")}
+              </GlowButton>
+              <GlowButton onClick={copyReferralLink} className="w-full md:w-auto" variant="secondary">
+                {referralLinkCopied ? "✓ Link Copied!" : "📎 Copy Link"}
+              </GlowButton>
+            </div>
           </div>
+          <p className="text-xs text-foreground/50 mt-4 text-center">
+            Share your referral link with friends - it's easier than entering codes!
+          </p>
         </LiquidCard>
       </div>
     </div>

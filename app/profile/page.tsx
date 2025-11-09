@@ -42,6 +42,7 @@ export default function ProfilePage() {
   const [stats, setStats] = useState<UserStats | null>(null)
   const [conversions, setConversions] = useState<ConversionRecord[]>([])
   const [referralCopied, setReferralCopied] = useState(false)
+  const [referralLinkCopied, setReferralLinkCopied] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const { t } = useLanguage()
 
@@ -113,6 +114,15 @@ export default function ProfilePage() {
       navigator.clipboard.writeText(profile.referral_code)
       setReferralCopied(true)
       setTimeout(() => setReferralCopied(false), 2000)
+    }
+  }
+
+  const copyReferralLink = () => {
+    if (profile?.referral_code && typeof window !== "undefined") {
+      const referralLink = `${window.location.origin}/?ref=${profile.referral_code}`
+      navigator.clipboard.writeText(referralLink)
+      setReferralLinkCopied(true)
+      setTimeout(() => setReferralLinkCopied(false), 2000)
     }
   }
 
@@ -246,9 +256,19 @@ export default function ProfilePage() {
               <div className="text-xs text-foreground/60 mb-2">{t("shareCodeDesc")}</div>
               <div className="text-lg font-display font-bold text-accent">{profile?.referral_code || "Loading..."}</div>
             </div>
-            <GlowButton onClick={copyReferral} className="w-full" variant="accent">
-              {referralCopied ? `✓ ${t("copied")}` : t("copyCode")}
-            </GlowButton>
+
+            <div className="space-y-3">
+              <GlowButton onClick={copyReferral} className="w-full" variant="accent">
+                {referralCopied ? `✓ ${t("copied")}` : t("copyCode")}
+              </GlowButton>
+              <GlowButton onClick={copyReferralLink} className="w-full" variant="secondary">
+                {referralLinkCopied ? "✓ Link Copied!" : "📎 Copy Referral Link"}
+              </GlowButton>
+            </div>
+
+            <p className="text-xs text-foreground/50 mt-3 text-center">
+              Share your link and both of you earn 500 points!
+            </p>
           </LiquidCard>
         </div>
 

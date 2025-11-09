@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { createClient } from "@/lib/supabase/client"
@@ -24,6 +24,17 @@ export default function AuthPage() {
   const [referralMessage, setReferralMessage] = useState<string | null>(null)
   const [referralSuccess, setReferralSuccess] = useState(false)
   const { t } = useLanguage()
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search)
+      const refCode = params.get("ref")
+      if (refCode) {
+        setReferralCode(refCode)
+        setIsSignUp(true)
+      }
+    }
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -59,8 +70,11 @@ export default function AuthPage() {
         if (signUpError) throw signUpError
 
         if (data.user && referralCode.trim()) {
+          // Wait a moment for profile to be created by trigger
+          await new Promise((resolve) => setTimeout(resolve, 2000))
+
           try {
-            console.log("[v0] Processing referral code:", referralCode.trim())
+            console.log("[v0] Attempting to process referral code:", referralCode.trim())
 
             const response = await fetch("/api/referral/process", {
               method: "POST",
@@ -73,16 +87,16 @@ export default function AuthPage() {
             const result = await response.json()
 
             if (!response.ok) {
-              console.error("[v0] Referral processing failed:", result.error)
+              console.error("[v0] Referral error:", result)
               setReferralMessage(`Referral code issue: ${result.error}. You can still use the app!`)
               setReferralSuccess(false)
             } else {
-              console.log("[v0] Referral processed successfully:", result)
-              setReferralMessage(result.message || "Referral code applied! You and your referrer earned bonus points!")
+              console.log("[v0] Referral success:", result)
+              setReferralMessage(result.message || "Referral processed! You both earned 500 points!")
               setReferralSuccess(true)
             }
           } catch (referralError) {
-            console.error("[v0] Referral processing error:", referralError)
+            console.error("[v0] Referral processing exception:", referralError)
             setReferralMessage("Could not process referral code, but your account was created successfully!")
             setReferralSuccess(false)
           }
