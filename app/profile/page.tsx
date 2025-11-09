@@ -224,11 +224,6 @@ export default function ProfilePage() {
             <div className="text-3xl font-display font-bold bg-gradient-to-r from-success to-accent bg-clip-text text-transparent">
               #{stats?.rank || "0"}
             </div>
-            {stats && (
-              <div className="text-xs text-foreground/60 mt-1">
-                {t("ofUsers").replace("{count}", stats.totalUsers.toString())}
-              </div>
-            )}
           </LiquidCard>
         </div>
 
