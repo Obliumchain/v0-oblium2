@@ -49,61 +49,103 @@ export default function ProfilePage() {
   useEffect(() => {
     const loadProfile = async () => {
       const supabase = createClient()
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
 
-      if (!user) {
-        router.push("/auth")
-        return
-      }
+      try {
+        console.log("[v0] Loading profile data...")
 
-      const { data: profileData } = await supabase
-        .from("profiles")
-        .select("nickname, created_at, wallet_address, referral_code, points")
-        .eq("id", user.id)
-        .single()
+        const {
+          data: { user },
+          error: userError,
+        } = await supabase.auth.getUser()
 
-      if (profileData) {
-        setProfile(profileData as UserProfile)
-
-        const oblTokens = Math.floor(profileData.points / 10000) * 200
-
-        const { count: referralCount } = await supabase
-          .from("referrals")
-          .select("*", { count: "exact", head: true })
-          .eq("referrer_id", user.id)
-
-        const { data: allUsers } = await supabase
-          .from("profiles")
-          .select("id, points")
-          .order("points", { ascending: false })
-
-        let userRank = 0
-        const totalUsers = allUsers?.length || 0
-
-        if (allUsers) {
-          userRank = allUsers.findIndex((u) => u.id === user.id) + 1
+        if (userError) {
+          console.error("[v0] Auth error:", userError)
+          router.push("/auth")
+          return
         }
 
-        setStats({
-          totalPoints: profileData.points || 0,
-          oblTokens,
-          referralCount: referralCount || 0,
-          rank: userRank,
-          totalUsers,
-        })
+        if (!user) {
+          console.log("[v0] No user found, redirecting to auth")
+          router.push("/auth")
+          return
+        }
 
-        const { data: conversionData } = await supabase
-          .from("conversion_history")
-          .select("id, points_converted, obl_tokens_received, status, created_at")
-          .eq("user_id", user.id)
-          .order("created_at", { ascending: false })
-          .limit(10)
+        console.log("[v0] User authenticated:", user.id)
 
-        setConversions(conversionData || [])
+        const { data: profileData, error: profileError } = await supabase
+          .from("profiles")
+          .select("nickname, created_at, wallet_address, referral_code, points")
+          .eq("id", user.id)
+          .single()
+
+        if (profileError) {
+          console.error("[v0] Profile query error:", profileError)
+          setIsLoading(false)
+          return
+        }
+
+        console.log("[v0] Profile data loaded:", profileData)
+
+        if (profileData) {
+          setProfile(profileData as UserProfile)
+
+          const oblTokens = Math.floor(profileData.points / 10000) * 200
+
+          const { count: referralCount, error: referralError } = await supabase
+            .from("referrals")
+            .select("*", { count: "exact", head: true })
+            .eq("referrer_id", user.id)
+
+          if (referralError) {
+            console.error("[v0] Referral count error:", referralError)
+          }
+
+          console.log("[v0] Referral count:", referralCount)
+
+          const { data: allUsers, error: usersError } = await supabase
+            .from("profiles")
+            .select("id, points")
+            .order("points", { ascending: false })
+
+          if (usersError) {
+            console.error("[v0] Users query error:", usersError)
+          }
+
+          let userRank = 0
+          const totalUsers = allUsers?.length || 0
+
+          if (allUsers) {
+            userRank = allUsers.findIndex((u) => u.id === user.id) + 1
+          }
+
+          console.log("[v0] User rank:", userRank, "of", totalUsers)
+
+          setStats({
+            totalPoints: profileData.points || 0,
+            oblTokens,
+            referralCount: referralCount || 0,
+            rank: userRank,
+            totalUsers,
+          })
+
+          const { data: conversionData, error: conversionError } = await supabase
+            .from("conversion_history")
+            .select("id, points_converted, obl_tokens_received, status, created_at")
+            .eq("user_id", user.id)
+            .order("created_at", { ascending: false })
+            .limit(10)
+
+          if (conversionError) {
+            console.error("[v0] Conversion history error:", conversionError)
+          }
+
+          setConversions(conversionData || [])
+        }
+      } catch (error) {
+        console.error("[v0] Unexpected error loading profile:", error)
+      } finally {
+        setIsLoading(false)
       }
-      setIsLoading(false)
     }
 
     loadProfile()
@@ -166,6 +208,12 @@ export default function ProfilePage() {
     }
   }
 
+  const handleLogout = async () => {
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    router.push("/welcome")
+  }
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background via-[#0a0015] to-background flex items-center justify-center">
@@ -204,6 +252,12 @@ export default function ProfilePage() {
               })}
             </p>
           )}
+
+          <div className="mt-6">
+            <GlowButton onClick={handleLogout} className="w-full max-w-xs mx-auto" variant="destructive">
+              Logout
+            </GlowButton>
+          </div>
         </LiquidCard>
 
         {/* Stats Grid */}

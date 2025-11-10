@@ -27,44 +27,64 @@ export default function LeaderboardPage() {
 
         console.log("[v0] Loading leaderboard data...")
 
-        // Get all profiles ordered by points
         const { data: profiles, error } = await supabase
           .from("profiles")
           .select("id, nickname, points")
           .order("points", { ascending: false })
           .limit(100)
 
-        if (error) throw error
+        if (error) {
+          console.error("[v0] Leaderboard query error:", error)
+          throw error
+        }
 
-        console.log("[v0] Profiles loaded:", profiles?.length)
+        console.log("[v0] Profiles loaded:", profiles?.length, "users")
 
-        if (profiles) {
-          // Get referral counts for each user
+        if (profiles && profiles.length > 0) {
           const leaderboardData = await Promise.all(
             profiles.map(async (profile, index) => {
-              const { count } = await supabase
-                .from("referrals")
-                .select("*", { count: "exact", head: true })
-                .eq("referrer_id", profile.id)
+              try {
+                const { count, error: countError } = await supabase
+                  .from("referrals")
+                  .select("*", { count: "exact", head: true })
+                  .eq("referrer_id", profile.id)
 
-              const displayName =
-                profile.nickname && profile.nickname.trim() ? profile.nickname : `Miner-${profile.id.substring(0, 6)}`
+                if (countError) {
+                  console.error(`[v0] Error counting referrals for ${profile.id}:`, countError)
+                }
 
-              return {
-                rank: index + 1,
-                id: profile.id,
-                nickname: displayName,
-                points: profile.points || 0,
-                referrals: count || 0,
+                const displayName =
+                  profile.nickname && profile.nickname.trim() ? profile.nickname : `Miner-${profile.id.substring(0, 6)}`
+
+                return {
+                  rank: index + 1,
+                  id: profile.id,
+                  nickname: displayName,
+                  points: profile.points || 0,
+                  referrals: count || 0,
+                }
+              } catch (err) {
+                console.error(`[v0] Error processing user ${profile.id}:`, err)
+                return {
+                  rank: index + 1,
+                  id: profile.id,
+                  nickname: profile.nickname || `Miner-${profile.id.substring(0, 6)}`,
+                  points: profile.points || 0,
+                  referrals: 0,
+                }
               }
             }),
           )
 
-          console.log("[v0] Leaderboard data processed:", leaderboardData)
+          console.log("[v0] Leaderboard data processed:", leaderboardData.length, "entries")
           setLeaderboard(leaderboardData)
+        } else {
+          console.log("[v0] No profiles found in database")
+          setLeaderboard([])
         }
       } catch (error) {
         console.error("[v0] Error loading leaderboard:", error)
+        setLeaderboard([])
       } finally {
         setIsLoading(false)
       }
