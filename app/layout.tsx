@@ -3,6 +3,8 @@ import { Orbitron, Inter } from "next/font/google"
 import "./globals.css"
 import { LanguageProvider } from "@/lib/language-context"
 import { SolanaWalletProvider } from "@/lib/wallet/wallet-provider"
+import { Analytics } from "@vercel/analytics/react"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 const orbitron = Orbitron({
   subsets: ["latin"],
@@ -28,6 +30,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <LanguageProvider>
           <SolanaWalletProvider>{children}</SolanaWalletProvider>
         </LanguageProvider>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   )
