@@ -67,6 +67,8 @@ export default function AuthPage() {
         })
 
         if (signUpError) {
+          console.error("[v0] Signup error:", signUpError)
+
           if (signUpError.message.includes("rate limit")) {
             setIsLoading(false)
             return
@@ -79,10 +81,14 @@ export default function AuthPage() {
           }
         }
 
+        console.log("[v0] Signup successful, user ID:", data.user?.id)
+
         if (data.user && referralCode.trim()) {
-          await new Promise((resolve) => setTimeout(resolve, 2000))
+          console.log("[v0] Waiting 3 seconds for profile creation before processing referral...")
+          await new Promise((resolve) => setTimeout(resolve, 3000))
 
           try {
+            console.log("[v0] Calling referral API...")
             const response = await fetch("/api/referral/process", {
               method: "POST",
               headers: {
@@ -94,16 +100,27 @@ export default function AuthPage() {
             const result = await response.json()
 
             if (!response.ok) {
-              console.error("[v0] Referral error:", result)
+              console.error("[v0] Referral API error:", result)
+              setReferralMessage(result.error || "Referral code could not be applied")
+              setReferralSuccess(false)
             } else {
               console.log("[v0] Referral success:", result)
+              setReferralMessage(result.message || "Referral applied successfully!")
+              setReferralSuccess(true)
             }
           } catch (referralError) {
             console.error("[v0] Referral processing exception:", referralError)
+            setReferralMessage("Could not process referral code")
+            setReferralSuccess(false)
           }
         }
 
-        router.push("/dashboard")
+        setTimeout(
+          () => {
+            router.push("/dashboard")
+          },
+          referralCode.trim() ? 2000 : 500,
+        )
       } else {
         const { error: loginError } = await supabase.auth.signInWithPassword({
           email,
@@ -114,6 +131,7 @@ export default function AuthPage() {
         router.push("/dashboard")
       }
     } catch (err) {
+      console.error("[v0] Auth error:", err)
       setError(err instanceof Error ? err.message : "An error occurred")
     } finally {
       if (!isLoading) {

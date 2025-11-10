@@ -6,7 +6,7 @@ export async function POST(request: NextRequest) {
   const errorId = generateErrorId()
 
   try {
-    console.log(`[${errorId}] Referral processing API called`)
+    console.log(`[v0][${errorId}] Referral processing API called`)
 
     const supabase = await createClient()
     const {
@@ -14,48 +14,50 @@ export async function POST(request: NextRequest) {
     } = await supabase.auth.getUser()
 
     if (!user) {
-      console.log(`[${errorId}] No authenticated user`)
+      console.log(`[v0][${errorId}] No authenticated user`)
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    console.log(`[${errorId}] User authenticated: ${user.id}`)
+    console.log(`[v0][${errorId}] User authenticated: ${user.id}`)
 
     const { referralCode } = await request.json()
 
     if (!referralCode || typeof referralCode !== "string") {
-      console.log(`[${errorId}] Invalid referral code format`)
+      console.log(`[v0][${errorId}] Invalid referral code format`)
       return NextResponse.json({ error: "Referral code is required", errorId }, { status: 400 })
     }
 
     const sanitizedCode = sanitizeInput(referralCode, 50)
-    console.log(`[${errorId}] Processing referral code: ${sanitizedCode}`)
+    console.log(`[v0][${errorId}] Processing referral code: ${sanitizedCode}`)
 
     if (sanitizedCode.length < 3) {
-      console.log(`[${errorId}] Referral code too short`)
+      console.log(`[v0][${errorId}] Referral code too short`)
       return NextResponse.json({ error: "Invalid referral code format", errorId }, { status: 400 })
     }
 
     let profileCheckAttempts = 0
     let userProfile = null
+    const maxAttempts = 5 // Increased from 3
 
-    while (profileCheckAttempts < 3) {
+    while (profileCheckAttempts < maxAttempts) {
       const { data } = await supabase.from("profiles").select("id").eq("id", user.id).maybeSingle()
 
       if (data) {
         userProfile = data
+        console.log(`[v0][${errorId}] Profile found on attempt ${profileCheckAttempts + 1}`)
         break
       }
 
       profileCheckAttempts++
-      console.log(`[${errorId}] Profile not found yet, attempt ${profileCheckAttempts}/3`)
+      console.log(`[v0][${errorId}] Profile not found yet, attempt ${profileCheckAttempts}/${maxAttempts}`)
 
-      if (profileCheckAttempts < 3) {
-        await new Promise((resolve) => setTimeout(resolve, 1000)) // Wait 1 second
+      if (profileCheckAttempts < maxAttempts) {
+        await new Promise((resolve) => setTimeout(resolve, 1500)) // Wait 1.5 seconds between attempts
       }
     }
 
     if (!userProfile) {
-      console.log(`[${errorId}] User profile not created yet`)
+      console.log(`[v0][${errorId}] ERROR: User profile not created after ${maxAttempts} attempts`)
       return NextResponse.json(
         {
           error: "Please try again in a moment. Your profile is being created.",
@@ -73,7 +75,7 @@ export async function POST(request: NextRequest) {
       .maybeSingle()
 
     if (existingReferral) {
-      console.log(`[${errorId}] User already used a referral code`)
+      console.log(`[v0][${errorId}] User already used a referral code`)
       return NextResponse.json({ error: "You have already used a referral code", errorId }, { status: 400 })
     }
 
@@ -85,28 +87,27 @@ export async function POST(request: NextRequest) {
       .maybeSingle()
 
     if (!referrerProfile) {
-      console.log(`[${errorId}] Invalid referral code: ${sanitizedCode}`)
+      console.log(`[v0][${errorId}] Invalid referral code: ${sanitizedCode}`)
       return NextResponse.json({ error: "Invalid referral code", errorId }, { status: 400 })
     }
 
     if (referrerProfile.id === user.id) {
-      console.log(`[${errorId}] Self-referral attempt blocked`)
+      console.log(`[v0][${errorId}] Self-referral attempt blocked`)
       return NextResponse.json({ error: "You cannot use your own referral code", errorId }, { status: 400 })
     }
 
-    console.log(`[${errorId}] Calling database function for referrer: ${referrerProfile.id}`)
+    console.log(`[v0][${errorId}] Calling database function for referrer: ${referrerProfile.id}`)
 
-    // Call the database function to process referral
     const { data, error } = await supabase.rpc("process_referral_reward", {
       p_referrer_code: sanitizedCode,
       p_new_user_id: user.id,
     })
 
     if (error) {
-      console.error(`[${errorId}] Database function error:`, error)
+      console.error(`[v0][${errorId}] Database function error:`, error)
       return NextResponse.json(
         {
-          error: "Failed to process referral. Please try again.",
+          error: "Failed to process referral. Please contact support.",
           errorId,
           details: error.message,
         },
@@ -115,17 +116,17 @@ export async function POST(request: NextRequest) {
     }
 
     if (!data) {
-      console.log(`[${errorId}] Function returned false - referral not processed`)
+      console.log(`[v0][${errorId}] Function returned false - referral not processed`)
       return NextResponse.json(
         {
-          error: "Unable to process referral code. It may have already been used.",
+          error: "Unable to process referral code. It may have already been used or be invalid.",
           errorId,
         },
         { status: 400 },
       )
     }
 
-    console.log(`[${errorId}] Referral processed successfully!`)
+    console.log(`[v0][${errorId}] SUCCESS: Referral processed! Both users earned 500 points`)
 
     return NextResponse.json({
       success: true,
@@ -133,7 +134,7 @@ export async function POST(request: NextRequest) {
       referrerNickname: referrerProfile.nickname,
     })
   } catch (error) {
-    console.error(`[${errorId}] Unexpected error:`, error)
+    console.error(`[v0][${errorId}] Unexpected error:`, error)
     return NextResponse.json(
       {
         error: "Internal server error",
