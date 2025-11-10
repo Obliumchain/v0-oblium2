@@ -44,6 +44,7 @@ export default function ProfilePage() {
   const [referralCopied, setReferralCopied] = useState(false)
   const [referralLinkCopied, setReferralLinkCopied] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const { t } = useLanguage()
 
   useEffect(() => {
@@ -60,12 +61,14 @@ export default function ProfilePage() {
 
         if (userError) {
           console.error("[v0] Auth error:", userError)
+          setError(`Auth error: ${userError.message}`)
           router.push("/auth")
           return
         }
 
         if (!user) {
           console.log("[v0] No user found, redirecting to auth")
+          setError("No user found")
           router.push("/auth")
           return
         }
@@ -80,6 +83,14 @@ export default function ProfilePage() {
 
         if (profileError) {
           console.error("[v0] Profile query error:", profileError)
+          setError(`Profile error: ${profileError.message}`)
+          setIsLoading(false)
+          return
+        }
+
+        if (!profileData) {
+          console.error("[v0] No profile data returned")
+          setError("No profile data found for user")
           setIsLoading(false)
           return
         }
@@ -89,7 +100,7 @@ export default function ProfilePage() {
         if (profileData) {
           setProfile(profileData as UserProfile)
 
-          const oblTokens = Math.floor(profileData.points / 10000) * 200
+          const oblTokens = Math.floor((profileData.points || 0) / 10000) * 200
 
           const { count: referralCount, error: referralError } = await supabase
             .from("referrals")
@@ -143,6 +154,7 @@ export default function ProfilePage() {
         }
       } catch (error) {
         console.error("[v0] Unexpected error loading profile:", error)
+        setError(`Unexpected error: ${error instanceof Error ? error.message : String(error)}`)
       } finally {
         setIsLoading(false)
       }
@@ -219,6 +231,27 @@ export default function ProfilePage() {
       <div className="min-h-screen bg-gradient-to-br from-background via-[#0a0015] to-background flex items-center justify-center">
         <BackgroundAnimation />
         <CubeLoader />
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-[#0a0015] to-background pb-32 lg:pb-8">
+        <BackgroundAnimation />
+        <Navigation />
+        <div className="max-w-7xl mx-auto px-4 pt-24 pb-8">
+          <LiquidCard className="p-8 text-center">
+            <h2 className="text-2xl font-display font-bold text-destructive mb-4">Error Loading Profile</h2>
+            <p className="text-foreground/80 mb-4">{error}</p>
+            <p className="text-sm text-foreground/60 mb-6">
+              Please check the browser console for more details or try refreshing the page.
+            </p>
+            <GlowButton onClick={() => router.push("/dashboard")} variant="primary">
+              Go to Dashboard
+            </GlowButton>
+          </LiquidCard>
+        </div>
       </div>
     )
   }

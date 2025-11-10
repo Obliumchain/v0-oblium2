@@ -150,7 +150,7 @@ export default function DashboardPage() {
     try {
       const supabase = createClient()
 
-      let basePoints = 400
+      let basePoints = 4000
 
       const multiplierBooster = activeBoosters.find((b) => b.type === "multiplier")
       if (multiplierBooster && multiplierBooster.multiplier_value) {
@@ -333,29 +333,6 @@ export default function DashboardPage() {
                   <div className="text-3xl font-display font-bold text-success animate-pulse">{t("ready")} ⚡</div>
                 )}
               </div>
-
-              <div>
-                <div className="text-foreground/60 text-sm mb-4">
-                  {t("activeBoosters")} ({activeBoosters.length})
-                </div>
-                {activeBoosters.length > 0 ? (
-                  <div className="space-y-2">
-                    {activeBoosters.map((booster) => (
-                      <div
-                        key={booster.id}
-                        className="flex items-center justify-between p-3 bg-success/10 border border-success/30 rounded-lg"
-                      >
-                        <span className="text-foreground text-sm">{booster.name}</span>
-                        <span className="text-success text-xs font-bold">{t("active").toUpperCase()}</span>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="p-3 bg-foreground/5 border border-foreground/10 rounded-lg text-xs text-foreground/60 text-center">
-                    {t("noActiveBoosters")}
-                  </div>
-                )}
-              </div>
             </div>
 
             <div className="mt-8">
@@ -368,13 +345,44 @@ export default function DashboardPage() {
             </div>
           </LiquidCard>
 
+          <LiquidCard className="p-8">
+            <h2 className="text-xl font-display font-bold text-success mb-6">⚡ {t("activeBoosters")}</h2>
+
+            {activeBoosters.length > 0 ? (
+              <div className="space-y-3">
+                {activeBoosters.map((booster) => (
+                  <div key={booster.id} className="p-4 bg-success/10 border border-success/30 rounded-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-foreground font-bold text-sm">{booster.name}</span>
+                      {booster.multiplier_value && booster.multiplier_value > 1 && (
+                        <span className="px-2 py-1 bg-success text-background text-xs font-bold rounded">
+                          {booster.multiplier_value}x
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-xs text-foreground/60">
+                      Expires: {new Date(booster.expires_at).toLocaleDateString()}
+                    </div>
+                    <div className="text-xs text-success font-bold mt-1">✓ ACTIVE</div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <div className="text-4xl mb-3">💤</div>
+                <p className="text-foreground/60 text-sm mb-4">{t("noActiveBoosters")}</p>
+                <p className="text-xs text-foreground/40">Purchase boosters below to enhance your mining rewards!</p>
+              </div>
+            )}
+          </LiquidCard>
+
           <LiquidCard className="p-8 flex flex-col">
             <h2 className="text-xl font-display font-bold text-secondary mb-6">{t("boosters")}</h2>
 
             <div className="flex-grow mb-6">
               <div className="p-4 bg-secondary/10 border border-secondary/30 rounded-lg mb-4">
                 <div className="text-xs text-foreground/60 mb-1">{t("startingFrom")}</div>
-                <div className="text-2xl font-display font-bold text-secondary">0.03 SOL</div>
+                <div className="text-2xl font-display font-bold text-secondary">0.035 SOL</div>
               </div>
               <p className="text-sm text-foreground/60">{t("unlockMultipliers")}</p>
             </div>
