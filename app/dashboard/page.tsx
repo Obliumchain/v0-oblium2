@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { Navigation } from "@/components/navigation"
@@ -48,90 +48,95 @@ export default function DashboardPage() {
   const [referralCount, setReferralCount] = useState(0)
   const [showWelcomeModal, setShowWelcomeModal] = useState(false)
 
-  useEffect(() => {
-    const loadUserData = async () => {
-      try {
-        const supabase = createClient()
-        const {
-          data: { user },
-        } = await supabase.auth.getUser()
+  const loadUserData = useCallback(async () => {
+    try {
+      const supabase = createClient()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
 
-        if (!user) {
-          router.push("/auth")
-          return
-        }
+      if (!user) {
+        router.push("/auth")
+        return
+      }
 
-        const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single()
+      const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single()
 
-        if (!profile) return
+      if (!profile) return
 
-        setUserProfile(profile)
+      setUserProfile(profile)
+      setOblm(Math.floor(profile.points / 10000) * 200)
 
-        setOblm(Math.floor(profile.points / 10000) * 200)
-
+      const cachedCount = sessionStorage.getItem(`referral_count_${user.id}`)
+      if (cachedCount) {
+        setReferralCount(Number.parseInt(cachedCount))
+      } else {
         const { count } = await supabase
           .from("referrals")
           .select("*", { count: "exact", head: true })
           .eq("referrer_id", user.id)
-
-        setReferralCount(count || 0)
-
-        if (profile.mining_started_at) {
-          const miningStart = new Date(profile.mining_started_at)
-          const fourHoursLater = new Date(miningStart.getTime() + 4 * 60 * 60 * 1000)
-          const now = new Date()
-
-          setNextClaim(fourHoursLater)
-          setCanClaim(now >= fourHoursLater)
-        } else {
-          const now = new Date()
-          await supabase.from("profiles").update({ mining_started_at: now.toISOString() }).eq("id", user.id)
-
-          const fourHoursLater = new Date(now.getTime() + 4 * 60 * 60 * 1000)
-          setNextClaim(fourHoursLater)
-          setCanClaim(false)
-        }
-
-        const { data: boosters } = await supabase
-          .from("user_boosters")
-          .select("id, booster_id, expires_at, boosters(name, type, multiplier_value)")
-          .eq("user_id", user.id)
-          .gt("expires_at", new Date().toISOString())
-
-        if (boosters) {
-          setActiveBoosters(
-            boosters.map((b: any) => ({
-              id: b.id,
-              name: b.boosters?.name || "Unknown",
-              type: b.boosters?.type || "unknown",
-              expires_at: b.expires_at,
-              multiplier_value: b.boosters?.multiplier_value,
-            })),
-          )
-
-          const hasAutoClaim = boosters.some((b: any) => b.boosters?.type === "auto_claim")
-          if (hasAutoClaim !== profile.has_auto_claim) {
-            await supabase.from("profiles").update({ has_auto_claim: hasAutoClaim }).eq("id", user.id)
-          }
-        }
-
-        if (!profile.task_completion_bonus_awarded && profile.points === 0) {
-          // Check if this is their first visit to dashboard
-          const hasSeenWelcome = localStorage.getItem(`welcome_shown_${user.id}`)
-          if (!hasSeenWelcome) {
-            setShowWelcomeModal(true)
-            localStorage.setItem(`welcome_shown_${user.id}`, "true")
-          }
-        }
-      } catch (error) {
-        console.error("[v0] Error loading user data:", error)
-      } finally {
-        setIsLoading(false)
+        const refCount = count || 0
+        setReferralCount(refCount)
+        sessionStorage.setItem(`referral_count_${user.id}`, refCount.toString())
       }
-    }
 
-    loadUserData()
+      if (profile.mining_started_at) {
+        const miningStart = new Date(profile.mining_started_at)
+        const fourHoursLater = new Date(miningStart.getTime() + 4 * 60 * 60 * 1000)
+        const now = new Date()
+
+        setNextClaim(fourHoursLater)
+        setCanClaim(now >= fourHoursLater)
+      } else {
+        const now = new Date()
+        const fourHoursLater = new Date(now.getTime() + 4 * 60 * 60 * 1000)
+        setNextClaim(fourHoursLater)
+        setCanClaim(false)
+
+        supabase.from("profiles").update({ mining_started_at: now.toISOString() }).eq("id", user.id).then()
+      }
+
+      supabase
+        .from("user_boosters")
+        .select("id, booster_id, expires_at, boosters(name, type, multiplier_value)")
+        .eq("user_id", user.id)
+        .gt("expires_at", new Date().toISOString())
+        .then(({ data: boosters }) => {
+          if (boosters) {
+            setActiveBoosters(
+              boosters.map((b: any) => ({
+                id: b.id,
+                name: b.boosters?.name || "Unknown",
+                type: b.boosters?.type || "unknown",
+                expires_at: b.expires_at,
+                multiplier_value: b.boosters?.multiplier_value,
+              })),
+            )
+
+            const hasAutoClaim = boosters.some((b: any) => b.boosters?.type === "auto_claim")
+            if (hasAutoClaim !== profile.has_auto_claim) {
+              supabase.from("profiles").update({ has_auto_claim: hasAutoClaim }).eq("id", user.id).then()
+            }
+          }
+        })
+
+      if (!profile.task_completion_bonus_awarded && profile.points === 0) {
+        const hasSeenWelcome = localStorage.getItem(`welcome_shown_${user.id}`)
+        if (!hasSeenWelcome) {
+          setShowWelcomeModal(true)
+          localStorage.setItem(`welcome_shown_${user.id}`, "true")
+        }
+      }
+    } catch (error) {
+      console.error("[v0] Error loading user data:", error)
+    } finally {
+      setIsLoading(false)
+    }
   }, [router])
+
+  useEffect(() => {
+    loadUserData()
+  }, [loadUserData])
 
   useEffect(() => {
     if (!userProfile || !canClaim || !userProfile.has_auto_claim) return
@@ -160,6 +165,12 @@ export default function DashboardPage() {
       const newPoints = userProfile.points + basePoints
       const now = new Date()
 
+      setUserProfile({ ...userProfile, points: newPoints })
+      setOblm(Math.floor(newPoints / 10000) * 200)
+      const fourHoursLater = new Date(now.getTime() + 4 * 60 * 60 * 1000)
+      setNextClaim(fourHoursLater)
+      setCanClaim(false)
+
       const { error } = await supabase
         .from("profiles")
         .update({
@@ -169,16 +180,15 @@ export default function DashboardPage() {
         })
         .eq("id", userProfile.id)
 
-      if (!error) {
-        setUserProfile({ ...userProfile, points: newPoints })
-        setOblm(Math.floor(newPoints / 10000) * 200)
-
-        const fourHoursLater = new Date(now.getTime() + 4 * 60 * 60 * 1000)
-        setNextClaim(fourHoursLater)
-        setCanClaim(false)
+      if (error) {
+        console.error("[v0] Error updating points:", error)
+        setUserProfile(userProfile)
+        setOblm(Math.floor(userProfile.points / 10000) * 200)
+        setCanClaim(true)
       }
     } catch (error) {
       console.error("[v0] Error claiming points:", error)
+      setCanClaim(true)
     } finally {
       setIsClaiming(false)
     }

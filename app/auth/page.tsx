@@ -55,7 +55,7 @@ export default function AuthPage() {
           throw new Error("Nickname is required")
         }
 
-        const { error: signUpError, data } = await supabase.auth.signUp({
+        const signupPromise = supabase.auth.signUp({
           email,
           password,
           options: {
@@ -66,10 +66,20 @@ export default function AuthPage() {
           },
         })
 
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(
+            () => reject(new Error("Request timed out. The server is experiencing high load. Please try again.")),
+            30000,
+          ),
+        )
+
+        const { error: signUpError, data } = (await Promise.race([signupPromise, timeoutPromise])) as any
+
         if (signUpError) {
-          console.error("[v0] Signup error:", signUpError)
+          console.log("[v0] Signup error:", signUpError)
 
           if (signUpError.message.includes("rate limit")) {
+            setError("Too many signup attempts. Please wait a few minutes and try again.")
             setIsLoading(false)
             return
           } else if (signUpError.message.includes("already registered")) {
@@ -100,7 +110,7 @@ export default function AuthPage() {
             const result = await response.json()
 
             if (!response.ok) {
-              console.error("[v0] Referral API error:", result)
+              console.log("[v0] Referral API error:", result)
               setReferralMessage(result.error || "Referral code could not be applied")
               setReferralSuccess(false)
             } else {
@@ -109,7 +119,7 @@ export default function AuthPage() {
               setReferralSuccess(true)
             }
           } catch (referralError) {
-            console.error("[v0] Referral processing exception:", referralError)
+            console.log("[v0] Referral processing exception:", referralError)
             setReferralMessage("Could not process referral code")
             setReferralSuccess(false)
           }
@@ -122,17 +132,26 @@ export default function AuthPage() {
           referralCode.trim() ? 2000 : 500,
         )
       } else {
-        const { error: loginError } = await supabase.auth.signInWithPassword({
+        const signinPromise = supabase.auth.signInWithPassword({
           email,
           password,
         })
+
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(
+            () => reject(new Error("Request timed out. The server is experiencing high load. Please try again.")),
+            30000,
+          ),
+        )
+
+        const { error: loginError } = (await Promise.race([signinPromise, timeoutPromise])) as any
 
         if (loginError) throw loginError
         router.push("/dashboard")
       }
     } catch (err) {
-      console.error("[v0] Auth error:", err)
-      setError(err instanceof Error ? err.message : "An error occurred")
+      console.log("[v0] Auth error:", err)
+      setError(err instanceof Error ? err.message : "An error occurred. Please try again.")
     } finally {
       if (!isLoading) {
         setIsLoading(false)

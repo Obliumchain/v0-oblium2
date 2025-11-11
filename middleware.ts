@@ -7,10 +7,15 @@ export async function middleware(request: NextRequest) {
   })
 
   const path = request.nextUrl.pathname
+
   if (
     path.startsWith("/_next") ||
     path.startsWith("/api") ||
-    path.includes(".") // files with extensions (images, fonts, etc)
+    path.startsWith("/favicon") ||
+    path.startsWith("/welcome") ||
+    path === "/" ||
+    path.includes(".") ||
+    path.startsWith("/auth")
   ) {
     return supabaseResponse
   }
@@ -36,46 +41,26 @@ export async function middleware(request: NextRequest) {
     )
 
     const timeoutPromise = new Promise<{ data: { user: null } }>((_, reject) =>
-      setTimeout(() => reject(new Error("Auth timeout")), 3000),
+      setTimeout(() => reject(new Error("Auth timeout")), 5000),
     )
 
     const {
       data: { user },
     } = await Promise.race([supabase.auth.getUser(), timeoutPromise])
 
-    // Redirect unauthenticated users trying to access protected routes
     if (!user && !path.startsWith("/auth") && !path.startsWith("/welcome") && path !== "/") {
       const url = request.nextUrl.clone()
       url.pathname = "/auth"
       return NextResponse.redirect(url)
     }
 
-    // Redirect authenticated users away from auth pages
-    if (user && path.startsWith("/auth")) {
-      const url = request.nextUrl.clone()
-      url.pathname = "/dashboard"
-      return NextResponse.redirect(url)
-    }
-
     return supabaseResponse
   } catch (error) {
-    console.error("[Middleware] Auth check failed:", error)
-
-    // Allow through to let pages handle auth state
-    // Protected pages will redirect via their own auth checks
+    console.error("[Middleware] Auth check failed, allowing request through:", error)
     return supabaseResponse
   }
 }
 
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder files
-     */
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
-  ],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
 }
