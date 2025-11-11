@@ -9,6 +9,7 @@ import { TaskCompletionDialog } from "@/components/task-completion-dialog"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { useLanguage } from "@/lib/language-context"
+import { Share2 } from "lucide-react"
 
 interface Task {
   id: string
@@ -26,6 +27,7 @@ export default function TasksPage() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(true)
   const [completingTask, setCompletingTask] = useState<string | null>(null)
+  const [copiedTaskId, setCopiedTaskId] = useState<string | null>(null)
   const [showBonusModal, setShowBonusModal] = useState(false)
   const [completionDialog, setCompletionDialog] = useState<{
     open: boolean
@@ -40,13 +42,33 @@ export default function TasksPage() {
     isBonus: false,
     isDaily: false,
   })
+  const [referralCode, setReferralCode] = useState<string>("")
   const router = useRouter()
   const supabase = createClient()
   const { t } = useLanguage()
 
   useEffect(() => {
     loadTasks()
+    loadReferralCode()
   }, [])
+
+  const loadReferralCode = async () => {
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+
+      if (!user) return
+
+      const { data: profile } = await supabase.from("profiles").select("referral_code").eq("id", user.id).single()
+
+      if (profile?.referral_code) {
+        setReferralCode(profile.referral_code)
+      }
+    } catch (error) {
+      console.error("Error loading referral code:", error)
+    }
+  }
 
   const loadTasks = async () => {
     try {
@@ -103,12 +125,43 @@ export default function TasksPage() {
     }
   }
 
-  const handleCompleteTask = async (taskId: string, actionUrl: string | null) => {
+  const handleShareWithReferral = async (taskId: string) => {
+    const shareUrl = `https://www.obliumtoken.com?ref=${referralCode}`
+
+    try {
+      await navigator.clipboard.writeText(shareUrl)
+      setCopiedTaskId(taskId)
+
+      // Reset copied state after 2 seconds
+      setTimeout(() => setCopiedTaskId(null), 2000)
+
+      // Open X (Twitter) to share
+      const twitterShareUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(
+        `Join me on Oblium! Start mining crypto tokens today! ${shareUrl}`,
+      )}`
+      window.open(twitterShareUrl, "_blank")
+    } catch (error) {
+      console.error("Error copying link:", error)
+      alert("Failed to copy link. Please try again.")
+    }
+  }
+
+  const handleCompleteTask = async (taskId: string, actionUrl: string | null, taskType: string) => {
     try {
       setCompletingTask(taskId)
 
-      // If task has external URL, open it
-      if (actionUrl) {
+      if (taskType === "twitter_engagement") {
+        // Open the tweet to like and repost
+        if (actionUrl) {
+          window.open(actionUrl, "_blank")
+        }
+
+        // Wait a moment for user to see the tweet, then show share option
+        setTimeout(() => {
+          handleShareWithReferral(taskId)
+        }, 1000)
+      } else if (actionUrl) {
+        // If task has external URL, open it
         window.open(actionUrl, "_blank")
       }
 
@@ -157,6 +210,13 @@ export default function TasksPage() {
 
   const completedCount = tasks.filter((t) => t.completed).length
   const totalReward = tasks.reduce((sum, task) => sum + (task.completed ? task.reward : 0), 0)
+
+  const visibleTasks = tasks.filter((task) => {
+    // Always show daily tasks even if completed (they reset tomorrow)
+    if (task.is_daily_repeatable) return true
+    // Hide completed non-daily tasks
+    return !task.completed
+  })
 
   if (loading) {
     return (
@@ -210,7 +270,7 @@ export default function TasksPage() {
 
         {/* Tasks Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {tasks.map((task) => (
+          {visibleTasks.map((task) => (
             <LiquidCard
               key={task.id}
               className={`p-6 h-full flex flex-col transition-all duration-300 ${
@@ -245,12 +305,27 @@ export default function TasksPage() {
                   <span className="text-foreground/60 text-xs">{t("pts")}</span>
                 </div>
                 {!task.completed && (
-                  <GlowButton
-                    onClick={() => handleCompleteTask(task.id, task.action_url)}
-                    disabled={completingTask === task.id}
-                  >
-                    {completingTask === task.id ? t("processing") : t("complete")}
-                  </GlowButton>
+                  <div className="flex gap-2">
+                    <GlowButton
+                      onClick={() => handleCompleteTask(task.id, task.action_url, task.task_type)}
+                      disabled={completingTask === task.id}
+                    >
+                      {completingTask === task.id ? t("processing") : t("complete")}
+                    </GlowButton>
+                    {task.task_type === "twitter_engagement" && (
+                      <button
+                        onClick={() => handleShareWithReferral(task.id)}
+                        className="p-2 rounded-lg bg-accent/20 hover:bg-accent/30 transition-colors"
+                        title="Share with referral link"
+                      >
+                        {copiedTaskId === task.id ? (
+                          <span className="text-xs text-success">✓ Copied!</span>
+                        ) : (
+                          <Share2 className="w-4 h-4 text-accent" />
+                        )}
+                      </button>
+                    )}
+                  </div>
                 )}
               </div>
             </LiquidCard>
