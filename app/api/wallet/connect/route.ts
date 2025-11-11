@@ -16,13 +16,36 @@ export async function POST(request: Request) {
     }
 
     const supabase = await createClient()
+
     const {
       data: { user },
+      error: authError,
     } = await supabase.auth.getUser()
 
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    if (authError) {
+      console.error(`[${errorId}] Auth error:`, authError)
+      return NextResponse.json(
+        {
+          error: "Authentication failed. Please try logging out and back in.",
+          errorId,
+          details: authError.message,
+        },
+        { status: 401 },
+      )
     }
+
+    if (!user) {
+      console.error(`[${errorId}] No user found in session`)
+      return NextResponse.json(
+        {
+          error: "No active session. Please log in again.",
+          errorId,
+        },
+        { status: 401 },
+      )
+    }
+
+    console.log(`[${errorId}] User authenticated:`, user.id, "connecting wallet:", wallet_address)
 
     const { data: existingWallet } = await supabase
       .from("profiles")
@@ -66,6 +89,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Failed to connect wallet", errorId }, { status: 500 })
     }
 
+    console.log(`[${errorId}] Wallet connected successfully for user:`, user.id)
+
     return NextResponse.json({
       success: true,
       wallet_address,
@@ -74,7 +99,14 @@ export async function POST(request: Request) {
     })
   } catch (error) {
     console.error(`[${errorId}] Wallet connection error:`, error)
-    return NextResponse.json({ error: "Internal server error", errorId }, { status: 500 })
+    return NextResponse.json(
+      {
+        error: "Internal server error",
+        errorId,
+        details: error instanceof Error ? error.message : String(error),
+      },
+      { status: 500 },
+    )
   }
 }
 

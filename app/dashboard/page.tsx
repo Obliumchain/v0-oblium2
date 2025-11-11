@@ -11,6 +11,7 @@ import { BackgroundAnimation } from "@/components/background-animation"
 import { BoosterShop } from "@/components/booster-shop"
 import { WalletConnectButton } from "@/components/wallet-connect-button"
 import { ConversionCountdown } from "@/components/conversion-countdown"
+import { PresaleCountdown } from "@/components/presale-countdown"
 import { useLanguage } from "@/lib/language-context"
 
 interface UserProfile {
@@ -352,7 +353,7 @@ export default function DashboardPage() {
           </LiquidCard>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <LiquidCard className="lg:col-span-2 p-8">
             <h2 className="text-2xl font-display font-bold text-primary mb-6">{t("miningPanel")}</h2>
 
@@ -428,8 +429,9 @@ export default function DashboardPage() {
           </LiquidCard>
         </div>
 
-        <div className="mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           <ConversionCountdown />
+          <PresaleCountdown />
         </div>
 
         {showBoosterShop && (

@@ -5,6 +5,7 @@ import { LanguageProvider } from "@/lib/language-context"
 import { SolanaWalletProvider } from "@/lib/wallet/wallet-provider"
 import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/next"
+import { Toaster } from "@/components/ui/toaster"
 
 const orbitron = Orbitron({
   subsets: ["latin"],
@@ -34,6 +35,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <LanguageProvider>
           <SolanaWalletProvider>{children}</SolanaWalletProvider>
         </LanguageProvider>
+        <Toaster />
         <Analytics />
         <SpeedInsights />
       </body>

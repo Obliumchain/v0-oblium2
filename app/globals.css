@@ -121,6 +121,8 @@
     /* Updated background gradient to match intro site */
     background: linear-gradient(135deg, #000000 0%, #0a0a1f 25%, #1a0a2e 50%, #0a0a1f 75%, #000000 100%);
     background-attachment: fixed;
+    /* Add padding bottom for mobile nav */
+    padding-bottom: env(safe-area-inset-bottom);
   }
 
   html {

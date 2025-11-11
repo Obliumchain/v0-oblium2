@@ -10,6 +10,7 @@ import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { useLanguage } from "@/lib/language-context"
 import { Share2 } from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
 
 interface Task {
   id: string
@@ -46,6 +47,7 @@ export default function TasksPage() {
   const router = useRouter()
   const supabase = createClient()
   const { t } = useLanguage()
+  const { toast } = useToast()
 
   useEffect(() => {
     loadTasks()
@@ -86,8 +88,8 @@ export default function TasksPage() {
 
       if (tasksError) throw tasksError
 
-      const todayEST = new Date().toLocaleDateString("en-US", { timeZone: "America/New_York" })
-      const todayDate = new Date(todayEST).toISOString().split("T")[0]
+      const todayPST = new Date().toLocaleDateString("en-US", { timeZone: "America/Los_Angeles" })
+      const todayDate = new Date(todayPST).toISOString().split("T")[0]
 
       // Get user's completed tasks
       const { data: completions, error: completionsError } = await supabase
@@ -101,7 +103,7 @@ export default function TasksPage() {
         completions
           ?.filter((c) => {
             const task = allTasks?.find((t) => t.id === c.task_id)
-            // If daily task, only count as completed if done today
+            // If daily task, only count as completed if done today (PST)
             if (task?.is_daily_repeatable) {
               return c.completed_date === todayDate
             }
@@ -142,7 +144,11 @@ export default function TasksPage() {
       window.open(twitterShareUrl, "_blank")
     } catch (error) {
       console.error("Error copying link:", error)
-      alert("Failed to copy link. Please try again.")
+      toast({
+        title: "Copy Failed",
+        description: "Failed to copy link. Please try again.",
+        variant: "destructive",
+      })
     }
   }
 
@@ -175,7 +181,11 @@ export default function TasksPage() {
       const data = await response.json()
 
       if (!response.ok) {
-        alert(data.error || "Failed to complete task")
+        toast({
+          title: "Task Failed",
+          description: data.error || "Failed to complete task",
+          variant: "destructive",
+        })
         return
       }
 
@@ -202,7 +212,11 @@ export default function TasksPage() {
       }
     } catch (error) {
       console.error("Error completing task:", error)
-      alert("Failed to complete task. Please try again.")
+      toast({
+        title: "Error",
+        description: "Failed to complete task. Please try again.",
+        variant: "destructive",
+      })
     } finally {
       setCompletingTask(null)
     }

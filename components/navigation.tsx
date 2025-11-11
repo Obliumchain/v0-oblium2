@@ -22,6 +22,14 @@ const TasksIcon = () => (
   </svg>
 )
 
+const QuizIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <circle cx="12" cy="12" r="10" />
+    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+    <line x1="12" y1="17" x2="12.01" y2="17" />
+  </svg>
+)
+
 const LeaderboardIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <path d="M6 9H4.5a2.5 2.5 0 010-5H6" />
@@ -43,6 +51,7 @@ const ProfileIcon = () => (
 const iconMap = {
   "/dashboard": DashboardIcon,
   "/tasks": TasksIcon,
+  "/quiz": QuizIcon,
   "/leaderboard": LeaderboardIcon,
   "/profile": ProfileIcon,
 }
@@ -54,6 +63,7 @@ export function Navigation() {
   const navItems = [
     { href: "/dashboard", label: t("dashboard"), key: "dashboard" },
     { href: "/tasks", label: t("tasks"), key: "tasks" },
+    { href: "/quiz", label: t("quiz"), key: "quiz" },
     { href: "/leaderboard", label: t("leaderboard"), key: "leaderboard" },
     { href: "/profile", label: t("profile"), key: "profile" },
   ]
@@ -109,65 +119,62 @@ export function Navigation() {
           </div>
         </nav>
 
-        <nav className="fixed bottom-0 left-0 right-0 z-50 px-4 pb-6 pt-2">
-          <div className="relative mx-auto max-w-md">
-            <div className="relative bg-gradient-to-b from-gray-900/95 to-gray-950/95 backdrop-blur-2xl rounded-3xl border border-cyan-500/20 shadow-2xl shadow-cyan-500/10 overflow-hidden">
-              <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-400/50 to-transparent" />
+        <nav className="fixed bottom-0 left-0 right-0 z-[999] bg-gradient-to-t from-background via-background/95 to-background/90 backdrop-blur-2xl border-t border-cyan-500/30 shadow-[0_-4px_20px_rgba(0,0,0,0.5),0_-1px_0_rgba(125,211,252,0.1)] pb-safe">
+          <div className="flex items-center justify-around px-1 py-3 max-w-md mx-auto relative">
+            <div
+              className="absolute top-2 h-12 bg-gradient-to-br from-cyan-500/20 via-cyan-400/10 to-transparent rounded-2xl transition-all duration-300 ease-out"
+              style={{
+                width: "20%",
+                left: `${navItems.findIndex((item) => item.href === pathname) * 20}%`,
+                boxShadow: "0 0 20px rgba(125, 211, 252, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
+              }}
+            />
 
-              <div className="flex items-center justify-around px-2 py-4">
-                {navItems.map((item, index) => {
-                  const Icon = iconMap[item.href as keyof typeof iconMap]
-                  const isActive = pathname === item.href
+            {navItems.map((item, index) => {
+              const Icon = iconMap[item.href as keyof typeof iconMap]
+              const isActive = pathname === item.href
 
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className="flex-1 max-w-[90px] group"
-                      style={{ animationDelay: `${index * 50}ms` }}
+              return (
+                <Link key={item.href} href={item.href} className="flex-1 relative group">
+                  <div className="flex flex-col items-center gap-1.5 transition-all duration-300">
+                    <div
+                      className={`relative p-2.5 rounded-2xl transition-all duration-300 ${
+                        isActive
+                          ? "text-cyan-400 scale-110"
+                          : "text-gray-500 group-hover:text-cyan-300 group-hover:scale-105 group-active:scale-95"
+                      }`}
                     >
-                      <div className="flex flex-col items-center gap-1.5 transition-all duration-300">
-                        <div className="relative">
-                          {isActive && (
-                            <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/30 via-purple-500/20 to-cyan-500/30 rounded-2xl blur-xl animate-pulse" />
-                          )}
-
-                          <div
-                            className={`relative p-3.5 rounded-2xl transition-all duration-300 ${
-                              isActive
-                                ? "bg-gradient-to-br from-cyan-500/20 via-purple-500/10 to-cyan-500/20 text-cyan-400 scale-110 shadow-lg shadow-cyan-500/30"
-                                : "text-gray-500 group-hover:text-cyan-400 group-hover:bg-cyan-500/5 group-hover:scale-105"
-                            }`}
-                          >
-                            <Icon />
-                          </div>
-
-                          {isActive && (
-                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-cyan-400 rounded-full shadow-lg shadow-cyan-400/50" />
-                          )}
-                        </div>
-
-                        <span
-                          className={`text-[10px] font-semibold transition-all duration-300 ${
-                            isActive ? "text-cyan-400" : "text-gray-500 group-hover:text-gray-300"
-                          }`}
-                        >
-                          {item.label}
-                        </span>
+                      {isActive && (
+                        <div className="absolute inset-0 bg-cyan-400/20 rounded-2xl blur-xl animate-pulse" />
+                      )}
+                      <div className="relative">
+                        <Icon />
                       </div>
-                    </Link>
-                  )
-                })}
-              </div>
+                    </div>
 
-              <div className="h-1 bg-gradient-to-r from-transparent via-cyan-500/10 to-transparent" />
-            </div>
+                    <span
+                      className={`text-[10px] font-semibold transition-all duration-300 ${
+                        isActive
+                          ? "text-cyan-400 opacity-100 scale-100"
+                          : "text-gray-500 opacity-75 group-hover:text-gray-300 group-hover:opacity-100"
+                      }`}
+                    >
+                      {item.label}
+                    </span>
+
+                    {isActive && (
+                      <div className="absolute -top-1 w-1 h-1 bg-cyan-400 rounded-full shadow-[0_0_8px_rgba(125,211,252,0.8)] animate-pulse" />
+                    )}
+                  </div>
+                </Link>
+              )
+            })}
           </div>
         </nav>
       </div>
 
       <div className="h-16 lg:h-20" />
-      <div className="h-24 lg:hidden" />
+      <div className="h-20 lg:hidden" />
     </>
   )
 }

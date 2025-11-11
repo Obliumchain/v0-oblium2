@@ -46,6 +46,7 @@ export function WalletConnectButton({
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ wallet_address: walletAddress }),
+            credentials: "include",
           })
 
           const data = await response.json()
@@ -58,7 +59,12 @@ export function WalletConnectButton({
             }
             onConnect?.({ address: walletAddress, type: "phantom", connected_at: new Date().toISOString() })
           } else {
-            setError(data.error || "Failed to save wallet connection")
+            if (response.status === 401) {
+              setError("Authentication error: Please refresh the page and try again.")
+            } else {
+              setError(data.error || "Failed to save wallet connection")
+            }
+            console.error("[v0] Wallet connection error:", data)
           }
         } catch (err) {
           console.error("[v0] Connection error:", err)

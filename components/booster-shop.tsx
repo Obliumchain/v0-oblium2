@@ -8,6 +8,7 @@ import { GlowButton } from "@/components/ui/glow-button"
 import { PublicKey, SystemProgram, Transaction, LAMPORTS_PER_SOL } from "@solana/web3.js"
 import { RECIPIENT_WALLET, validateRecipientWallet } from "@/lib/solana/config"
 import { useLanguage } from "@/lib/language-context"
+import { useToast } from "@/hooks/use-toast"
 
 interface Booster {
   id: string
@@ -33,6 +34,7 @@ export function BoosterShop({ walletAddress, userId, onPurchaseSuccess }: Booste
   const { t } = useLanguage()
   const { publicKey, sendTransaction, connected } = useWallet()
   const { connection } = useConnection()
+  const { toast } = useToast()
 
   useEffect(() => {
     const loadBoosters = async () => {
@@ -133,9 +135,10 @@ export function BoosterShop({ walletAddress, userId, onPurchaseSuccess }: Booste
       }
 
       console.log("[v0] Purchase successful:", result.message)
-      alert(
-        `✅ ${booster.name} activated successfully! ${booster.multiplier_value > 1 ? `You now get ${booster.multiplier_value}× points (${4000 * booster.multiplier_value} per claim)` : "Auto-claim enabled!"}`,
-      )
+      toast({
+        title: "Booster Activated!",
+        description: `${booster.name} activated successfully! ${booster.multiplier_value > 1 ? `You now get ${booster.multiplier_value}× points (${4000 * booster.multiplier_value} per claim)` : "Auto-claim enabled!"}`,
+      })
       setError(null)
       onPurchaseSuccess?.()
     } catch (err) {
