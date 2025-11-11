@@ -43,12 +43,7 @@ export default function LeaderboardPage() {
 
         const { data: profiles, error } = await supabase
           .from("profiles")
-          .select(`
-            id, 
-            nickname, 
-            points,
-            referrals:referrals(count)
-          `)
+          .select("id, nickname, points")
           .order("points", { ascending: false })
           .limit(100)
 
@@ -60,6 +55,18 @@ export default function LeaderboardPage() {
         console.log("[v0] Profiles loaded:", profiles?.length, "users")
 
         if (profiles && profiles.length > 0) {
+          const profileIds = profiles.map((p) => p.id)
+          const { data: referralCounts } = await supabase
+            .from("referrals")
+            .select("referrer_id")
+            .in("referrer_id", profileIds)
+
+          const referralMap = new Map<string, number>()
+          referralCounts?.forEach((ref) => {
+            const count = referralMap.get(ref.referrer_id) || 0
+            referralMap.set(ref.referrer_id, count + 1)
+          })
+
           const leaderboardData = profiles.map((profile, index) => {
             const displayName =
               profile.nickname && profile.nickname.trim() ? profile.nickname : `Miner-${profile.id.substring(0, 6)}`
@@ -69,7 +76,7 @@ export default function LeaderboardPage() {
               id: profile.id,
               nickname: displayName,
               points: profile.points || 0,
-              referrals: profile.referrals?.[0]?.count || 0,
+              referrals: referralMap.get(profile.id) || 0,
             }
           })
 

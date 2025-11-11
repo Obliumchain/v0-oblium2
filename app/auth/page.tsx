@@ -36,6 +36,30 @@ export default function AuthPage() {
     }
   }, [])
 
+  const retryWithBackoff = async (fn: () => Promise<any>, maxRetries = 3) => {
+    for (let i = 0; i < maxRetries; i++) {
+      try {
+        return await fn()
+      } catch (err: any) {
+        if (i === maxRetries - 1) throw err
+
+        // Don't retry on user errors
+        if (
+          err.message?.includes("Invalid") ||
+          err.message?.includes("already registered") ||
+          err.message?.includes("do not match")
+        ) {
+          throw err
+        }
+
+        // Wait with exponential backoff before retry
+        const delay = Math.min(1000 * Math.pow(2, i), 5000)
+        console.log(`[v0] Retry ${i + 1}/${maxRetries} after ${delay}ms...`)
+        await new Promise((resolve) => setTimeout(resolve, delay))
+      }
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
@@ -55,16 +79,18 @@ export default function AuthPage() {
           throw new Error("Nickname is required")
         }
 
-        const { error: signUpError, data } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: {
-              nickname: nickname.trim(),
-              referral_code: referralCode.trim() || null,
+        const { error: signUpError, data } = await retryWithBackoff(() =>
+          supabase.auth.signUp({
+            email,
+            password,
+            options: {
+              data: {
+                nickname: nickname.trim(),
+                referral_code: referralCode.trim() || null,
+              },
             },
-          },
-        })
+          }),
+        )
 
         if (signUpError) {
           console.log("[v0] Signup error:", signUpError)
@@ -123,17 +149,29 @@ export default function AuthPage() {
           referralCode.trim() ? 2000 : 500,
         )
       } else {
-        const { error: loginError } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        })
+        const { error: loginError } = await retryWithBackoff(() =>
+          supabase.auth.signInWithPassword({
+            email,
+            password,
+          }),
+        )
 
         if (loginError) throw loginError
         router.push("/dashboard")
       }
     } catch (err) {
       console.log("[v0] Auth error:", err)
-      setError(err instanceof Error ? err.message : "An error occurred. Please try again.")
+      if (err instanceof Error) {
+        if (err.message.includes("fetch") || err.message.includes("network") || err.message.includes("timeout")) {
+          setError(
+            "Connection issue detected. Our servers are experiencing high traffic. Please try again in a moment.",
+          )
+        } else {
+          setError(err.message)
+        }
+      } else {
+        setError("An error occurred. Please try again.")
+      }
     } finally {
       setIsLoading(false)
     }

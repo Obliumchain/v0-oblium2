@@ -18,6 +18,7 @@ interface UserProfile {
   wallet_address: string | null
   referral_code: string
   points: number
+  task_completion_bonus_awarded: boolean
 }
 
 interface UserStats {
@@ -77,7 +78,7 @@ export default function ProfilePage() {
 
         const { data: profileData, error: profileError } = await supabase
           .from("profiles")
-          .select("nickname, created_at, wallet_address, referral_code, points")
+          .select("nickname, created_at, wallet_address, referral_code, points, task_completion_bonus_awarded")
           .eq("id", user.id)
           .single()
 
@@ -100,7 +101,7 @@ export default function ProfilePage() {
         if (profileData) {
           setProfile(profileData as UserProfile)
 
-          const oblTokens = Math.floor((profileData.points || 0) / 10000) * 200
+          const oblTokens = profileData.task_completion_bonus_awarded ? 200 : 0
 
           const { count: referralCount, error: referralError } = await supabase
             .from("referrals")

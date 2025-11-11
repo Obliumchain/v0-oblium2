@@ -16,12 +16,37 @@ export function createClient() {
         autoRefreshToken: true,
         detectSessionInUrl: true,
         storageKey: "oblium-auth",
+        flowType: "pkce",
       },
       db: {
         schema: "public",
+      },
+      global: {
+        headers: {
+          "x-client-info": "oblium-web",
+        },
       },
     },
   )
 
   return supabaseInstance
+}
+
+const queryCache = new Map<string, { data: any; timestamp: number }>()
+
+export function getCachedQuery(key: string, ttlMs = 30000) {
+  const cached = queryCache.get(key)
+  if (cached && Date.now() - cached.timestamp < ttlMs) {
+    return cached.data
+  }
+  return null
+}
+
+export function setCachedQuery(key: string, data: any) {
+  queryCache.set(key, { data, timestamp: Date.now() })
+  // Clean old cache entries
+  if (queryCache.size > 100) {
+    const oldestKey = Array.from(queryCache.keys())[0]
+    queryCache.delete(oldestKey)
+  }
 }

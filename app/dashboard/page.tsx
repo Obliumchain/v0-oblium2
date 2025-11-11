@@ -65,7 +65,7 @@ export default function DashboardPage() {
       if (!profile) return
 
       setUserProfile(profile)
-      setOblm(Math.floor(profile.points / 10000) * 200)
+      setOblm(profile.task_completion_bonus_awarded ? 200 : 0)
 
       const cachedCount = sessionStorage.getItem(`referral_count_${user.id}`)
       if (cachedCount) {
@@ -166,7 +166,7 @@ export default function DashboardPage() {
       const now = new Date()
 
       setUserProfile({ ...userProfile, points: newPoints })
-      setOblm(Math.floor(newPoints / 10000) * 200)
+      setOblm(userProfile.task_completion_bonus_awarded ? 200 : 0)
       const fourHoursLater = new Date(now.getTime() + 4 * 60 * 60 * 1000)
       setNextClaim(fourHoursLater)
       setCanClaim(false)
@@ -183,7 +183,7 @@ export default function DashboardPage() {
       if (error) {
         console.error("[v0] Error updating points:", error)
         setUserProfile(userProfile)
-        setOblm(Math.floor(userProfile.points / 10000) * 200)
+        setOblm(userProfile.task_completion_bonus_awarded ? 200 : 0)
         setCanClaim(true)
       }
     } catch (error) {
@@ -248,7 +248,7 @@ export default function DashboardPage() {
 
     if (profile) {
       setUserProfile(profile)
-      setOblm(Math.floor(profile.points / 10000) * 200)
+      setOblm(profile.task_completion_bonus_awarded ? 200 : 0)
     }
   }
 
