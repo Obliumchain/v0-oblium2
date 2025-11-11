@@ -10,6 +10,7 @@ import { CountdownTimer } from "@/components/ui/countdown-timer"
 import { BackgroundAnimation } from "@/components/background-animation"
 import { BoosterShop } from "@/components/booster-shop"
 import { WalletConnectButton } from "@/components/wallet-connect-button"
+import { ConversionCountdown } from "@/components/conversion-countdown"
 import { useLanguage } from "@/lib/language-context"
 
 interface UserProfile {
@@ -113,9 +114,12 @@ export default function DashboardPage() {
               })),
             )
 
-            const hasAutoClaim = boosters.some((b: any) => b.boosters?.type === "auto_claim")
+            const hasAutoClaim = boosters.some(
+              (b: any) => b.boosters?.type === "auto_claim" || b.boosters?.type === "combo",
+            )
             if (hasAutoClaim !== profile.has_auto_claim) {
               supabase.from("profiles").update({ has_auto_claim: hasAutoClaim }).eq("id", user.id).then()
+              setUserProfile((prev) => (prev ? { ...prev, has_auto_claim: hasAutoClaim } : null))
             }
           }
         })
@@ -157,10 +161,27 @@ export default function DashboardPage() {
 
       let basePoints = 4000
 
-      const multiplierBooster = activeBoosters.find((b) => b.type === "multiplier")
+      const multiplierBooster = activeBoosters
+        .filter((b) => b.type === "multiplier" || b.type === "combo")
+        .reduce(
+          (highest, current) => {
+            const currentMultiplier = current.multiplier_value || 1
+            const highestMultiplier = highest?.multiplier_value || 1
+            return currentMultiplier > highestMultiplier ? current : highest
+          },
+          null as ActiveBooster | null,
+        )
+
       if (multiplierBooster && multiplierBooster.multiplier_value) {
         basePoints *= multiplierBooster.multiplier_value
       }
+
+      console.log("[v0] Claiming points:", {
+        basePoints: 4000,
+        multiplier: multiplierBooster?.multiplier_value || 1,
+        totalPoints: basePoints,
+        boosterName: multiplierBooster?.name || "None",
+      })
 
       const newPoints = userProfile.points + basePoints
       const now = new Date()
@@ -405,6 +426,10 @@ export default function DashboardPage() {
               <p className="text-xs text-center text-foreground/40 mt-2">{t("connectWalletToPurchase")}</p>
             )}
           </LiquidCard>
+        </div>
+
+        <div className="mb-8">
+          <ConversionCountdown />
         </div>
 
         {showBoosterShop && (

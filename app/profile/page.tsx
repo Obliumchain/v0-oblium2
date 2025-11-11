@@ -9,6 +9,7 @@ import { LiquidCard } from "@/components/ui/liquid-card"
 import { GlowButton } from "@/components/ui/glow-button"
 import { BackgroundAnimation } from "@/components/background-animation"
 import { CubeLoader } from "@/components/ui/cube-loader"
+import { ConversionCountdown } from "@/components/conversion-countdown"
 import type { WalletInfo } from "@/lib/wallet/wallet-adapter"
 import { useLanguage } from "@/lib/language-context"
 
@@ -268,6 +269,8 @@ export default function ProfilePage() {
           <h1 className="text-4xl font-display font-bold text-primary mb-2">{t("profileTitle")}</h1>
           <p className="text-foreground/60">{t("profileSubtitle")}</p>
         </div>
+
+        <ConversionCountdown />
 
         <LiquidCard className="p-8 text-center">
           <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center mx-auto mb-6 shadow-lg shadow-primary/50">

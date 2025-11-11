@@ -21,6 +21,10 @@ export const metadata = {
   title: "Oblium - Mine. Earn. Ascend.",
   description: "Futuristic crypto mining dashboard powered by Solana",
   generator: "v0.app",
+  icons: {
+    icon: [{ url: "/favicon.ico" }, { url: "/icon.svg", type: "image/svg+xml" }],
+    apple: "/apple-icon.png",
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

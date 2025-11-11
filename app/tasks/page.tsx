@@ -5,6 +5,7 @@ import { Navigation } from "@/components/navigation"
 import { LiquidCard } from "@/components/ui/liquid-card"
 import { GlowButton } from "@/components/ui/glow-button"
 import { BackgroundAnimation } from "@/components/background-animation"
+import { TaskCompletionDialog } from "@/components/task-completion-dialog"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { useLanguage } from "@/lib/language-context"
@@ -26,6 +27,19 @@ export default function TasksPage() {
   const [loading, setLoading] = useState(true)
   const [completingTask, setCompletingTask] = useState<string | null>(null)
   const [showBonusModal, setShowBonusModal] = useState(false)
+  const [completionDialog, setCompletionDialog] = useState<{
+    open: boolean
+    taskName: string
+    points: number
+    isBonus: boolean
+    isDaily: boolean
+  }>({
+    open: false,
+    taskName: "",
+    points: 0,
+    isBonus: false,
+    isDaily: false,
+  })
   const router = useRouter()
   const supabase = createClient()
   const { t } = useLanguage()
@@ -113,14 +127,25 @@ export default function TasksPage() {
       }
 
       // Update local state
+      const completedTask = tasks.find((t) => t.id === taskId)
       setTasks(tasks.map((task) => (task.id === taskId ? { ...task, completed: true } : task)))
 
       if (data.bonusAwarded) {
-        setShowBonusModal(true)
-      } else if (data.isDaily) {
-        alert(`Daily check-in completed! You earned ${data.pointsAwarded} points! Come back tomorrow for more!`)
+        setCompletionDialog({
+          open: true,
+          taskName: "All Tasks Completed!",
+          points: data.pointsAwarded,
+          isBonus: true,
+          isDaily: false,
+        })
       } else {
-        alert(`Task completed! You earned ${data.pointsAwarded} points!`)
+        setCompletionDialog({
+          open: true,
+          taskName: completedTask?.title || "Task Completed",
+          points: data.pointsAwarded,
+          isBonus: false,
+          isDaily: data.isDaily || false,
+        })
       }
     } catch (error) {
       console.error("Error completing task:", error)
@@ -147,21 +172,14 @@ export default function TasksPage() {
       <BackgroundAnimation />
       <Navigation />
 
-      {showBonusModal && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <LiquidCard className="max-w-md w-full p-8 text-center border-2 border-accent animate-in zoom-in-95">
-            <div className="text-6xl mb-4 animate-bounce">🎉</div>
-            <h2 className="text-3xl font-display font-bold text-accent mb-4">Congratulations!</h2>
-            <p className="text-lg text-foreground mb-6">
-              You've completed all tasks and earned your
-              <span className="block text-4xl font-display font-bold text-primary my-4">10,000 BONUS POINTS!</span>
-            </p>
-            <GlowButton onClick={() => setShowBonusModal(false)} className="w-full">
-              Awesome! 🚀
-            </GlowButton>
-          </LiquidCard>
-        </div>
-      )}
+      <TaskCompletionDialog
+        open={completionDialog.open}
+        onOpenChange={(open) => setCompletionDialog({ ...completionDialog, open })}
+        taskName={completionDialog.taskName}
+        pointsAwarded={completionDialog.points}
+        isBonus={completionDialog.isBonus}
+        isDaily={completionDialog.isDaily}
+      />
 
       {/* Main Content */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 py-8">

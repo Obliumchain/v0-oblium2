@@ -3,7 +3,7 @@
 import { useMemo, type ReactNode } from "react"
 import { ConnectionProvider, WalletProvider } from "@solana/wallet-adapter-react"
 import { WalletModalProvider } from "@solana/wallet-adapter-react-ui"
-import { PhantomWalletAdapter } from "@solana/wallet-adapter-wallets"
+import { PhantomWalletAdapter, SolflareWalletAdapter } from "@solana/wallet-adapter-wallets"
 import { SOLANA_CONFIG } from "@/lib/solana/config"
 
 // Import wallet adapter styles
@@ -24,13 +24,14 @@ export function SolanaWalletProvider({ children }: { children: ReactNode }) {
 
   const wallets = useMemo(() => {
     const phantomAdapter = new PhantomWalletAdapter()
+    const solflareAdapter = new SolflareWalletAdapter()
 
     // iOS-specific configuration for universal links
     if (isIOS()) {
       console.log("[v0] iOS detected - using universal links for wallet connection")
     }
 
-    return [phantomAdapter]
+    return [phantomAdapter, solflareAdapter]
   }, [])
 
   const shouldAutoConnect = useMemo(() => {

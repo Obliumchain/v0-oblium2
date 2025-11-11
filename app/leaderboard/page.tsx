@@ -12,7 +12,6 @@ interface LeaderboardEntry {
   id: string
   nickname: string
   points: number
-  referrals: number
 }
 
 export default function LeaderboardPage() {
@@ -55,18 +54,6 @@ export default function LeaderboardPage() {
         console.log("[v0] Profiles loaded:", profiles?.length, "users")
 
         if (profiles && profiles.length > 0) {
-          const profileIds = profiles.map((p) => p.id)
-          const { data: referralCounts } = await supabase
-            .from("referrals")
-            .select("referrer_id")
-            .in("referrer_id", profileIds)
-
-          const referralMap = new Map<string, number>()
-          referralCounts?.forEach((ref) => {
-            const count = referralMap.get(ref.referrer_id) || 0
-            referralMap.set(ref.referrer_id, count + 1)
-          })
-
           const leaderboardData = profiles.map((profile, index) => {
             const displayName =
               profile.nickname && profile.nickname.trim() ? profile.nickname : `Miner-${profile.id.substring(0, 6)}`
@@ -76,7 +63,6 @@ export default function LeaderboardPage() {
               id: profile.id,
               nickname: displayName,
               points: profile.points || 0,
-              referrals: referralMap.get(profile.id) || 0,
             }
           })
 
@@ -148,16 +134,11 @@ export default function LeaderboardPage() {
 
                     <h3 className="text-2xl font-display font-bold text-foreground mb-4">{entry.nickname}</h3>
 
-                    <div className="mb-4">
+                    <div>
                       <div className="text-foreground/60 text-xs mb-1">{t("points")}</div>
                       <div className="text-3xl font-display font-black text-primary">
                         {entry.points >= 1000 ? `${(entry.points / 1000).toFixed(1)}K` : entry.points}
                       </div>
-                    </div>
-
-                    <div className="p-3 bg-accent/10 border border-accent/30 rounded-lg">
-                      <div className="text-foreground/60 text-xs mb-1">{t("referrals")}</div>
-                      <div className="text-xl font-display font-bold text-accent">{entry.referrals}</div>
                     </div>
                   </div>
                 </LiquidCard>
@@ -185,9 +166,6 @@ export default function LeaderboardPage() {
                   <th className="text-right py-4 px-4 font-display font-bold text-foreground/60 text-sm">
                     {t("points")}
                   </th>
-                  <th className="text-right py-4 px-4 font-display font-bold text-foreground/60 text-sm">
-                    {t("referrals")}
-                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -213,9 +191,6 @@ export default function LeaderboardPage() {
                       <span className="font-display font-bold text-primary">
                         {entry.points >= 1000 ? `${(entry.points / 1000).toFixed(1)}K` : entry.points}
                       </span>
-                    </td>
-                    <td className="py-4 px-4 text-right">
-                      <span className="font-bold text-accent">{entry.referrals}</span>
                     </td>
                   </tr>
                 ))}

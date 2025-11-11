@@ -133,6 +133,9 @@ export function BoosterShop({ walletAddress, userId, onPurchaseSuccess }: Booste
       }
 
       console.log("[v0] Purchase successful:", result.message)
+      alert(
+        `✅ ${booster.name} activated successfully! ${booster.multiplier_value > 1 ? `You now get ${booster.multiplier_value}× points (${4000 * booster.multiplier_value} per claim)` : "Auto-claim enabled!"}`,
+      )
       setError(null)
       onPurchaseSuccess?.()
     } catch (err) {
