@@ -55,7 +55,7 @@ export default function AuthPage() {
           throw new Error("Nickname is required")
         }
 
-        const signupPromise = supabase.auth.signUp({
+        const { error: signUpError, data } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -65,15 +65,6 @@ export default function AuthPage() {
             },
           },
         })
-
-        const timeoutPromise = new Promise((_, reject) =>
-          setTimeout(
-            () => reject(new Error("Request timed out. The server is experiencing high load. Please try again.")),
-            30000,
-          ),
-        )
-
-        const { error: signUpError, data } = (await Promise.race([signupPromise, timeoutPromise])) as any
 
         if (signUpError) {
           console.log("[v0] Signup error:", signUpError)
@@ -132,19 +123,10 @@ export default function AuthPage() {
           referralCode.trim() ? 2000 : 500,
         )
       } else {
-        const signinPromise = supabase.auth.signInWithPassword({
+        const { error: loginError } = await supabase.auth.signInWithPassword({
           email,
           password,
         })
-
-        const timeoutPromise = new Promise((_, reject) =>
-          setTimeout(
-            () => reject(new Error("Request timed out. The server is experiencing high load. Please try again.")),
-            30000,
-          ),
-        )
-
-        const { error: loginError } = (await Promise.race([signinPromise, timeoutPromise])) as any
 
         if (loginError) throw loginError
         router.push("/dashboard")
@@ -153,9 +135,7 @@ export default function AuthPage() {
       console.log("[v0] Auth error:", err)
       setError(err instanceof Error ? err.message : "An error occurred. Please try again.")
     } finally {
-      if (!isLoading) {
-        setIsLoading(false)
-      }
+      setIsLoading(false)
     }
   }
 

@@ -17,18 +17,6 @@ export function createClient() {
         detectSessionInUrl: true,
         storageKey: "oblium-auth",
       },
-      global: {
-        fetch: (url, options = {}) => {
-          const controller = new AbortController()
-          const timeoutId = setTimeout(() => controller.abort(), 15000)
-
-          return fetch(url, {
-            ...options,
-            signal: controller.signal,
-            keepalive: true,
-          }).finally(() => clearTimeout(timeoutId))
-        },
-      },
       db: {
         schema: "public",
       },
