@@ -24,7 +24,10 @@ export function SolanaWalletProvider({ children }: { children: ReactNode }) {
 
   const wallets = useMemo(() => {
     const phantomAdapter = new PhantomWalletAdapter()
-    const solflareAdapter = new SolflareWalletAdapter()
+    const solflareAdapter = new SolflareWalletAdapter({
+      // Disable iframe to prevent CSP blocking
+      disableIframe: true,
+    })
 
     // iOS-specific configuration for universal links
     if (isIOS()) {

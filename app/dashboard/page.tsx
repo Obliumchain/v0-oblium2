@@ -331,6 +331,14 @@ export default function DashboardPage() {
       )}
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 py-8">
+        <div className="mb-8 rounded-2xl overflow-hidden">
+          <img
+            src="/images/img-2509-5b1-5d.jpeg"
+            alt="Oblium Chain Presale Alert - $OBLM token presale starting November 20, 2025"
+            className="w-full h-auto object-cover max-h-[400px] md:max-h-[300px] lg:max-h-[250px]"
+          />
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <LiquidCard className="p-8 text-center">
             <div className="text-foreground/60 text-sm mb-2">{t("totalPoints")}</div>

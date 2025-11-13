@@ -4,7 +4,6 @@ import { useState, useEffect } from "react"
 import { useWallet } from "@solana/wallet-adapter-react"
 import { useWalletModal } from "@solana/wallet-adapter-react-ui"
 import { GlowButton } from "@/components/ui/glow-button"
-import { Info, ExternalLink } from "lucide-react"
 
 interface WalletConnectButtonProps {
   onConnect?: (wallet: any) => void
@@ -29,7 +28,7 @@ export function WalletConnectButton({
   walletAddress: propWalletAddress,
   variant = "primary",
 }: WalletConnectButtonProps) {
-  const { publicKey, disconnect, connected, connecting } = useWallet()
+  const { publicKey, disconnect, connected, connecting, wallet } = useWallet()
   const { setVisible } = useWalletModal()
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -39,7 +38,8 @@ export function WalletConnectButton({
     const handleConnection = async () => {
       if (connected && publicKey) {
         const walletAddress = publicKey.toString()
-        console.log("[v0] Wallet connected:", walletAddress)
+        const walletName = wallet?.adapter?.name || "Unknown"
+        console.log("[v0] Wallet connected:", walletName, walletAddress)
 
         try {
           const response = await fetch("/api/wallet/connect", {
@@ -57,7 +57,7 @@ export function WalletConnectButton({
             } else {
               setSuccessMessage("Wallet connected successfully!")
             }
-            onConnect?.({ address: walletAddress, type: "phantom", connected_at: new Date().toISOString() })
+            onConnect?.({ address: walletAddress, type: walletName, connected_at: new Date().toISOString() })
           } else {
             if (response.status === 401) {
               setError("Authentication error: Please refresh the page and try again.")
@@ -74,7 +74,7 @@ export function WalletConnectButton({
     }
 
     handleConnection()
-  }, [connected, publicKey, onConnect])
+  }, [connected, publicKey, wallet, onConnect])
 
   const handleConnect = () => {
     setError(null)
@@ -86,12 +86,12 @@ export function WalletConnectButton({
     console.log("[v0] Connect clicked - iOS:", isiOSDevice, "InPhantom:", isInPhantom, "Connecting:", connecting)
 
     if (isiOSDevice && !isInPhantom) {
-      console.log("[v0] iOS Safari detected - showing iOS options")
-      setShowIOSOptions(true)
+      console.log("[v0] iOS Safari detected - showing wallet selection modal")
+      setVisible(true)
       return
     }
 
-    console.log("[v0] Opening wallet modal for Android/Desktop")
+    console.log("[v0] Opening wallet modal")
     setVisible(true)
   }
 
@@ -105,24 +105,6 @@ export function WalletConnectButton({
     } catch (err) {
       setError(err instanceof Error ? err.message : "Disconnection failed")
     }
-  }
-
-  const connectViaUniversalLink = () => {
-    const currentUrl = window.location.href
-    const appUrl = encodeURIComponent(currentUrl)
-
-    const phantomUniversalLink = `https://phantom.app/ul/v1/connect?app_url=${appUrl}&cluster=${process.env.NEXT_PUBLIC_SOLANA_NETWORK || "devnet"}&redirect_link=${appUrl}`
-
-    console.log("[v0] Opening Phantom via universal link")
-    window.location.href = phantomUniversalLink
-  }
-
-  const openInPhantomBrowser = () => {
-    const currentUrl = window.location.href
-    const phantomBrowserUrl = `https://phantom.app/ul/browse/${encodeURIComponent(currentUrl)}?ref=oblium`
-
-    console.log("[v0] Opening in Phantom browser")
-    window.location.href = phantomBrowserUrl
   }
 
   const formatAddress = (address: string) => {
@@ -161,50 +143,6 @@ export function WalletConnectButton({
       <GlowButton onClick={handleConnect} disabled={connecting} variant={variant} className="w-full">
         {connecting ? "Connecting..." : "Connect Wallet"}
       </GlowButton>
-
-      {showIOSOptions && (
-        <div className="p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg space-y-3">
-          <div className="flex items-start gap-3">
-            <Info className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
-            <div className="flex-1">
-              <h4 className="text-sm font-semibold text-blue-400 mb-2">iOS Wallet Connection</h4>
-              <p className="text-xs text-foreground/70 mb-3">Choose how you'd like to connect your Phantom wallet:</p>
-
-              <div className="space-y-2">
-                <button
-                  onClick={connectViaUniversalLink}
-                  className="w-full p-3 bg-primary/10 hover:bg-primary/20 border border-primary/30 rounded-lg transition-colors text-left"
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="text-sm font-medium text-primary mb-1">Quick Connect</div>
-                      <div className="text-xs text-foreground/60">Opens Phantom to approve connection</div>
-                    </div>
-                    <ExternalLink className="w-4 h-4 text-primary" />
-                  </div>
-                </button>
-
-                <button
-                  onClick={openInPhantomBrowser}
-                  className="w-full p-3 bg-accent/10 hover:bg-accent/20 border border-accent/30 rounded-lg transition-colors text-left"
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="text-sm font-medium text-accent mb-1">Use Phantom Browser</div>
-                      <div className="text-xs text-foreground/60">Full experience in Phantom app</div>
-                    </div>
-                    <ExternalLink className="w-4 h-4 text-accent" />
-                  </div>
-                </button>
-              </div>
-
-              <p className="text-xs text-foreground/50 mt-3 text-center">
-                iOS Safari doesn't support direct wallet injection
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
 
       {error && (
         <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg">

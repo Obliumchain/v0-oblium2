@@ -42,7 +42,10 @@ export default function LeaderboardPage() {
           .order("points", { ascending: false })
           .limit(10)
 
-        if (error) throw error
+        if (error) {
+          console.error("Error loading leaderboard:", error)
+          throw error
+        }
 
         if (profiles && profiles.length > 0) {
           const leaderboardData = profiles.map((profile, index) => {
