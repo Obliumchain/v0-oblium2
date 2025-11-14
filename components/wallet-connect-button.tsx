@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { useWallet } from "@solana/wallet-adapter-react"
 import { useWalletModal } from "@solana/wallet-adapter-react-ui"
 import { GlowButton } from "@/components/ui/glow-button"
-import { Info, ExternalLink } from "lucide-react"
+import { Info, ExternalLink } from 'lucide-react'
 
 interface WalletConnectButtonProps {
   onConnect?: (wallet: any) => void
@@ -45,6 +45,7 @@ export function WalletConnectButton({
           const response = await fetch("/api/wallet/connect", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
+            credentials: "include", // Include cookies for authentication
             body: JSON.stringify({ wallet_address: walletAddress }),
           })
 
@@ -58,7 +59,11 @@ export function WalletConnectButton({
             }
             onConnect?.({ address: walletAddress, type: "phantom", connected_at: new Date().toISOString() })
           } else {
-            setError(data.error || "Failed to save wallet connection")
+            if (response.status === 401) {
+              setError("Please refresh the page and try again. If the problem persists, log out and log back in.")
+            } else {
+              setError(data.error || "Failed to save wallet connection")
+            }
           }
         } catch (err) {
           console.error("[v0] Connection error:", err)

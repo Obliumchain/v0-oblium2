@@ -18,11 +18,20 @@ export async function POST(request: Request) {
     const supabase = await createClient()
     const {
       data: { user },
+      error: authError,
     } = await supabase.auth.getUser()
 
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    if (authError) {
+      console.error(`[${errorId}] Auth error:`, authError)
+      return NextResponse.json({ error: "Authentication failed. Please refresh the page and try again.", errorId }, { status: 401 })
     }
+
+    if (!user) {
+      console.error(`[${errorId}] No user found in session`)
+      return NextResponse.json({ error: "Please log in to connect your wallet", errorId }, { status: 401 })
+    }
+
+    console.log(`[${errorId}] User authenticated:`, user.id)
 
     const { data: existingWallet } = await supabase
       .from("profiles")

@@ -44,7 +44,7 @@ export default function LeaderboardPage() {
           .from("profiles")
           .select("id, nickname, points")
           .order("points", { ascending: false })
-          .limit(100)
+          .limit(10) // Limit to 10 users instead of 100
 
         if (error) {
           console.error("[v0] Leaderboard query error:", error)
