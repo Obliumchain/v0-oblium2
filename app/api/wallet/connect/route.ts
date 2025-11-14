@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server"
+import { createServerClient } from "@supabase/ssr"
 import { NextResponse } from "next/server"
 import { isValidSolanaAddress, generateErrorId } from "@/lib/validation"
 import { cookies } from "next/headers"
@@ -22,27 +22,36 @@ export async function POST(request: Request) {
     }
 
     const cookieStore = await cookies()
-    const allCookies = cookieStore.getAll()
-    console.log(`[${errorId}] [v0] Available cookies:`, allCookies.map(c => c.name).join(', '))
-    
-    const supabase = await createClient()
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return cookieStore.getAll()
+          },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              cookieStore.set(name, value, options)
+            })
+          },
+        },
+      }
+    )
     
     console.log(`[${errorId}] [v0] Supabase client created, checking auth...`)
     
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
     
-    console.log(`[${errorId}] [v0] Session check result:`, {
-      hasSession: !!session,
-      hasUser: !!session?.user,
-      userId: session?.user?.id,
-      sessionError: sessionError?.message,
-      sessionErrorDetails: sessionError
+    console.log(`[${errorId}] [v0] Auth check result:`, {
+      hasUser: !!user,
+      userId: user?.id,
+      userError: userError?.message,
     })
 
-    if (sessionError || !session) {
+    if (userError || !user) {
       console.error(`[${errorId}] [v0] Auth failed - No valid session:`, {
-        error: sessionError?.message,
-        cookieCount: allCookies.length
+        error: userError?.message,
       })
       return NextResponse.json({ 
         error: "No active session. Please log in again.", 
@@ -51,7 +60,6 @@ export async function POST(request: Request) {
       }, { status: 401 })
     }
 
-    const user = session.user
     console.log(`[${errorId}] [v0] User authenticated:`, user.id)
 
     const { data: existingWallet } = await supabase

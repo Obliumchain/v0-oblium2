@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
-import { createClient } from "@/lib/supabase/server"
+import { createServerClient } from "@supabase/ssr"
+import { cookies } from "next/headers"
 import nacl from "tweetnacl"
 import { PublicKey } from "@solana/web3.js"
 import bs58 from "bs58"
@@ -34,18 +35,32 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Signature verification failed" }, { status: 401 })
     }
 
-    const supabase = await createClient()
+    const cookieStore = await cookies()
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return cookieStore.getAll()
+          },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              cookieStore.set(name, value, options)
+            })
+          },
+        },
+      }
+    )
 
     if (mode === "link") {
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+      const { data: { user }, error: userError } = await supabase.auth.getUser()
 
-      if (sessionError || !session?.user) {
-        console.error("[v0] Not authenticated for linking. Session error:", sessionError)
-        console.error("[v0] Session data:", session)
+      if (userError || !user) {
+        console.error("[v0] Not authenticated for linking. Error:", userError)
         return NextResponse.json({ error: "You must be logged in to link a wallet" }, { status: 401 })
       }
 
-      const user = session.user
       console.log("[v0] User authenticated for linking:", user.id)
 
       // Check if wallet is already linked to another account
@@ -117,7 +132,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Database error" }, { status: 500 })
     }
 
-    const supabaseAdmin = await createClient()
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
     if (!serviceRoleKey) {
