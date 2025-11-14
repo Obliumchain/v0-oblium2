@@ -5,8 +5,7 @@ import { useWallet, useConnection } from "@solana/wallet-adapter-react"
 import { createClient } from "@/lib/supabase/client"
 import { LiquidCard } from "@/components/ui/liquid-card"
 import { GlowButton } from "@/components/ui/glow-button"
-import { PublicKey, SystemProgram, Transaction, LAMPORTS_PER_SOL } from "@solana/web3.js"
-import { RECIPIENT_WALLET, validateRecipientWallet } from "@/lib/solana/config"
+import { redirectToPaymentApp } from "@/lib/payment-redirect"
 import { useLanguage } from "@/lib/language-context"
 
 interface Booster {
@@ -28,7 +27,7 @@ interface BoosterShopProps {
 export function BoosterShop({ walletAddress, userId, onPurchaseSuccess }: BoosterShopProps) {
   const [boosters, setBoosters] = useState<Booster[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [isPurchasing, setIsPurchasing] = useState<string | null>(null)
+  const [isRedirecting, setIsRedirecting] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const { t } = useLanguage()
   const { publicKey, sendTransaction, connected } = useWallet()
@@ -74,78 +73,43 @@ export function BoosterShop({ walletAddress, userId, onPurchaseSuccess }: Booste
       return
     }
 
-    if (!validateRecipientWallet()) {
-      setError("Payment system not configured. Please contact support.")
-      return
-    }
-
-    setIsPurchasing(booster.id)
+    setIsRedirecting(booster.id)
     setError(null)
 
     try {
-      console.log("[v0] Creating Solana transaction for", booster.price_sol, "SOL")
-
-      const recipientPubkey = new PublicKey(RECIPIENT_WALLET)
-      const lamports = Math.round(booster.price_sol * LAMPORTS_PER_SOL)
-
-      const transaction = new Transaction().add(
-        SystemProgram.transfer({
-          fromPubkey: publicKey,
-          toPubkey: recipientPubkey,
-          lamports,
-        }),
-      )
-
-      const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash()
-      transaction.recentBlockhash = blockhash
-      transaction.feePayer = publicKey
-
-      console.log("[v0] Sending transaction...")
-
-      const signature = await sendTransaction(transaction, connection)
-
-      console.log("[v0] Transaction sent with signature:", signature)
-      console.log("[v0] Confirming transaction...")
-
-      await connection.confirmTransaction({
-        signature,
-        blockhash,
-        lastValidBlockHeight,
+      console.log("[v0] Redirecting to payment app for booster:", booster.name)
+      
+      // Redirect to external payment application
+      redirectToPaymentApp({
+        userId,
+        boosterId: booster.id,
+        amount: booster.price_sol,
+        boosterName: booster.name,
       })
-
-      console.log("[v0] Transaction confirmed. Recording purchase in database...")
-
-      const response = await fetch("/api/boosters/purchase", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId,
-          boosterId: booster.id,
-          walletTxHash: signature,
-          amountSol: booster.price_sol,
-        }),
-      })
-
-      const result = await response.json()
-
-      if (!response.ok) {
-        throw new Error(result.error || "Purchase failed")
-      }
-
-      console.log("[v0] Purchase successful:", result.message)
-      alert(
-        `✅ ${booster.name} activated successfully! ${booster.multiplier_value > 1 ? `You now get ${booster.multiplier_value}× points (${4000 * booster.multiplier_value} per claim)` : "Auto-claim enabled!"}`,
-      )
-      setError(null)
-      onPurchaseSuccess?.()
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Purchase failed"
-      console.error("[v0] Purchase error:", err)
+      const message = err instanceof Error ? err.message : "Failed to redirect to payment"
+      console.error("[v0] Redirect error:", err)
       setError(message)
-    } finally {
-      setIsPurchasing(null)
+      setIsRedirecting(null)
     }
   }
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search)
+    const paymentStatus = urlParams.get('status')
+    const paymentError = urlParams.get('error')
+
+    if (paymentStatus === 'success') {
+      console.log("[v0] Payment successful, refreshing data...")
+      onPurchaseSuccess?.()
+      // Clean up URL
+      window.history.replaceState({}, '', window.location.pathname)
+    } else if (paymentStatus === 'failed' && paymentError) {
+      setError(decodeURIComponent(paymentError))
+      // Clean up URL
+      window.history.replaceState({}, '', window.location.pathname)
+    }
+  }, [onPurchaseSuccess])
 
   if (isLoading) {
     return <div className="text-foreground/60">{t("loadingBoosters")}</div>
@@ -199,10 +163,10 @@ export function BoosterShop({ walletAddress, userId, onPurchaseSuccess }: Booste
 
               <GlowButton
                 onClick={() => handlePurchaseBooster(booster)}
-                disabled={isPurchasing === booster.id || !connected}
+                disabled={isRedirecting === booster.id || !connected}
                 className="w-full"
               >
-                {isPurchasing === booster.id ? t("processing") : t("buyNow")}
+                {isRedirecting === booster.id ? t("redirecting") || "Redirecting..." : t("buyNow")}
               </GlowButton>
 
               {!connected && <p className="text-xs text-center text-foreground/40">{t("connectWalletToBuy")}</p>}
