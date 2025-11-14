@@ -25,7 +25,11 @@ export function LanguageSelector() {
         className="flex items-center gap-2 px-4 py-2 rounded-lg bg-cyan-500/10 border border-cyan-500/30 hover:bg-cyan-500/20 transition-colors"
       >
         <span className="text-xl">{currentLanguage.flag}</span>
-        <span className="text-sm font-medium text-cyan-400">{currentLanguage.code.toUpperCase()}</span>
+        <div className="flex items-center gap-1">
+          <span className="text-sm font-bold text-cyan-400">{currentLanguage.code.toUpperCase()}</span>
+          <span className="text-xs font-medium text-cyan-400/70">{currentLanguage.code.toUpperCase()}</span>
+          <span className="text-xs font-light text-cyan-400/50">{currentLanguage.code.toUpperCase()}</span>
+        </div>
         <svg
           width="16"
           height="16"
@@ -42,7 +46,7 @@ export function LanguageSelector() {
       {isOpen && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
-          <div className="absolute top-full right-0 mt-2 w-48 bg-background/95 backdrop-blur-xl border border-cyan-500/30 rounded-lg shadow-2xl z-50 overflow-hidden">
+          <div className="absolute top-full right-0 mt-2 w-56 bg-background/95 backdrop-blur-xl border border-cyan-500/30 rounded-lg shadow-2xl z-50 overflow-hidden">
             {languages.map((lang) => (
               <button
                 key={lang.code}
@@ -54,8 +58,15 @@ export function LanguageSelector() {
                   language === lang.code ? "bg-cyan-500/20 text-cyan-400" : "text-foreground"
                 }`}
               >
-                <span className="text-xl">{lang.flag}</span>
-                <span className="text-sm font-medium">{lang.name}</span>
+                <span className="text-2xl">{lang.flag}</span>
+                <div className="flex-1 text-left">
+                  <div className="text-sm font-medium">{lang.name}</div>
+                  <div className="flex items-center gap-1 mt-0.5">
+                    <span className="text-xs font-bold opacity-70">{lang.code.toUpperCase()}</span>
+                    <span className="text-xs opacity-50">{lang.code.toUpperCase()}</span>
+                    <span className="text-xs opacity-30">{lang.code.toUpperCase()}</span>
+                  </div>
+                </div>
               </button>
             ))}
           </div>

@@ -113,13 +113,107 @@ export default function LeaderboardPage() {
 
         {top3.length >= 3 && (
           <div className="mb-12 animate-fade-in-up stagger-1">
-            {/* Mobile: Single column, Desktop: Podium arrangement */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 md:items-end mb-8">
+            
+            {/* Mobile Pyramid Layout */}
+            <div className="md:hidden flex flex-col items-center gap-4 mb-8">
+              {/* First Place - Elevated at top center */}
+              <div className="animate-fade-in-up stagger-1 w-full max-w-[280px]">
+                <div className="glass-card p-8 text-center hover:scale-105 transition-transform duration-300 border-2 border-primary/30">
+                  <div className="relative inline-block mb-4">
+                    <Avatar className="w-28 h-28 border-4 border-yellow-400 shadow-xl shadow-yellow-400/30">
+                      <AvatarFallback className="bg-gradient-to-br from-yellow-400 to-yellow-600 text-background text-3xl font-display font-bold">
+                        {top3[0]?.nickname[0]?.toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="absolute -top-2 -right-2">
+                      <Crown className="w-10 h-10 text-yellow-400 fill-yellow-400 animate-float" />
+                    </div>
+                  </div>
+                  
+                  <div className={`inline-flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br ${getRankBadgeColor(1)} text-background font-display font-bold mb-3 shadow-lg`}>
+                    1
+                  </div>
+                  
+                  <h3 className="font-display font-bold text-primary mb-2" style={{ fontSize: 'var(--text-lg)' }}>
+                    {top3[0]?.nickname}
+                  </h3>
+                  
+                  <div className="flex items-center justify-center gap-2 text-success">
+                    <span className="text-2xl">✨</span>
+                    <span className="font-display font-bold" style={{ fontSize: 'var(--text-lg)' }}>
+                      {top3[0]?.points.toLocaleString()} pts
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Second and Third Place - Side by side below */}
+              <div className="flex gap-4 w-full justify-center">
+                {/* Second Place */}
+                <div className="animate-fade-in-up stagger-2 flex-1 max-w-[160px]">
+                  <div className="glass-card p-4 text-center hover:scale-105 transition-transform duration-300">
+                    <div className="relative inline-block mb-3">
+                      <Avatar className="w-20 h-20 border-4 border-silver shadow-lg">
+                        <AvatarFallback className="bg-gradient-to-br from-gray-300 to-gray-500 text-background text-xl font-display font-bold">
+                          {top3[1]?.nickname[0]?.toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                    </div>
+                    
+                    <div className={`inline-flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br ${getRankBadgeColor(2)} text-background font-display font-bold mb-2`}>
+                      2
+                    </div>
+                    
+                    <h3 className="font-display font-bold text-foreground mb-1 truncate" style={{ fontSize: 'var(--text-sm)' }}>
+                      {top3[1]?.nickname}
+                    </h3>
+                    
+                    <div className="flex flex-col items-center gap-0.5 text-success">
+                      <span className="text-base">✨</span>
+                      <span className="font-display font-bold" style={{ fontSize: 'var(--text-xs)' }}>
+                        {top3[1]?.points.toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Third Place */}
+                <div className="animate-fade-in-up stagger-3 flex-1 max-w-[160px]">
+                  <div className="glass-card p-4 text-center hover:scale-105 transition-transform duration-300">
+                    <div className="relative inline-block mb-3">
+                      <Avatar className="w-20 h-20 border-4 border-orange-400 shadow-lg">
+                        <AvatarFallback className="bg-gradient-to-br from-orange-400 to-orange-600 text-background text-xl font-display font-bold">
+                          {top3[2]?.nickname[0]?.toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                    </div>
+                    
+                    <div className={`inline-flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br ${getRankBadgeColor(3)} text-background font-display font-bold mb-2`}>
+                      3
+                    </div>
+                    
+                    <h3 className="font-display font-bold text-foreground mb-1 truncate" style={{ fontSize: 'var(--text-sm)' }}>
+                      {top3[2]?.nickname}
+                    </h3>
+                    
+                    <div className="flex flex-col items-center gap-0.5 text-success">
+                      <span className="text-base">✨</span>
+                      <span className="font-display font-bold" style={{ fontSize: 'var(--text-xs)' }}>
+                        {top3[2]?.points.toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Desktop: Podium arrangement */}
+            <div className="hidden md:grid grid-cols-3 gap-6 items-end mb-8">
               {/* Second Place */}
-              <div className="order-2 md:order-1 animate-fade-in-up stagger-2">
+              <div className="order-1 animate-fade-in-up stagger-2">
                 <div className="glass-card p-6 text-center hover:scale-105 transition-transform duration-300">
                   <div className="relative inline-block mb-4">
-                    <Avatar className="w-20 h-20 md:w-24 md:h-24 border-4 border-silver shadow-lg">
+                    <Avatar className="w-24 h-24 border-4 border-silver shadow-lg">
                       <AvatarFallback className="bg-gradient-to-br from-gray-300 to-gray-500 text-background text-2xl font-display font-bold">
                         {top3[1]?.nickname[0]?.toUpperCase()}
                       </AvatarFallback>
@@ -144,10 +238,10 @@ export default function LeaderboardPage() {
               </div>
 
               {/* First Place - Larger on desktop */}
-              <div className="order-1 md:order-2 animate-fade-in-up stagger-1">
+              <div className="order-2 animate-fade-in-up stagger-1">
                 <div className="glass-card p-8 text-center hover:scale-105 transition-transform duration-300 border-2 border-primary/30">
                   <div className="relative inline-block mb-4">
-                    <Avatar className="w-24 h-24 md:w-32 md:h-32 border-4 border-yellow-400 shadow-xl shadow-yellow-400/30">
+                    <Avatar className="w-32 h-32 border-4 border-yellow-400 shadow-xl shadow-yellow-400/30">
                       <AvatarFallback className="bg-gradient-to-br from-yellow-400 to-yellow-600 text-background text-3xl font-display font-bold">
                         {top3[0]?.nickname[0]?.toUpperCase()}
                       </AvatarFallback>
@@ -175,10 +269,10 @@ export default function LeaderboardPage() {
               </div>
 
               {/* Third Place */}
-              <div className="order-3 md:order-3 animate-fade-in-up stagger-3">
+              <div className="order-3 animate-fade-in-up stagger-3">
                 <div className="glass-card p-6 text-center hover:scale-105 transition-transform duration-300">
                   <div className="relative inline-block mb-4">
-                    <Avatar className="w-20 h-20 md:w-24 md:h-24 border-4 border-orange-400 shadow-lg">
+                    <Avatar className="w-24 h-24 border-4 border-orange-400 shadow-lg">
                       <AvatarFallback className="bg-gradient-to-br from-orange-400 to-orange-600 text-background text-2xl font-display font-bold">
                         {top3[2]?.nickname[0]?.toUpperCase()}
                       </AvatarFallback>

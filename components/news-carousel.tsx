@@ -8,78 +8,117 @@ interface NewsItem {
   title: string
   description: string
   date: string
-  type: "update" | "news" | "announcement"
+  category: "news" | "update"
 }
 
 const newsItems: NewsItem[] = [
   {
     id: 1,
-    title: "🚀 Presale Live!",
-    description: "OBLM token presale is now active. Get your tokens before the public launch!",
+    title: "Presale Coming Soon!",
+    description: "OBLM token presale starts November 21, 2025. Be ready for the launch! Early participants get exclusive bonuses.",
     date: "2025-01-15",
-    type: "announcement"
+    category: "news"
   },
   {
     id: 2,
-    title: "⚡ New Boosters Available",
+    title: "New Boosters Available",
     description: "Check out our new multiplier boosters starting at just 0.035 SOL!",
     date: "2025-01-14",
-    type: "update"
+    category: "update"
   },
   {
     id: 3,
-    title: "🎁 Referral Bonus Increased",
-    description: "Earn 500 points for every friend you refer to Oblium!",
+    title: "Downtime Apology",
+    description: "We apologize for the recent downtime. Our team has resolved the issues and implemented improvements to prevent future occurrences.",
     date: "2025-01-13",
-    type: "news"
+    category: "news"
   },
-  {
-    id: 4,
-    title: "🔥 Leaderboard Rewards",
-    description: "Top 100 miners will receive exclusive bonuses at launch!",
-    date: "2025-01-12",
-    type: "announcement"
-  }
 ]
 
 export function NewsCarousel() {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isAutoPlaying, setIsAutoPlaying] = useState(true)
+  const [activeTab, setActiveTab] = useState<"news" | "update" | "all">("all")
+
+  const filteredItems = activeTab === "all" 
+    ? newsItems 
+    : newsItems.filter(item => item.category === activeTab)
 
   useEffect(() => {
-    if (!isAutoPlaying) return
+    if (!isAutoPlaying || filteredItems.length === 0) return
 
     const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % newsItems.length)
+      setCurrentIndex((prev) => (prev + 1) % filteredItems.length)
     }, 5000)
 
     return () => clearInterval(interval)
-  }, [isAutoPlaying])
+  }, [isAutoPlaying, filteredItems.length])
+
+  useEffect(() => {
+    setCurrentIndex(0)
+  }, [activeTab])
 
   const next = () => {
-    setCurrentIndex((prev) => (prev + 1) % newsItems.length)
+    if (filteredItems.length === 0) return
+    setCurrentIndex((prev) => (prev + 1) % filteredItems.length)
     setIsAutoPlaying(false)
   }
 
   const previous = () => {
-    setCurrentIndex((prev) => (prev - 1 + newsItems.length) % newsItems.length)
+    if (filteredItems.length === 0) return
+    setCurrentIndex((prev) => (prev - 1 + filteredItems.length) % filteredItems.length)
     setIsAutoPlaying(false)
   }
 
-  const currentItem = newsItems[currentIndex]
+  if (filteredItems.length === 0) return null
 
-  const typeColors = {
+  const currentItem = filteredItems[currentIndex]
+
+  const categoryColors = {
     update: "from-blue-500/20 to-cyan-500/20 border-cyan-500/30",
     news: "from-purple-500/20 to-pink-500/20 border-purple-500/30",
-    announcement: "from-orange-500/20 to-yellow-500/20 border-yellow-500/30"
   }
 
   return (
     <div className="glass-card p-6">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-display font-bold text-foreground text-lg">
-          📰 News & Updates
-        </h3>
+        <div className="flex items-center gap-3">
+          <h3 className="font-display font-bold text-foreground text-lg">
+            📰 Latest
+          </h3>
+          <div className="flex items-center gap-2 bg-foreground/5 rounded-lg p-1">
+            <button
+              onClick={() => setActiveTab("all")}
+              className={`px-3 py-1 rounded text-xs font-medium transition-all ${
+                activeTab === "all" 
+                  ? "bg-cyan-500/20 text-cyan-400" 
+                  : "text-foreground/60 hover:text-foreground"
+              }`}
+            >
+              All
+            </button>
+            <button
+              onClick={() => setActiveTab("news")}
+              className={`px-3 py-1 rounded text-xs font-medium transition-all ${
+                activeTab === "news" 
+                  ? "bg-purple-500/20 text-purple-400" 
+                  : "text-foreground/60 hover:text-foreground"
+              }`}
+            >
+              News
+            </button>
+            <button
+              onClick={() => setActiveTab("update")}
+              className={`px-3 py-1 rounded text-xs font-medium transition-all ${
+                activeTab === "update" 
+                  ? "bg-cyan-500/20 text-cyan-400" 
+                  : "text-foreground/60 hover:text-foreground"
+              }`}
+            >
+              Updates
+            </button>
+          </div>
+        </div>
         <div className="flex items-center gap-2">
           <button
             onClick={previous}
@@ -100,7 +139,7 @@ export function NewsCarousel() {
 
       <div className="relative overflow-hidden">
         <div
-          className={`bg-gradient-to-br ${typeColors[currentItem.type]} p-6 rounded-2xl border transition-all duration-500`}
+          className={`bg-gradient-to-br ${categoryColors[currentItem.category]} p-6 rounded-2xl border transition-all duration-500`}
           key={currentItem.id}
         >
           <h4 className="font-display font-bold text-foreground text-base mb-2">
@@ -109,18 +148,27 @@ export function NewsCarousel() {
           <p className="text-foreground/70 text-sm mb-3">
             {currentItem.description}
           </p>
-          <p className="text-foreground/50 text-xs">
-            {new Date(currentItem.date).toLocaleDateString('en-US', {
-              month: 'short',
-              day: 'numeric',
-              year: 'numeric'
-            })}
-          </p>
+          <div className="flex items-center justify-between">
+            <p className="text-foreground/50 text-xs">
+              {new Date(currentItem.date).toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+              })}
+            </p>
+            <span className={`text-xs font-medium px-2 py-1 rounded ${
+              currentItem.category === "news" 
+                ? "bg-purple-500/20 text-purple-400" 
+                : "bg-cyan-500/20 text-cyan-400"
+            }`}>
+              {currentItem.category.toUpperCase()}
+            </span>
+          </div>
         </div>
       </div>
 
       <div className="flex justify-center gap-2 mt-4">
-        {newsItems.map((_, index) => (
+        {filteredItems.map((_, index) => (
           <button
             key={index}
             onClick={() => {

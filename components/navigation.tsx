@@ -73,28 +73,28 @@ export function Navigation() {
         <Link href="/welcome" className="flex items-center gap-3">
           <Image
             src="/logo.png"
-            alt="Oblium"
+            alt="OBLM"
             width={40}
             height={40}
             className="hover:scale-110 transition-transform duration-300"
           />
-          <span className="text-2xl font-bold bg-gradient-to-r from-white via-cyan-400 to-white bg-clip-text text-transparent">
-            OBLIUM
+          <span className="text-3xl font-black tracking-tight" style={{ fontFamily: 'Quantico, sans-serif' }}>
+            OBLM
           </span>
         </Link>
 
-        <div className="flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
+        <div className="flex items-center gap-6 absolute left-1/2 -translate-x-1/2">
           {navItems.map((item) => {
             const Icon = iconMap[item.href as keyof typeof iconMap]
             return (
               <Link key={item.href} href={item.href}>
                 <div
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 hover:bg-cyan-500/10 ${
+                  className={`flex items-center gap-2.5 px-5 py-2.5 rounded-xl transition-all duration-300 hover:bg-cyan-500/10 ${
                     pathname === item.href ? "text-cyan-400 bg-cyan-500/10" : "text-gray-400 hover:text-cyan-400"
                   }`}
                 >
                   <Icon isActive={pathname === item.href} />
-                  <span className="font-medium">{item.label}</span>
+                  <span className="font-medium text-base">{item.label}</span>
                 </div>
               </Link>
             )
@@ -108,9 +108,9 @@ export function Navigation() {
         <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-xl border-b border-cyan-500/20 px-4 py-3">
           <div className="flex items-center justify-between">
             <Link href="/welcome" className="flex items-center gap-2">
-              <Image src="/logo.png" alt="Oblium" width={32} height={32} />
-              <span className="text-lg font-bold bg-gradient-to-r from-white via-cyan-400 to-white bg-clip-text text-transparent">
-                OBLIUM
+              <Image src="/logo.png" alt="OBLM" width={32} height={32} />
+              <span className="text-2xl font-black tracking-tight" style={{ fontFamily: 'Quantico, sans-serif' }}>
+                OBLM
               </span>
             </Link>
 
