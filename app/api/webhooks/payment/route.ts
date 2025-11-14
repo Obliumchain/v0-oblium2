@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { createClient } from "@/lib/supabase/server"
+import { createClient } from "@supabase/supabase-js"
 import { isValidUUID, generateErrorId } from "@/lib/validation"
 import crypto from "crypto"
 
@@ -8,7 +8,6 @@ export async function POST(request: NextRequest) {
   
   console.log(`[v0] [${errorId}] ====== WEBHOOK RECEIVED ======`)
   console.log(`[v0] [${errorId}] Timestamp: ${new Date().toISOString()}`)
-  console.log(`[v0] [${errorId}] Headers:`, Object.fromEntries(request.headers.entries()))
 
   try {
     // Verify webhook signature for security
@@ -36,15 +35,11 @@ export async function POST(request: NextRequest) {
 
       if (signature !== expectedSignature) {
         console.error(`[v0] [${errorId}] Invalid webhook signature`)
-        console.error(`[v0] [${errorId}] Expected: ${expectedSignature}`)
-        console.error(`[v0] [${errorId}] Received: ${signature}`)
         return NextResponse.json({ error: "Invalid signature", errorId }, { status: 401 })
       }
     } else {
       console.warn(`[v0] [${errorId}] No signature provided - accepting request anyway`)
     }
-
-    console.log(`[v0] [${errorId}] Webhook received:`, payload)
 
     // Extract payment details from webhook payload
     const { userId, boosterId, paymentId, amountSol, status, transactionHash } = payload
@@ -60,6 +55,7 @@ export async function POST(request: NextRequest) {
 
     // Validate required fields
     if (!userId || !boosterId || !paymentId || !amountSol) {
+      console.error(`[v0] [${errorId}] Missing required fields`)
       return NextResponse.json({ error: "Missing required fields", errorId }, { status: 400 })
     }
 
@@ -71,18 +67,34 @@ export async function POST(request: NextRequest) {
 
     // Validate UUIDs
     if (!isValidUUID(userId) || !isValidUUID(boosterId)) {
+      console.error(`[v0] [${errorId}] Invalid UUID format`)
       return NextResponse.json({ error: "Invalid ID format", errorId }, { status: 400 })
     }
 
     // Validate amount
     if (typeof amountSol !== "number" || amountSol <= 0 || amountSol > 1000) {
+      console.error(`[v0] [${errorId}] Invalid amount: ${amountSol}`)
       return NextResponse.json({ error: "Invalid amount", errorId }, { status: 400 })
     }
 
-    // Initialize Supabase client
-    const supabase = await createClient()
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+    if (!supabaseUrl || !supabaseServiceKey) {
+      console.error(`[v0] [${errorId}] Supabase configuration missing`)
+      return NextResponse.json({ error: "Server configuration error", errorId }, { status: 500 })
+    }
+
+    console.log(`[v0] [${errorId}] Creating Supabase admin client...`)
+    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    })
 
     // Check if payment already processed (idempotency)
+    console.log(`[v0] [${errorId}] Checking for duplicate transaction...`)
     const { data: existingTx } = await supabase
       .from("booster_transactions")
       .select("id")
@@ -106,10 +118,10 @@ export async function POST(request: NextRequest) {
 
     if (boosterError || !booster) {
       console.error(`[v0] [${errorId}] Booster not found:`, boosterError)
-      return NextResponse.json({ error: "Booster not found or inactive", errorId }, { status: 404 })
+      return NextResponse.json({ error: "Booster not found or inactive", details: boosterError, errorId }, { status: 404 })
     }
 
-    console.log(`[v0] [${errorId}] Booster found:`, booster)
+    console.log(`[v0] [${errorId}] Booster found:`, booster.name)
 
     // Verify payment amount matches booster price
     if (Math.abs(Number(amountSol) - Number(booster.price_sol)) > 0.001) {
@@ -134,10 +146,14 @@ export async function POST(request: NextRequest) {
 
     if (transactionError) {
       console.error(`[v0] [${errorId}] Failed to record transaction:`, transactionError)
-      return NextResponse.json({ error: "Failed to record transaction", errorId }, { status: 500 })
+      return NextResponse.json({ 
+        error: "Failed to record transaction", 
+        details: transactionError,
+        errorId 
+      }, { status: 500 })
     }
 
-    console.log(`[v0] [${errorId}] Transaction recorded:`, transaction)
+    console.log(`[v0] [${errorId}] Transaction recorded successfully`)
     console.log(`[v0] [${errorId}] Activating booster for user...`)
 
     // Activate booster for user
@@ -154,7 +170,11 @@ export async function POST(request: NextRequest) {
 
     if (userBoosterError) {
       console.error(`[v0] [${errorId}] Failed to activate booster:`, userBoosterError)
-      return NextResponse.json({ error: "Failed to activate booster", errorId }, { status: 500 })
+      return NextResponse.json({ 
+        error: "Failed to activate booster", 
+        details: userBoosterError,
+        errorId 
+      }, { status: 500 })
     }
 
     console.log(`[v0] [${errorId}] ====== BOOSTER ACTIVATED SUCCESSFULLY ======`)
@@ -175,7 +195,11 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error(`[v0] [${errorId}] ====== WEBHOOK ERROR ======`)
     console.error(`[v0] [${errorId}] Error:`, error)
-    return NextResponse.json({ error: "Internal server error", errorId }, { status: 500 })
+    return NextResponse.json({ 
+      error: "Internal server error", 
+      details: error instanceof Error ? error.message : "Unknown error",
+      errorId 
+    }, { status: 500 })
   }
 }
 

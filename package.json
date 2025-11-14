@@ -43,7 +43,7 @@
     "@solana/wallet-adapter-wallets": "latest",
     "@solana/web3.js": "latest",
     "@supabase/ssr": "latest",
-    "@supabase/supabase-js": "2.47.10",
+    "@supabase/supabase-js": "latest",
     "@vercel/analytics": "latest",
     "@vercel/speed-insights": "latest",
     "autoprefixer": "^10.4.20",
