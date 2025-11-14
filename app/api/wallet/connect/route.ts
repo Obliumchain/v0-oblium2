@@ -22,9 +22,9 @@ export async function POST(request: Request) {
 
     const supabase = await createClient()
 
-    console.log(`[${errorId}] Checking user authentication for wallet: ${wallet_address}`)
+    console.log(`[${errorId}] Checking user authentication...`)
     const {
-      data: { user },
+      data: { user, session },
       error: authError,
     } = await supabase.auth.getUser()
 
@@ -33,11 +33,10 @@ export async function POST(request: Request) {
         message: authError.message,
         status: authError.status,
         name: authError.name,
-        wallet_type: wallet_type || "unknown",
       })
       return NextResponse.json(
         {
-          error: "Your session expired. Please refresh and log in again.",
+          error: "Session expired. Please refresh the page and log in again.",
           errorId,
           details: authError.message,
         },
@@ -46,42 +45,42 @@ export async function POST(request: Request) {
     }
 
     if (!user) {
-      console.error(`[${errorId}] No user session found for wallet connection`)
+      console.error(`[${errorId}] No user session found`)
       return NextResponse.json(
         {
-          error: "No active session. Please refresh the page and log in.",
+          error: "No active session. Please refresh and log in.",
           errorId,
         },
         { status: 401 },
       )
     }
 
-    console.log(`[${errorId}] User authenticated: ${user.id}, email_confirmed: ${user.email_confirmed_at ? 'yes' : 'no'}`)
+    console.log(`[${errorId}] User authenticated: ${user.id}`)
     console.log(`[${errorId}] Connecting wallet: ${wallet_address} (${wallet_type})`)
 
-    console.log(`[${errorId}] Checking if wallet is already connected...`)
     const { data: existingWallet } = await supabase
       .from("profiles")
-      .select("id")
+      .select("id, wallet_address")
       .eq("wallet_address", wallet_address)
       .neq("id", user.id)
-      .single()
+      .maybeSingle()
 
     if (existingWallet) {
+      console.log(`[${errorId}] Wallet already connected to user: ${existingWallet.id}`)
       return NextResponse.json(
         { error: "Wallet address already connected to another account", errorId },
         { status: 400 },
       )
     }
 
-    console.log(`[${errorId}] Fetching user profile...`)
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
       .from("profiles")
       .select("wallet_address, points")
       .eq("id", user.id)
       .single()
 
-    if (!profile) {
+    if (profileError || !profile) {
+      console.error(`[${errorId}] Profile not found:`, profileError)
       return NextResponse.json({ error: "Profile not found", errorId }, { status: 404 })
     }
 
@@ -89,28 +88,29 @@ export async function POST(request: Request) {
     const bonusPoints = isFirstConnection ? 500 : 0
     const newPoints = profile.points + bonusPoints
 
-    console.log(`[${errorId}] Updating user profile with wallet information...`)
-    const { error } = await supabase
+    console.log(`[${errorId}] Updating profile - First connection: ${isFirstConnection}, Bonus: ${bonusPoints}`)
+    
+    const { error: updateError } = await supabase
       .from("profiles")
       .update({
         wallet_address,
-        wallet_type: wallet_type || "unknown",
+        wallet_type: wallet_type || "Phantom",
         wallet_connected_at: isFirstConnection ? new Date().toISOString() : undefined,
         points: newPoints,
       })
       .eq("id", user.id)
 
-    if (error) {
-      console.error(`[${errorId}] Error updating wallet:`, error)
-      return NextResponse.json({ error: "Failed to connect wallet", errorId }, { status: 500 })
+    if (updateError) {
+      console.error(`[${errorId}] Error updating wallet:`, updateError)
+      return NextResponse.json({ error: "Failed to connect wallet", errorId, details: updateError.message }, { status: 500 })
     }
 
-    console.log(`[${errorId}] Wallet connected successfully for user: ${user.id}, wallet: ${wallet_address}`)
+    console.log(`[${errorId}] Wallet connected successfully!`)
 
     return NextResponse.json({
       success: true,
       wallet_address,
-      wallet_type: wallet_type || "unknown",
+      wallet_type: wallet_type || "Phantom",
       bonus_awarded: bonusPoints,
       new_points: newPoints,
     })

@@ -4,22 +4,13 @@ import { useState, useEffect } from "react"
 import { useWallet } from "@solana/wallet-adapter-react"
 import { useWalletModal } from "@solana/wallet-adapter-react-ui"
 import { GlowButton } from "@/components/ui/glow-button"
+import { createClient } from "@/lib/supabase/client"
 
 interface WalletConnectButtonProps {
   onConnect?: (wallet: any) => void
   onDisconnect?: () => void
   walletAddress?: string | null
   variant?: "primary" | "accent" | "secondary"
-}
-
-const isIOS = () => {
-  if (typeof window === "undefined") return false
-  return /iPhone|iPad|iPod/i.test(navigator.userAgent)
-}
-
-const isPhantomBrowser = () => {
-  if (typeof window === "undefined") return false
-  return window.phantom?.solana?.isPhantom === true
 }
 
 export function WalletConnectButton({
@@ -46,15 +37,30 @@ export function WalletConnectButton({
       setIsConnecting(true)
       setError(null)
       
-      console.log("[v0] Phantom wallet detected:", walletName, walletAddress)
+      console.log("[v0] Wallet connected:", walletName, walletAddress)
 
       try {
-        await new Promise(resolve => setTimeout(resolve, 1500))
+        const supabase = createClient()
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession()
         
-        console.log("[v0] Attempting to save wallet connection...")
+        if (sessionError || !session) {
+          console.error("[v0] No valid session found:", sessionError?.message)
+          setError("Please refresh the page and log in again before connecting your wallet.")
+          setTimeout(() => disconnect(), 2000)
+          return
+        }
+
+        console.log("[v0] Valid session found, user:", session.user.id)
+        
+        await new Promise(resolve => setTimeout(resolve, 2000))
+        
+        console.log("[v0] Saving wallet connection...")
         const response = await fetch("/api/wallet/connect", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${session.access_token}`
+          },
           credentials: "include",
           body: JSON.stringify({ 
             wallet_address: walletAddress,
@@ -76,24 +82,21 @@ export function WalletConnectButton({
           setTimeout(() => setSuccessMessage(null), 5000)
         } else {
           if (response.status === 401) {
-            setError(
-              "Your session expired. Please refresh the page and log in again, then reconnect your wallet."
-            )
-            console.error("[v0] Authentication error. ErrorId:", data.errorId)
+            setError("Session expired. Please refresh the page and try again.")
           } else if (data.error?.includes("already connected")) {
-            setError("This wallet is already connected to another account. Please use a different wallet.")
+            setError("This wallet is already connected to another account.")
           } else {
             setError(data.error || "Failed to connect wallet. Please try again.")
           }
           console.error("[v0] Wallet connection failed:", data)
           
-          setTimeout(() => disconnect(), 3000)
+          setTimeout(() => disconnect(), 2000)
         }
       } catch (err) {
         console.error("[v0] Network error connecting wallet:", err)
         setError("Connection failed. Please check your internet and try again.")
         
-        setTimeout(() => disconnect(), 3000)
+        setTimeout(() => disconnect(), 2000)
       } finally {
         setIsConnecting(false)
       }
@@ -105,12 +108,7 @@ export function WalletConnectButton({
   const handleConnect = () => {
     setError(null)
     setSuccessMessage(null)
-
-    const isiOSDevice = isIOS()
-    const isInPhantom = isPhantomBrowser()
-
-    console.log("[v0] Connect clicked - iOS:", isiOSDevice, "InPhantom:", isInPhantom)
-
+    console.log("[v0] Opening wallet modal...")
     setVisible(true)
   }
 
