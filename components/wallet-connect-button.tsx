@@ -60,7 +60,7 @@ export function WalletConnectButton({
 
         console.log("[v0] Valid session found, user:", session.user.id)
         
-        await new Promise(resolve => setTimeout(resolve, 1000))
+        await new Promise(resolve => setTimeout(resolve, 800))
         
         console.log("[v0] Saving wallet connection...")
         const response = await fetch("/api/wallet/connect", {

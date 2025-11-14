@@ -30,6 +30,12 @@ export function createClient() {
     },
   )
 
+  if (typeof window !== "undefined") {
+    supabaseInstance.auth.onAuthStateChange((event, session) => {
+      console.log("[v0] Auth state changed:", event, session ? "Session active" : "No session")
+    })
+  }
+
   return supabaseInstance
 }
 
@@ -47,7 +53,6 @@ export function getCachedQuery(key: string, ttlMs = 30000) {
 
 export function setCachedQuery(key: string, data: any) {
   queryCache.set(key, { data, timestamp: Date.now() })
-  // Clean old cache entries
   if (queryCache.size > 100) {
     const oldestKey = Array.from(queryCache.keys())[0]
     queryCache.delete(oldestKey)
