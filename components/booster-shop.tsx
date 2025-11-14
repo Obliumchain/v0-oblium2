@@ -8,7 +8,6 @@ import { GlowButton } from "@/components/ui/glow-button"
 import { PublicKey, SystemProgram, Transaction, LAMPORTS_PER_SOL } from "@solana/web3.js"
 import { RECIPIENT_WALLET, validateRecipientWallet } from "@/lib/solana/config"
 import { useLanguage } from "@/lib/language-context"
-import { useToast } from "@/hooks/use-toast"
 
 interface Booster {
   id: string
@@ -32,9 +31,8 @@ export function BoosterShop({ walletAddress, userId, onPurchaseSuccess }: Booste
   const [isPurchasing, setIsPurchasing] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const { t } = useLanguage()
-  const { publicKey, sendTransaction, connected, wallet } = useWallet()
+  const { publicKey, sendTransaction, connected } = useWallet()
   const { connection } = useConnection()
-  const { toast } = useToast()
 
   useEffect(() => {
     const loadBoosters = async () => {
@@ -67,29 +65,17 @@ export function BoosterShop({ walletAddress, userId, onPurchaseSuccess }: Booste
 
   const handlePurchaseBooster = async (booster: Booster) => {
     if (!connected || !publicKey) {
-      toast({
-        variant: "destructive",
-        title: "Wallet Not Connected",
-        description: "Please connect your Phantom wallet first",
-      })
+      setError("Please connect your Phantom wallet first")
       return
     }
 
     if (!userId) {
-      toast({
-        variant: "destructive",
-        title: "Authentication Error",
-        description: "Please refresh the page and try again",
-      })
+      setError("User not authenticated")
       return
     }
 
     if (!validateRecipientWallet()) {
-      toast({
-        variant: "destructive",
-        title: "Configuration Error",
-        description: "Payment system not configured. Please contact support.",
-      })
+      setError("Payment system not configured. Please contact support.")
       return
     }
 
@@ -98,11 +84,6 @@ export function BoosterShop({ walletAddress, userId, onPurchaseSuccess }: Booste
 
     try {
       console.log("[v0] Creating Solana transaction for", booster.price_sol, "SOL")
-      console.log("[v0] Wallet info:", {
-        connected,
-        publicKey: publicKey?.toBase58(),
-        walletName: wallet?.adapter.name,
-      })
 
       const recipientPubkey = new PublicKey(RECIPIENT_WALLET)
       const lamports = Math.round(booster.price_sol * LAMPORTS_PER_SOL)
@@ -137,14 +118,11 @@ export function BoosterShop({ walletAddress, userId, onPurchaseSuccess }: Booste
       const response = await fetch("/api/boosters/purchase", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify({
           userId,
           boosterId: booster.id,
           walletTxHash: signature,
           amountSol: booster.price_sol,
-          walletAddress: publicKey.toBase58(),
-          walletType: wallet?.adapter.name || "unknown",
         }),
       })
 
@@ -155,21 +133,15 @@ export function BoosterShop({ walletAddress, userId, onPurchaseSuccess }: Booste
       }
 
       console.log("[v0] Purchase successful:", result.message)
-      toast({
-        title: "Booster Activated!",
-        description: `${booster.name} activated successfully! ${booster.multiplier_value > 1 ? `You now get ${booster.multiplier_value}× points (${4000 * booster.multiplier_value} per claim)` : "Auto-claim enabled!"}`,
-      })
+      alert(
+        `✅ ${booster.name} activated successfully! ${booster.multiplier_value > 1 ? `You now get ${booster.multiplier_value}× points (${4000 * booster.multiplier_value} per claim)` : "Auto-claim enabled!"}`,
+      )
       setError(null)
       onPurchaseSuccess?.()
     } catch (err) {
       const message = err instanceof Error ? err.message : "Purchase failed"
       console.error("[v0] Purchase error:", err)
       setError(message)
-      toast({
-        variant: "destructive",
-        title: "Purchase Failed",
-        description: message,
-      })
     } finally {
       setIsPurchasing(null)
     }

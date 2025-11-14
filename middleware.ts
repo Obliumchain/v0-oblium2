@@ -1,63 +1,19 @@
-import { createServerClient } from "@supabase/ssr"
 import { NextResponse, type NextRequest } from "next/server"
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname
 
+  // Skip middleware entirely for static assets and API routes
   if (
-    path.startsWith("/api") ||
     path.startsWith("/_next") ||
-    path.startsWith("/_vercel") ||
-    (path.includes(".") && !path.startsWith("/api"))
+    path.startsWith("/api") ||
+    path.includes(".") // Any file with extension (images, fonts, etc)
   ) {
     return NextResponse.next()
   }
 
-  let response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
-  })
-
-  try {
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() {
-            return request.cookies.getAll()
-          },
-          setAll(cookiesToSet) {
-            cookiesToSet.forEach(({ name, value, options }) => {
-              request.cookies.set(name, value)
-              response.cookies.set(name, value, options)
-            })
-          },
-        },
-      }
-    )
-
-    const { data: { user }, error } = await supabase.auth.getUser()
-    
-    if (error || !user) {
-      if (!path.startsWith("/auth") && path !== "/" && path !== "/welcome") {
-        const url = request.nextUrl.clone()
-        url.pathname = "/auth"
-        return NextResponse.redirect(url)
-      }
-    } else {
-      if (path === "/auth" || path === "/") {
-        const url = request.nextUrl.clone()
-        url.pathname = "/dashboard"
-        return NextResponse.redirect(url)
-      }
-    }
-  } catch (error) {
-    console.error(`[middleware] Error:`, error)
-  }
-
-  return response
+  // Allow all other requests through - auth checked in pages
+  return NextResponse.next()
 }
 
 export const config = {

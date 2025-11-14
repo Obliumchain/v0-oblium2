@@ -1,13 +1,13 @@
 "use client"
 
-import { createBrowserClient as createSupabaseBrowserClient } from "@supabase/ssr"
+import { createBrowserClient } from "@supabase/ssr"
 
-let supabaseInstance: ReturnType<typeof createSupabaseBrowserClient> | null = null
+let supabaseInstance: ReturnType<typeof createBrowserClient> | null = null
 
 export function createClient() {
   if (supabaseInstance) return supabaseInstance
 
-  supabaseInstance = createSupabaseBrowserClient(
+  supabaseInstance = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL || "",
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
     {
@@ -17,7 +17,6 @@ export function createClient() {
         detectSessionInUrl: true,
         storageKey: "oblium-auth",
         flowType: "pkce",
-        storage: typeof window !== "undefined" ? window.localStorage : undefined,
       },
       db: {
         schema: "public",
@@ -30,16 +29,8 @@ export function createClient() {
     },
   )
 
-  if (typeof window !== "undefined") {
-    supabaseInstance.auth.onAuthStateChange((event, session) => {
-      console.log("[v0] Auth state changed:", event, session ? "Session active" : "No session")
-    })
-  }
-
   return supabaseInstance
 }
-
-export const createBrowserClient = createClient
 
 const queryCache = new Map<string, { data: any; timestamp: number }>()
 
@@ -53,6 +44,7 @@ export function getCachedQuery(key: string, ttlMs = 30000) {
 
 export function setCachedQuery(key: string, data: any) {
   queryCache.set(key, { data, timestamp: Date.now() })
+  // Clean old cache entries
   if (queryCache.size > 100) {
     const oldestKey = Array.from(queryCache.keys())[0]
     queryCache.delete(oldestKey)

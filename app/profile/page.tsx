@@ -239,7 +239,7 @@ export default function ProfilePage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-[#0a0015] to-background pb-28">
+      <div className="min-h-screen bg-gradient-to-br from-background via-[#0a0015] to-background pb-32 lg:pb-8">
         <BackgroundAnimation />
         <Navigation />
         <div className="max-w-7xl mx-auto px-4 pt-24 pb-8">
@@ -259,7 +259,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-[#0a0015] to-background pb-28">
+    <div className="min-h-screen bg-gradient-to-br from-background via-[#0a0015] to-background pb-32 lg:pb-8">
       <BackgroundAnimation />
       <Navigation />
 

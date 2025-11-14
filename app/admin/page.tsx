@@ -7,7 +7,6 @@ import { LiquidCard } from "@/components/ui/liquid-card"
 import { BackgroundAnimation } from "@/components/background-animation"
 import { Button } from "@/components/ui/button"
 import { Trash2, AlertTriangle } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
 
 interface User {
   id: string
@@ -24,7 +23,6 @@ export default function AdminPage() {
   const [isAuthorized, setIsAuthorized] = useState(false)
   const [deletingUserId, setDeletingUserId] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
-  const { toast } = useToast()
 
   useEffect(() => {
     checkAuth()
@@ -128,18 +126,11 @@ export default function AdminPage() {
         throw new Error(data.error || "Failed to delete user")
       }
 
-      toast({
-        title: "User Deleted",
-        description: `User "${nickname}" has been deleted successfully`,
-      })
+      alert(`User "${nickname}" has been deleted successfully`)
       await loadUsers()
     } catch (error: any) {
       console.error("[v0] Error deleting user:", error)
-      toast({
-        title: "Delete Failed",
-        description: `Failed to delete user: ${error.message}`,
-        variant: "destructive",
-      })
+      alert(`Failed to delete user: ${error.message}`)
     } finally {
       setDeletingUserId(null)
     }
@@ -168,7 +159,7 @@ export default function AdminPage() {
         <LiquidCard className="p-8 max-w-md mx-4">
           <div className="text-center">
             <AlertTriangle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-            <h1 className="text-2xl font-display font-bold text-primary mb-2">Access Denied</h1>
+            <h1 className="text-2xl font-display font-bold text-foreground mb-2">Access Denied</h1>
             <p className="text-foreground/60 mb-6">You do not have permission to access this page.</p>
             <Button onClick={() => (window.location.href = "/dashboard")}>Go to Dashboard</Button>
           </div>

@@ -24,28 +24,27 @@ export function SolanaWalletProvider({ children }: { children: ReactNode }) {
 
   const wallets = useMemo(() => {
     const phantomAdapter = new PhantomWalletAdapter()
-    const solflareAdapter = new SolflareWalletAdapter({
-      // Disable iframe to prevent CSP blocking
-      disableIframe: true,
-    })
+    const solflareAdapter = new SolflareWalletAdapter()
 
     // iOS-specific configuration for universal links
     if (isIOS()) {
-      console.log("[v0] iOS detected - prioritizing Phantom for wallet connection")
+      console.log("[v0] iOS detected - using universal links for wallet connection")
     }
 
-    // Phantom is first in the array, making it the default/primary wallet
     return [phantomAdapter, solflareAdapter]
   }, [])
 
   const shouldAutoConnect = useMemo(() => {
     if (typeof window === "undefined") return false
 
+    // Check if we're in Phantom's in-app browser
     const isPhantomBrowser = window.phantom?.solana?.isPhantom === true
-    const hasPhantomStored = localStorage.getItem("walletName") === "Phantom"
-    
-    // Auto-connect only if Phantom is available or was previously connected
-    return isPhantomBrowser || hasPhantomStored
+
+    // Check if we have a stored connection
+    const hasStoredConnection = localStorage.getItem("walletName") === "Phantom"
+
+    // Auto-connect if in Phantom browser or has previous connection
+    return isPhantomBrowser || hasStoredConnection
   }, [])
 
   return (

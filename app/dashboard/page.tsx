@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { useRouter } from 'next/navigation'
+import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { Navigation } from "@/components/navigation"
 import { LiquidCard } from "@/components/ui/liquid-card"
@@ -11,10 +11,6 @@ import { BackgroundAnimation } from "@/components/background-animation"
 import { BoosterShop } from "@/components/booster-shop"
 import { WalletConnectButton } from "@/components/wallet-connect-button"
 import { ConversionCountdown } from "@/components/conversion-countdown"
-import { PresaleCountdown } from "@/components/presale-countdown"
-import { NewTaskNotification } from "@/components/new-task-notification"
-import { DashboardCarousel } from "@/components/dashboard-carousel"
-import { NewsTicker } from "@/components/news-ticker"
 import { useLanguage } from "@/lib/language-context"
 
 interface UserProfile {
@@ -52,7 +48,6 @@ export default function DashboardPage() {
   const [showWalletNotification, setShowWalletNotification] = useState(false)
   const [referralCount, setReferralCount] = useState(0)
   const [showWelcomeModal, setShowWelcomeModal] = useState(false)
-  const [showNewTaskNotification, setShowNewTaskNotification] = useState(false)
 
   const loadUserData = useCallback(async () => {
     try {
@@ -135,23 +130,6 @@ export default function DashboardPage() {
           setShowWelcomeModal(true)
           localStorage.setItem(`welcome_shown_${user.id}`, "true")
         }
-      }
-
-      const { data: allTasks } = await supabase.from("tasks").select("*").eq("active", true)
-
-      const { data: completedTasks } = await supabase.from("task_completions").select("task_id").eq("user_id", user.id)
-
-      const completedTaskIds = new Set(completedTasks?.map((c) => c.task_id) || [])
-      const hasUncompletedTasks = allTasks?.some((task) => !completedTaskIds.has(task.id))
-
-      const newTaskNotificationKey = `new_task_notification_shown_${user.id}`
-      const hasSeenNotification = localStorage.getItem(newTaskNotificationKey)
-
-      if (hasUncompletedTasks && !hasSeenNotification) {
-        setTimeout(() => {
-          setShowNewTaskNotification(true)
-          localStorage.setItem(newTaskNotificationKey, "true")
-        }, 1500)
       }
     } catch (error) {
       console.error("[v0] Error loading user data:", error)
@@ -318,8 +296,6 @@ export default function DashboardPage() {
       <BackgroundAnimation />
       <Navigation />
 
-      {showNewTaskNotification && <NewTaskNotification onClose={() => setShowNewTaskNotification(false)} />}
-
       {showWelcomeModal && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <LiquidCard className="max-w-lg w-full p-8 text-center border-2 border-primary animate-in zoom-in-95">
@@ -354,15 +330,6 @@ export default function DashboardPage() {
       )}
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 py-8">
-        {/* Added NewsTicker above the DashboardCarousel */}
-        <div className="mb-6">
-          <NewsTicker />
-        </div>
-
-        <div className="mb-8">
-          <DashboardCarousel />
-        </div>
-
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <LiquidCard className="p-8 text-center">
             <div className="text-foreground/60 text-sm mb-2">{t("totalPoints")}</div>
@@ -385,7 +352,7 @@ export default function DashboardPage() {
           </LiquidCard>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           <LiquidCard className="lg:col-span-2 p-8">
             <h2 className="text-2xl font-display font-bold text-primary mb-6">{t("miningPanel")}</h2>
 
@@ -461,9 +428,8 @@ export default function DashboardPage() {
           </LiquidCard>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div className="mb-8">
           <ConversionCountdown />
-          <PresaleCountdown />
         </div>
 
         {showBoosterShop && (
