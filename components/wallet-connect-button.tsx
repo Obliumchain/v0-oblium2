@@ -41,15 +41,21 @@ export function WalletConnectButton({
         const walletAddress = publicKey.toString()
         console.log("[v0] Wallet connected:", walletAddress)
 
+        console.log("[v0] Waiting for session to stabilize...")
+        await new Promise((resolve) => setTimeout(resolve, 1500))
+
         try {
+          console.log("[v0] Sending wallet connection request...")
           const response = await fetch("/api/wallet/connect", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            credentials: "include", // Include cookies for authentication
+            credentials: "include",
             body: JSON.stringify({ wallet_address: walletAddress }),
           })
 
+          console.log("[v0] Response status:", response.status)
           const data = await response.json()
+          console.log("[v0] Response data:", data)
 
           if (data.success) {
             if (data.bonus_awarded > 0) {
@@ -60,7 +66,7 @@ export function WalletConnectButton({
             onConnect?.({ address: walletAddress, type: "phantom", connected_at: new Date().toISOString() })
           } else {
             if (response.status === 401) {
-              setError("Please refresh the page and try again. If the problem persists, log out and log back in.")
+              setError("Authentication error. Please refresh the page and try connecting again.")
             } else {
               setError(data.error || "Failed to save wallet connection")
             }
