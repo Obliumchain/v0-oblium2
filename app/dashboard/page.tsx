@@ -9,6 +9,8 @@ import { GlowButton } from "@/components/ui/glow-button"
 import { CountdownTimer } from "@/components/ui/countdown-timer"
 import { BackgroundAnimation } from "@/components/background-animation"
 import { ConversionCountdown } from "@/components/conversion-countdown"
+import { NewsCarousel } from "@/components/news-carousel"
+import { PresaleCountdown } from "@/components/presale-countdown"
 import { useLanguage } from "@/lib/language-context"
 
 interface UserProfile {
@@ -290,7 +292,10 @@ export default function DashboardPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background via-[#0a0015] to-background flex items-center justify-center">
         <BackgroundAnimation />
-        <div className="text-primary text-lg">Loading dashboard...</div>
+        <div className="text-center animate-scale-in">
+          <div className="w-16 h-16 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-4" />
+          <div className="text-primary text-lg font-display">Loading dashboard...</div>
+        </div>
       </div>
     )
   }
@@ -301,8 +306,8 @@ export default function DashboardPage() {
       <Navigation />
 
       {showPaymentSuccess && (
-        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-top">
-          <LiquidCard className="p-4 bg-success/20 border-success/50">
+        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-50 animate-scale-in">
+          <div className="glass-card p-4 border-success/50">
             <div className="flex items-center gap-3">
               <span className="text-2xl">✅</span>
               <div>
@@ -310,7 +315,7 @@ export default function DashboardPage() {
                 <p className="text-foreground/70 text-xs">Your booster is now active. Refreshing data...</p>
               </div>
             </div>
-          </LiquidCard>
+          </div>
         </div>
       )}
 
@@ -348,31 +353,55 @@ export default function DashboardPage() {
       )}
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 py-8">
+        <div className="mb-8 animate-fade-in-up">
+          <NewsCarousel />
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <LiquidCard className="p-8 text-center">
-            <div className="text-foreground/60 text-sm mb-2">{t("totalPoints")}</div>
-            <div className="text-5xl font-display font-black text-primary mb-2">
+          <div className="glass-card p-8 text-center animate-fade-in-up stagger-1">
+            <div className="text-foreground/60 text-sm mb-2 font-display" style={{ fontSize: 'var(--text-sm)' }}>
+              {t("totalPoints")}
+            </div>
+            <div className="font-display font-black text-primary mb-2 animate-float" style={{ fontSize: 'var(--text-xl)' }}>
               {userProfile?.points.toLocaleString() || 0}
             </div>
             <div className="h-1 bg-gradient-to-r from-primary to-accent rounded-full mt-4" />
-          </LiquidCard>
+          </div>
 
-          <LiquidCard className="p-8 text-center">
-            <div className="text-foreground/60 text-sm mb-2">{t("oblmTokens")}</div>
-            <div className="text-5xl font-display font-bold text-accent">{oblm}</div>
+          <div className="glass-card p-8 text-center animate-fade-in-up stagger-2">
+            <div className="text-foreground/60 text-sm mb-2 font-display" style={{ fontSize: 'var(--text-sm)' }}>
+              {t("oblmTokens")}
+            </div>
+            <div className="font-display font-bold text-accent animate-float" style={{ fontSize: 'var(--text-xl)' }}>
+              {oblm}
+            </div>
             <div className="h-1 bg-gradient-to-r from-accent to-primary rounded-full mt-4" />
-          </LiquidCard>
+          </div>
 
-          <LiquidCard className="p-8 text-center">
-            <div className="text-foreground/60 text-sm mb-2">{t("conversionStatus")}</div>
-            <div className="text-lg font-display font-bold text-success mb-4">{t("active")}</div>
-            <div className="text-xs text-foreground/60">{t("autoConvert")}</div>
-          </LiquidCard>
+          <div className="glass-card p-8 text-center animate-fade-in-up stagger-3"
+            onClick={() => router.push('/booster')}
+          >
+            <div className="text-foreground/60 text-sm mb-2 font-display cursor-pointer" style={{ fontSize: 'var(--text-sm)' }}>
+              Boosters Available
+            </div>
+            <div className="font-display font-black text-secondary mb-2" style={{ fontSize: 'var(--text-lg)' }}>
+              Starting at
+            </div>
+            <div className="font-display font-bold text-primary" style={{ fontSize: 'var(--text-lg)' }}>
+              0.035 SOL
+            </div>
+            <div className="h-1 bg-gradient-to-r from-secondary to-primary rounded-full mt-4" />
+            <div className="mt-4 text-xs text-foreground/60">
+              Click to browse all boosters
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          <LiquidCard className="lg:col-span-2 p-8">
-            <h2 className="text-2xl font-display font-bold text-primary mb-6">{t("miningPanel")}</h2>
+          <div className="lg:col-span-2 glass-panel-strong p-8 animate-fade-in-up stagger-4">
+            <h2 className="font-display font-bold text-primary mb-6" style={{ fontSize: 'var(--text-lg)' }}>
+              {t("miningPanel")}
+            </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -392,10 +421,12 @@ export default function DashboardPage() {
                 <p className="text-xs text-center text-success mt-2">{t("autoClaimEnabled")}</p>
               )}
             </div>
-          </LiquidCard>
+          </div>
 
-          <LiquidCard className="p-8">
-            <h2 className="text-xl font-display font-bold text-success mb-6">⚡ {t("activeBoosters")}</h2>
+          <div className="glass-panel-strong p-8 animate-fade-in-up stagger-5">
+            <h2 className="font-display font-bold text-success mb-6" style={{ fontSize: 'var(--text-base)' }}>
+              ⚡ {t("activeBoosters")}
+            </h2>
 
             {activeBoosters.length > 0 ? (
               <div className="space-y-3">
@@ -423,39 +454,22 @@ export default function DashboardPage() {
                 <p className="text-xs text-foreground/40">Visit the Booster page to purchase boosters!</p>
               </div>
             )}
-          </LiquidCard>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <LiquidCard 
-            className="p-8 text-center cursor-pointer hover:scale-105 transition-transform duration-300"
-            onClick={() => router.push('/booster')}
-          >
-            <div className="text-foreground/60 text-sm mb-2">Boosters Available</div>
-            <div className="text-5xl font-display font-black text-secondary mb-2">
-              Starting at
-            </div>
-            <div className="text-3xl font-display font-bold text-primary">0.035 SOL</div>
-            <div className="h-1 bg-gradient-to-r from-secondary to-primary rounded-full mt-4" />
-            <div className="mt-4 text-xs text-foreground/60">
-              Click to browse all boosters
-            </div>
-          </LiquidCard>
-
-          <LiquidCard className="p-8 text-center md:col-span-2">
-            <div className="text-foreground/60 text-sm mb-2">{t("conversionStatus")}</div>
-            <div className="text-lg font-display font-bold text-success mb-4">{t("active")}</div>
-            <div className="text-xs text-foreground/60">{t("autoConvert")}</div>
-          </LiquidCard>
+        <div className="mb-8 animate-fade-in-up">
+          <PresaleCountdown />
         </div>
 
-        <div className="mb-8">
+        <div className="mb-8 animate-fade-in-up">
           <ConversionCountdown />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <LiquidCard className="p-8">
-            <h2 className="text-xl font-display font-bold text-accent mb-6">{t("referFriends")}</h2>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-fade-in-up">
+          <div className="glass-card p-8">
+            <h2 className="font-display font-bold text-accent mb-6" style={{ fontSize: 'var(--text-base)' }}>
+              {t("referFriends")}
+            </h2>
             <div className="flex flex-col md:flex-row items-center gap-6">
               <div className="flex-1">
                 <p className="text-foreground/60 text-sm mb-4">{t("referFriendsDesc")}</p>
@@ -481,7 +495,7 @@ export default function DashboardPage() {
             <p className="text-xs text-foreground/50 mt-4 text-center">
               Share your referral link with friends - it's easier than entering codes!
             </p>
-          </LiquidCard>
+          </div>
         </div>
       </div>
     </div>

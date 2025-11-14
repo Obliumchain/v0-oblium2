@@ -1,15 +1,15 @@
 import type React from "react"
-import { Orbitron, Inter } from 'next/font/google'
+import { Quantico, Inter } from 'next/font/google'
 import "./globals.css"
 import { LanguageProvider } from "@/lib/language-context"
 import { SolanaWalletProvider } from "@/lib/wallet/wallet-provider"
 import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 
-const orbitron = Orbitron({
+const quantico = Quantico({
   subsets: ["latin"],
-  weight: ["400", "700", "900"],
-  variable: "--font-orbitron",
+  weight: ["400", "700"],
+  variable: "--font-quantico",
 })
 
 const inter = Inter({
@@ -37,7 +37,7 @@ export const metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${orbitron.variable} ${inter.variable}`}>
+    <html lang="en" className={`${quantico.variable} ${inter.variable}`}>
       <body className="bg-background text-foreground">
         <LanguageProvider>
           <SolanaWalletProvider>{children}</SolanaWalletProvider>

@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import { useWallet, useConnection } from "@solana/wallet-adapter-react"
 import { createClient } from "@/lib/supabase/client"
-import { LiquidCard } from "@/components/ui/liquid-card"
 import { GlowButton } from "@/components/ui/glow-button"
 import { redirectToPaymentApp } from "@/lib/payment-redirect"
 import { useLanguage } from "@/lib/language-context"
@@ -122,14 +121,17 @@ export function BoosterShop({ walletAddress, userId, onPurchaseSuccess }: Booste
   return (
     <div className="space-y-4">
       {error && (
-        <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
+        <div className="glass-card p-3 border-red-500/30 bg-red-500/10">
           <p className="text-xs text-red-400">{error}</p>
         </div>
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {boosters.map((booster) => (
-          <LiquidCard key={booster.id} className="p-6 flex flex-col">
+        {boosters.map((booster, index) => (
+          <div 
+            key={booster.id} 
+            className={`glass-card p-6 flex flex-col animate-fade-in-up stagger-${(index % 5) + 1}`}
+          >
             <div className="flex-grow mb-6">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="font-display font-bold text-foreground">{booster.name}</h3>
@@ -161,10 +163,10 @@ export function BoosterShop({ walletAddress, userId, onPurchaseSuccess }: Booste
                 disabled={isRedirecting === booster.id}
                 className="w-full"
               >
-                {isRedirecting === booster.id ? t("redirecting") || "Redirecting..." : t("buyNow")}
+                {isRedirecting === booster.id ? "Loading Secure Payment Gateway..." : t("buyNow")}
               </GlowButton>
             </div>
-          </LiquidCard>
+          </div>
         ))}
       </div>
     </div>
