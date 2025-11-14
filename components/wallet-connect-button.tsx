@@ -32,57 +32,66 @@ export function WalletConnectButton({
   const { setVisible } = useWalletModal()
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [showIOSOptions, setShowIOSOptions] = useState(false)
+  const [isConnecting, setIsConnecting] = useState(false)
 
   useEffect(() => {
     const handleConnection = async () => {
-      if (connected && publicKey) {
-        const walletAddress = publicKey.toString()
-        const walletName = wallet?.adapter?.name || "Unknown"
-        console.log("[v0] Wallet connected, attempting to save:", walletName, walletAddress)
+      if (!connected || !publicKey || isConnecting || propWalletAddress) {
+        return
+      }
 
-        try {
-          await new Promise(resolve => setTimeout(resolve, 500))
-          
-          console.log("[v0] Making API request to save wallet connection...")
-          const response = await fetch("/api/wallet/connect", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include", // Ensure cookies are sent with request
-            body: JSON.stringify({ wallet_address: walletAddress }),
-          })
+      const walletAddress = publicKey.toString()
+      const walletName = wallet?.adapter?.name || "Unknown"
+      
+      setIsConnecting(true)
+      setError(null)
+      
+      console.log("[v0] New wallet connected:", walletName, walletAddress)
 
-          console.log("[v0] API response status:", response.status)
-          const data = await response.json()
-          console.log("[v0] API response data:", data)
+      try {
+        await new Promise(resolve => setTimeout(resolve, 800))
+        
+        console.log("[v0] Saving wallet connection to database...")
+        const response = await fetch("/api/wallet/connect", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ wallet_address: walletAddress }),
+        })
 
-          if (data.success) {
-            if (data.bonus_awarded > 0) {
-              setSuccessMessage(`Wallet connected! You earned ${data.bonus_awarded} points!`)
-            } else {
-              setSuccessMessage("Wallet connected successfully!")
-            }
-            onConnect?.({ address: walletAddress, type: walletName, connected_at: new Date().toISOString() })
+        const data = await response.json()
+        console.log("[v0] API response:", response.status, data)
+
+        if (data.success) {
+          if (data.bonus_awarded > 0) {
+            setSuccessMessage(`Wallet connected! You earned ${data.bonus_awarded} points!`)
           } else {
-            if (response.status === 401) {
-              setError(
-                "Session expired. Please refresh the page and try connecting your wallet again."
-              )
-              console.error("[v0] Auth error. ErrorId:", data.errorId, "Details:", data.details)
-            } else {
-              setError(data.error || "Failed to save wallet connection")
-              console.error("[v0] Wallet connection failed:", data)
-            }
+            setSuccessMessage("Wallet connected successfully!")
           }
-        } catch (err) {
-          console.error("[v0] Network or connection error:", err)
-          setError("Connection failed. Please check your internet and try again.")
+          onConnect?.({ address: walletAddress, type: walletName, connected_at: new Date().toISOString() })
+        } else {
+          if (response.status === 401) {
+            setError(
+              "Unable to save wallet. Please refresh the page and try again."
+            )
+            console.error("[v0] Auth error saving wallet. ErrorId:", data.errorId)
+          } else if (data.error?.includes("already connected")) {
+            setError("This wallet is already connected to another account")
+          } else {
+            setError(data.error || "Failed to save wallet connection")
+          }
+          console.error("[v0] Wallet save failed:", data)
         }
+      } catch (err) {
+        console.error("[v0] Network error saving wallet:", err)
+        setError("Connection failed. Please check your internet and try again.")
+      } finally {
+        setIsConnecting(false)
       }
     }
 
     handleConnection()
-  }, [connected, publicKey, wallet, onConnect])
+  }, [connected, publicKey, wallet, propWalletAddress, isConnecting, onConnect])
 
   const handleConnect = () => {
     setError(null)
@@ -91,15 +100,8 @@ export function WalletConnectButton({
     const isiOSDevice = isIOS()
     const isInPhantom = isPhantomBrowser()
 
-    console.log("[v0] Connect clicked - iOS:", isiOSDevice, "InPhantom:", isInPhantom, "Connecting:", connecting)
+    console.log("[v0] Connect clicked - iOS:", isiOSDevice, "InPhantom:", isInPhantom)
 
-    if (isiOSDevice && !isInPhantom) {
-      console.log("[v0] iOS Safari detected - showing wallet selection modal")
-      setVisible(true)
-      return
-    }
-
-    console.log("[v0] Opening wallet modal")
     setVisible(true)
   }
 
@@ -109,7 +111,6 @@ export function WalletConnectButton({
       onDisconnect?.()
       setSuccessMessage(null)
       setError(null)
-      setShowIOSOptions(false)
     } catch (err) {
       setError(err instanceof Error ? err.message : "Disconnection failed")
     }
@@ -119,14 +120,16 @@ export function WalletConnectButton({
     return `${address.slice(0, 6)}...${address.slice(-6)}`
   }
 
-  if (connected && publicKey) {
-    const walletAddress = publicKey.toString()
+  const displayWalletAddress = publicKey?.toString() || propWalletAddress
+  const isWalletConnected = connected || propWalletAddress
+
+  if (isWalletConnected && displayWalletAddress) {
     return (
       <div className="space-y-2">
         <div className="flex items-center justify-between gap-2">
           <div className="flex-1 px-4 py-3 bg-background/50 border border-primary/30 rounded-lg">
             <div className="text-xs text-foreground/60 mb-1">Connected Wallet</div>
-            <div className="text-sm font-mono text-primary">{formatAddress(walletAddress)}</div>
+            <div className="text-sm font-mono text-primary">{formatAddress(displayWalletAddress)}</div>
           </div>
           <GlowButton onClick={handleDisconnect} variant={variant} className="px-6">
             Disconnect
@@ -148,8 +151,8 @@ export function WalletConnectButton({
 
   return (
     <div className="space-y-2">
-      <GlowButton onClick={handleConnect} disabled={connecting} variant={variant} className="w-full">
-        {connecting ? "Connecting..." : "Connect Wallet"}
+      <GlowButton onClick={handleConnect} disabled={connecting || isConnecting} variant={variant} className="w-full">
+        {connecting || isConnecting ? "Connecting..." : "Connect Wallet"}
       </GlowButton>
 
       {error && (

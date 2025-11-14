@@ -17,6 +17,7 @@ export function createClient() {
         detectSessionInUrl: true,
         storageKey: "oblium-auth",
         flowType: "pkce",
+        storage: typeof window !== "undefined" ? window.localStorage : undefined,
       },
       db: {
         schema: "public",

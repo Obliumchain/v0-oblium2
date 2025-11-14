@@ -39,6 +39,13 @@ export async function middleware(request: NextRequest) {
       console.log(`[middleware] Auth error for ${path}:`, error.message)
     } else if (user) {
       console.log(`[middleware] User authenticated: ${user.id} accessing ${path}`)
+    } else {
+      if (!path.startsWith("/auth") && path !== "/") {
+        console.log(`[middleware] No user found, redirecting to auth from ${path}`)
+        const url = request.nextUrl.clone()
+        url.pathname = "/auth"
+        return NextResponse.redirect(url)
+      }
     }
   } catch (error) {
     console.error(`[middleware] Error processing request:`, error)
