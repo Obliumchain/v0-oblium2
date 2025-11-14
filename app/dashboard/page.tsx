@@ -357,8 +357,9 @@ export default function DashboardPage() {
           <NewsCarousel />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="glass-card p-8 text-center animate-fade-in-up stagger-1">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8">
+          {/* Total Points - Spans 2 columns on all screens */}
+          <div className="col-span-2 md:col-span-2 lg:col-span-2 glass-card p-6 text-center animate-fade-in-up stagger-1 hover:scale-105 transition-transform duration-300">
             <div className="text-foreground/60 text-sm mb-2 font-display" style={{ fontSize: 'var(--text-sm)' }}>
               {t("totalPoints")}
             </div>
@@ -368,7 +369,8 @@ export default function DashboardPage() {
             <div className="h-1 bg-gradient-to-r from-primary to-accent rounded-full mt-4" />
           </div>
 
-          <div className="glass-card p-8 text-center animate-fade-in-up stagger-2">
+          {/* OBLM Tokens - Single column on mobile, 2 on larger */}
+          <div className="col-span-1 md:col-span-2 lg:col-span-2 glass-card p-6 text-center animate-fade-in-up stagger-2 hover:scale-105 transition-transform duration-300">
             <div className="text-foreground/60 text-sm mb-2 font-display" style={{ fontSize: 'var(--text-sm)' }}>
               {t("oblmTokens")}
             </div>
@@ -378,10 +380,11 @@ export default function DashboardPage() {
             <div className="h-1 bg-gradient-to-r from-accent to-primary rounded-full mt-4" />
           </div>
 
-          <div className="glass-card p-8 text-center animate-fade-in-up stagger-3"
+          {/* Boosters - Single column on mobile, 2 on larger */}
+          <div className="col-span-1 md:col-span-2 lg:col-span-2 glass-card p-6 text-center animate-fade-in-up stagger-3 hover:scale-105 transition-transform duration-300 cursor-pointer"
             onClick={() => router.push('/booster')}
           >
-            <div className="text-foreground/60 text-sm mb-2 font-display cursor-pointer" style={{ fontSize: 'var(--text-sm)' }}>
+            <div className="text-foreground/60 text-sm mb-2 font-display" style={{ fontSize: 'var(--text-sm)' }}>
               Boosters Available
             </div>
             <div className="font-display font-black text-secondary mb-2" style={{ fontSize: 'var(--text-lg)' }}>
@@ -465,37 +468,35 @@ export default function DashboardPage() {
           <ConversionCountdown />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-fade-in-up">
-          <div className="glass-card p-8">
-            <h2 className="font-display font-bold text-accent mb-6" style={{ fontSize: 'var(--text-base)' }}>
-              {t("referFriends")}
-            </h2>
-            <div className="flex flex-col md:flex-row items-center gap-6">
-              <div className="flex-1">
-                <p className="text-foreground/60 text-sm mb-4">{t("referFriendsDesc")}</p>
-                <div className="p-4 bg-accent/10 border border-accent/30 rounded-lg">
-                  <div className="text-xs text-foreground/60 mb-2">{t("yourReferralCode")}</div>
-                  <div className="text-2xl font-display font-bold text-accent">
-                    {userProfile?.referral_code || "Loading..."}
-                  </div>
-                  <div className="text-xs text-foreground/60 mt-2">
-                    {referralCount} {referralCount === 1 ? "friend" : "friends"} referred · Earn 500 points per referral!
-                  </div>
+        <div className="glass-card p-8 animate-fade-in-up">
+          <h2 className="font-display font-bold text-accent mb-6" style={{ fontSize: 'var(--text-base)' }}>
+            {t("referFriends")}
+          </h2>
+          <div className="flex flex-col md:flex-row items-center gap-6">
+            <div className="flex-1">
+              <p className="text-foreground/60 text-sm mb-4">{t("referFriendsDesc")}</p>
+              <div className="p-4 bg-accent/10 border border-accent/30 rounded-lg">
+                <div className="text-xs text-foreground/60 mb-2">{t("yourReferralCode")}</div>
+                <div className="text-2xl font-display font-bold text-accent">
+                  {userProfile?.referral_code || "Loading..."}
+                </div>
+                <div className="text-xs text-foreground/60 mt-2">
+                  {referralCount} {referralCount === 1 ? "friend" : "friends"} referred · Earn 500 points per referral!
                 </div>
               </div>
-              <div className="flex flex-col gap-3 w-full md:w-auto">
-                <GlowButton onClick={copyReferral} className="w-full md:w-auto" variant="accent">
-                  {referralCopied ? `✓ ${t("copied")}` : t("copyCode")}
-                </GlowButton>
-                <GlowButton onClick={copyReferralLink} className="w-full md:w-auto" variant="secondary">
-                  {referralLinkCopied ? "✓ Link Copied!" : "📎 Copy Link"}
-                </GlowButton>
-              </div>
             </div>
-            <p className="text-xs text-foreground/50 mt-4 text-center">
-              Share your referral link with friends - it's easier than entering codes!
-            </p>
+            <div className="flex flex-col gap-3 w-full md:w-auto">
+              <GlowButton onClick={copyReferral} className="w-full md:w-auto" variant="accent">
+                {referralCopied ? `✓ ${t("copied")}` : t("copyCode")}
+              </GlowButton>
+              <GlowButton onClick={copyReferralLink} className="w-full md:w-auto" variant="secondary">
+                {referralLinkCopied ? "✓ Link Copied!" : "📎 Copy Link"}
+              </GlowButton>
+            </div>
           </div>
+          <p className="text-xs text-foreground/50 mt-4 text-center">
+            Share your referral link with friends - it's easier than entering codes!
+          </p>
         </div>
       </div>
     </div>

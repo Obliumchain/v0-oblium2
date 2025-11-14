@@ -223,14 +223,14 @@ export default function ProfilePage() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 pt-24 pb-8 space-y-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-display font-bold text-primary mb-2">{t("profileTitle")}</h1>
-          <p className="text-foreground/60">{t("profileSubtitle")}</p>
+        <div className="mb-8 animate-fade-in-up">
+          <h1 className="font-display font-bold text-primary mb-2" style={{ fontSize: 'var(--text-xl)' }}>{t("profileTitle")}</h1>
+          <p className="text-foreground/60" style={{ fontSize: 'var(--text-sm)' }}>{t("profileSubtitle")}</p>
         </div>
 
         <ConversionCountdown />
 
-        <LiquidCard className="p-8 text-center">
+        <div className="glass-card p-8 text-center animate-fade-in-up stagger-1">
           <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center mx-auto mb-6 shadow-lg shadow-primary/50">
             <span className="text-5xl font-display font-bold text-background">
               {profile?.nickname?.[0]?.toUpperCase() || "U"}
@@ -253,41 +253,41 @@ export default function ProfilePage() {
               Logout
             </GlowButton>
           </div>
-        </LiquidCard>
+        </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <LiquidCard className="p-6 text-center">
-            <div className="text-foreground/60 text-sm mb-2">{t("totalPointsLabel")}</div>
-            <div className="text-3xl font-display font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 animate-fade-in-up stagger-2">
+          <div className="glass-card p-6 text-center hover:scale-105 transition-transform duration-300">
+            <div className="text-foreground/60 text-sm mb-2" style={{ fontSize: 'var(--text-sm)' }}>{t("totalPointsLabel")}</div>
+            <div className="font-display font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent" style={{ fontSize: 'var(--text-lg)' }}>
               {stats?.totalPoints.toLocaleString() || "0"}
             </div>
-          </LiquidCard>
+          </div>
 
-          <LiquidCard className="p-6 text-center">
-            <div className="text-foreground/60 text-sm mb-2">{t("oblmTokensLabel")}</div>
-            <div className="text-3xl font-display font-bold bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">
+          <div className="glass-card p-6 text-center hover:scale-105 transition-transform duration-300">
+            <div className="text-foreground/60 text-sm mb-2" style={{ fontSize: 'var(--text-sm)' }}>{t("oblmTokensLabel")}</div>
+            <div className="font-display font-bold bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent" style={{ fontSize: 'var(--text-lg)' }}>
               {stats?.oblTokens || "0"}
             </div>
-          </LiquidCard>
+          </div>
 
-          <LiquidCard className="p-6 text-center">
-            <div className="text-foreground/60 text-sm mb-2">{t("referralsLabel")}</div>
-            <div className="text-3xl font-display font-bold bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
+          <div className="glass-card p-6 text-center hover:scale-105 transition-transform duration-300">
+            <div className="text-foreground/60 text-sm mb-2" style={{ fontSize: 'var(--text-sm)' }}>{t("referralsLabel")}</div>
+            <div className="font-display font-bold bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent" style={{ fontSize: 'var(--text-lg)' }}>
               {stats?.referralCount || "0"}
             </div>
-          </LiquidCard>
+          </div>
 
-          <LiquidCard className="p-6 text-center">
-            <div className="text-foreground/60 text-sm mb-2">{t("rankLabel")}</div>
-            <div className="text-3xl font-display font-bold bg-gradient-to-r from-success to-accent bg-clip-text text-transparent">
+          <div className="glass-card p-6 text-center hover:scale-105 transition-transform duration-300">
+            <div className="text-foreground/60 text-sm mb-2" style={{ fontSize: 'var(--text-sm)' }}>{t("rankLabel")}</div>
+            <div className="font-display font-bold bg-gradient-to-r from-success to-accent bg-clip-text text-transparent" style={{ fontSize: 'var(--text-lg)' }}>
               #{stats?.rank || "0"}
             </div>
-          </LiquidCard>
+          </div>
         </div>
 
         {/* Referral Card */}
-        <LiquidCard className="p-8 max-w-2xl mx-auto">
+        <div className="glass-card p-8 max-w-2xl mx-auto animate-fade-in-up stagger-3">
           <h3 className="text-xl font-display font-bold text-accent mb-6">{t("yourReferralCodeTitle")}</h3>
           <div className="p-4 bg-background/50 border border-accent/30 rounded-lg mb-4">
             <div className="text-xs text-foreground/60 mb-2">{t("shareCodeDesc")}</div>
@@ -306,9 +306,9 @@ export default function ProfilePage() {
           <p className="text-xs text-foreground/50 mt-3 text-center">
             Share your link and both of you earn 500 points!
           </p>
-        </LiquidCard>
+        </div>
 
-        <LiquidCard className="p-8">
+        <div className="glass-card p-8 animate-fade-in-up stagger-4">
           <h3 className="text-xl font-display font-bold text-success mb-6">{t("conversionHistoryTitle")}</h3>
 
           {conversions.length === 0 ? (
@@ -355,7 +355,7 @@ export default function ProfilePage() {
               ))}
             </div>
           )}
-        </LiquidCard>
+        </div>
       </div>
     </div>
   )

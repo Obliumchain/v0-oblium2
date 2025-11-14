@@ -3,9 +3,10 @@
 import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Navigation } from "@/components/navigation"
-import { LiquidCard } from "@/components/ui/liquid-card"
 import { BackgroundAnimation } from "@/components/background-animation"
 import { useLanguage } from "@/lib/language-context"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Crown } from 'lucide-react'
 
 interface LeaderboardEntry {
   rank: number
@@ -16,6 +17,7 @@ interface LeaderboardEntry {
 
 export default function LeaderboardPage() {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([])
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const { t } = useLanguage()
 
@@ -24,34 +26,28 @@ export default function LeaderboardPage() {
       try {
         const supabase = createClient()
 
+        const { data: { user } } = await supabase.auth.getUser()
+        if (user) setCurrentUserId(user.id)
+
         const cachedData = sessionStorage.getItem("leaderboard_cache")
         const cacheTime = sessionStorage.getItem("leaderboard_cache_time")
 
         if (cachedData && cacheTime) {
           const age = Date.now() - Number.parseInt(cacheTime)
           if (age < 30000) {
-            // 30 seconds
-            console.log("[v0] Using cached leaderboard data")
             setLeaderboard(JSON.parse(cachedData))
             setIsLoading(false)
             return
           }
         }
 
-        console.log("[v0] Loading fresh leaderboard data...")
-
         const { data: profiles, error } = await supabase
           .from("profiles")
           .select("id, nickname, points")
           .order("points", { ascending: false })
-          .limit(10) // Limit to 10 users instead of 100
+          .limit(10)
 
-        if (error) {
-          console.error("[v0] Leaderboard query error:", error)
-          throw error
-        }
-
-        console.log("[v0] Profiles loaded:", profiles?.length, "users")
+        if (error) throw error
 
         if (profiles && profiles.length > 0) {
           const leaderboardData = profiles.map((profile, index) => {
@@ -66,13 +62,10 @@ export default function LeaderboardPage() {
             }
           })
 
-          console.log("[v0] Leaderboard data processed:", leaderboardData.length, "entries")
           setLeaderboard(leaderboardData)
-
           sessionStorage.setItem("leaderboard_cache", JSON.stringify(leaderboardData))
           sessionStorage.setItem("leaderboard_cache_time", Date.now().toString())
         } else {
-          console.log("[v0] No profiles found in database")
           setLeaderboard([])
         }
       } catch (error) {
@@ -86,21 +79,24 @@ export default function LeaderboardPage() {
     loadLeaderboard()
   }, [])
 
-  const getRankColor = (rank: number) => {
+  const getRankBadgeColor = (rank: number) => {
     if (rank === 1) return "from-yellow-400 to-yellow-600"
     if (rank === 2) return "from-gray-300 to-gray-500"
     if (rank === 3) return "from-orange-400 to-orange-600"
-    return "from-primary to-accent"
+    return ""
   }
 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background via-[#0a0015] to-background flex items-center justify-center">
         <BackgroundAnimation />
-        <div className="text-primary text-lg">{t("loadingLeaderboard")}</div>
+        <div className="text-primary text-lg font-display">{t("loadingLeaderboard")}</div>
       </div>
     )
   }
+
+  const top3 = leaderboard.slice(0, 3)
+  const rest = leaderboard.slice(3)
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-[#0a0015] to-background pb-32 lg:pb-8">
@@ -108,96 +104,158 @@ export default function LeaderboardPage() {
       <Navigation />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-display font-bold text-primary mb-2">{t("leaderboardTitle")}</h1>
-          <p className="text-foreground/60">{t("leaderboardSubtitle")}</p>
+        <div className="mb-12 text-center animate-fade-in-up">
+          <h1 className="font-display font-bold text-primary mb-2" style={{ fontSize: 'var(--text-xl)' }}>
+            {t("leaderboardTitle")}
+          </h1>
+          <p className="text-foreground/60" style={{ fontSize: 'var(--text-sm)' }}>{t("leaderboardSubtitle")}</p>
         </div>
 
-        {/* Top 3 Podium */}
-        {leaderboard.length >= 3 && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            {leaderboard.slice(0, 3).map((entry) => (
-              <div key={entry.id}>
-                <LiquidCard className="p-8 text-center relative overflow-hidden">
-                  <div
-                    className={`absolute inset-0 bg-gradient-to-br ${getRankColor(entry.rank)} opacity-10 blur-3xl`}
-                  />
+        {top3.length >= 3 && (
+          <div className="mb-12 animate-fade-in-up stagger-1">
+            {/* Mobile: Single column, Desktop: Podium arrangement */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 md:items-end mb-8">
+              {/* Second Place */}
+              <div className="order-2 md:order-1 animate-fade-in-up stagger-2">
+                <div className="glass-card p-6 text-center hover:scale-105 transition-transform duration-300">
+                  <div className="relative inline-block mb-4">
+                    <Avatar className="w-20 h-20 md:w-24 md:h-24 border-4 border-silver shadow-lg">
+                      <AvatarFallback className="bg-gradient-to-br from-gray-300 to-gray-500 text-background text-2xl font-display font-bold">
+                        {top3[1]?.nickname[0]?.toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                  </div>
+                  
+                  <div className={`inline-flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br ${getRankBadgeColor(2)} text-background font-display font-bold mb-2`}>
+                    2
+                  </div>
+                  
+                  <h3 className="font-display font-bold text-foreground mb-1" style={{ fontSize: 'var(--text-base)' }}>
+                    {top3[1]?.nickname}
+                  </h3>
+                  
+                  <div className="flex items-center justify-center gap-1 text-success">
+                    <span className="text-lg">✨</span>
+                    <span className="font-display font-bold" style={{ fontSize: 'var(--text-base)' }}>
+                      {top3[1]?.points.toLocaleString()} pts
+                    </span>
+                  </div>
+                </div>
+              </div>
 
-                  <div className="relative z-10">
-                    <div className="text-5xl mb-4">{entry.rank === 1 ? "🥇" : entry.rank === 2 ? "🥈" : "🥉"}</div>
-
-                    <div
-                      className={`text-lg font-display font-bold mb-2 bg-gradient-to-r ${getRankColor(entry.rank)} bg-clip-text text-transparent`}
-                    >
-                      #{entry.rank}
-                    </div>
-
-                    <h3 className="text-2xl font-display font-bold text-foreground mb-4">{entry.nickname}</h3>
-
-                    <div>
-                      <div className="text-foreground/60 text-xs mb-1">{t("points")}</div>
-                      <div className="text-3xl font-display font-black text-primary">
-                        {entry.points >= 1000 ? `${(entry.points / 1000).toFixed(1)}K` : entry.points}
-                      </div>
+              {/* First Place - Larger on desktop */}
+              <div className="order-1 md:order-2 animate-fade-in-up stagger-1">
+                <div className="glass-card p-8 text-center hover:scale-105 transition-transform duration-300 border-2 border-primary/30">
+                  <div className="relative inline-block mb-4">
+                    <Avatar className="w-24 h-24 md:w-32 md:h-32 border-4 border-yellow-400 shadow-xl shadow-yellow-400/30">
+                      <AvatarFallback className="bg-gradient-to-br from-yellow-400 to-yellow-600 text-background text-3xl font-display font-bold">
+                        {top3[0]?.nickname[0]?.toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="absolute -top-2 -right-2">
+                      <Crown className="w-10 h-10 text-yellow-400 fill-yellow-400 animate-float" />
                     </div>
                   </div>
-                </LiquidCard>
+                  
+                  <div className={`inline-flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br ${getRankBadgeColor(1)} text-background font-display font-bold mb-3 shadow-lg`}>
+                    1
+                  </div>
+                  
+                  <h3 className="font-display font-bold text-primary mb-2" style={{ fontSize: 'var(--text-lg)' }}>
+                    {top3[0]?.nickname}
+                  </h3>
+                  
+                  <div className="flex items-center justify-center gap-2 text-success">
+                    <span className="text-2xl">✨</span>
+                    <span className="font-display font-bold" style={{ fontSize: 'var(--text-lg)' }}>
+                      {top3[0]?.points.toLocaleString()} pts
+                    </span>
+                  </div>
+                </div>
               </div>
-            ))}
+
+              {/* Third Place */}
+              <div className="order-3 md:order-3 animate-fade-in-up stagger-3">
+                <div className="glass-card p-6 text-center hover:scale-105 transition-transform duration-300">
+                  <div className="relative inline-block mb-4">
+                    <Avatar className="w-20 h-20 md:w-24 md:h-24 border-4 border-orange-400 shadow-lg">
+                      <AvatarFallback className="bg-gradient-to-br from-orange-400 to-orange-600 text-background text-2xl font-display font-bold">
+                        {top3[2]?.nickname[0]?.toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                  </div>
+                  
+                  <div className={`inline-flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br ${getRankBadgeColor(3)} text-background font-display font-bold mb-2`}>
+                    3
+                  </div>
+                  
+                  <h3 className="font-display font-bold text-foreground mb-1" style={{ fontSize: 'var(--text-base)' }}>
+                    {top3[2]?.nickname}
+                  </h3>
+                  
+                  <div className="flex items-center justify-center gap-1 text-success">
+                    <span className="text-lg">✨</span>
+                    <span className="font-display font-bold" style={{ fontSize: 'var(--text-base)' }}>
+                      {top3[2]?.points.toLocaleString()} pts
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
-        {/* Full Leaderboard */}
-        <LiquidCard className="p-8 overflow-x-auto">
-          <h2 className="text-2xl font-display font-bold text-primary mb-6">{t("fullRankings")}</h2>
-
-          {leaderboard.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-foreground/60">{t("noMinersYet")}</p>
-            </div>
-          ) : (
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-border">
-                  <th className="text-left py-4 px-4 font-display font-bold text-foreground/60 text-sm">{t("rank")}</th>
-                  <th className="text-left py-4 px-4 font-display font-bold text-foreground/60 text-sm">
-                    {t("miner")}
-                  </th>
-                  <th className="text-right py-4 px-4 font-display font-bold text-foreground/60 text-sm">
-                    {t("points")}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {leaderboard.map((entry) => (
-                  <tr
-                    key={entry.id}
-                    className="border-b border-border/50 hover:bg-primary/5 transition-colors duration-300 group"
-                  >
-                    <td className="py-4 px-4">
-                      <div className="font-display font-bold text-primary text-lg">#{entry.rank}</div>
-                    </td>
-                    <td className="py-4 px-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-xs font-bold text-background">
-                          {entry.nickname[0].toUpperCase()}
-                        </div>
-                        <span className="font-bold text-foreground group-hover:text-primary transition-colors">
-                          {entry.nickname}
+        {rest.length > 0 && (
+          <div className="space-y-3 animate-fade-in-up stagger-4">
+            {rest.map((entry, index) => {
+              const isCurrentUser = entry.id === currentUserId
+              return (
+                <div
+                  key={entry.id}
+                  className={`glass-card p-4 transition-all duration-300 hover:scale-[1.02] ${
+                    isCurrentUser ? 'border-2 border-success bg-success/5' : ''
+                  }`}
+                  style={{ animationDelay: `${(index + 4) * 0.1}s` }}
+                >
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-4 flex-1">
+                      <div className="flex-shrink-0 w-12 text-center">
+                        <span className="font-display font-bold text-foreground/60" style={{ fontSize: 'var(--text-base)' }}>
+                          {entry.rank}
                         </span>
                       </div>
-                    </td>
-                    <td className="py-4 px-4 text-right">
-                      <span className="font-display font-bold text-primary">
-                        {entry.points >= 1000 ? `${(entry.points / 1000).toFixed(1)}K` : entry.points}
+                      
+                      <Avatar className="w-12 h-12 border-2 border-foreground/20">
+                        <AvatarFallback className="bg-gradient-to-br from-primary/20 to-accent/20 text-foreground font-display font-bold">
+                          {entry.nickname[0]?.toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-display font-bold text-foreground truncate" style={{ fontSize: 'var(--text-base)' }}>
+                          {isCurrentUser ? t("you") || "You" : entry.nickname}
+                        </h4>
+                      </div>
+                    </div>
+                    
+                    <div className="flex-shrink-0">
+                      <span className={`font-display font-bold ${isCurrentUser ? 'text-success' : 'text-primary'}`} style={{ fontSize: 'var(--text-base)' }}>
+                        {entry.points.toLocaleString()} pts
                       </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </LiquidCard>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+
+        {leaderboard.length === 0 && (
+          <div className="glass-card p-12 text-center">
+            <div className="text-6xl mb-4">🏆</div>
+            <p className="text-foreground/60 font-display">{t("noMinersYet")}</p>
+          </div>
+        )}
       </div>
     </div>
   )

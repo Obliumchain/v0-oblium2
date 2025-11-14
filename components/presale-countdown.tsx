@@ -11,8 +11,7 @@ export function PresaleCountdown() {
   })
 
   useEffect(() => {
-    // Presale starts October 21, 2025
-    const targetDate = new Date('2025-10-21T00:00:00Z').getTime()
+    const targetDate = new Date('2025-11-21T00:00:00Z').getTime()
 
     const updateCountdown = () => {
       const now = new Date().getTime()
@@ -58,7 +57,7 @@ export function PresaleCountdown() {
             🔥 OBLM Presale Countdown
           </h2>
           <p className="text-foreground/70 text-sm">
-            Presale starts October 21, 2025
+            Presale starts November 21, 2025
           </p>
         </div>
 

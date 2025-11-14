@@ -61,19 +61,19 @@ export default function ShopPage() {
       <Navigation />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl md:text-5xl font-display font-bold text-primary mb-4">
+        <div className="mb-8 animate-fade-in-up">
+          <h1 className="font-display font-bold text-primary mb-4" style={{ fontSize: 'var(--text-xl)' }}>
             {t("boosterShop")}
           </h1>
-          <p className="text-foreground/60 text-lg">
+          <p className="text-foreground/60" style={{ fontSize: 'var(--text-base)' }}>
             Enhance your mining rewards with powerful boosters. Choose from various multipliers and durations.
           </p>
         </div>
 
-        <LiquidCard className="p-8">
+        <div className="glass-card p-8 mb-8 animate-fade-in-up stagger-1">
           <div className="mb-6">
-            <h2 className="text-2xl font-display font-bold text-primary mb-2">Available Boosters</h2>
-            <p className="text-sm text-foreground/60">
+            <h2 className="font-display font-bold text-primary mb-2" style={{ fontSize: 'var(--text-lg)' }}>Available Boosters</h2>
+            <p className="text-foreground/60" style={{ fontSize: 'var(--text-sm)' }}>
               Purchase boosters to increase your mining rewards. All payments are processed securely through Solana.
             </p>
           </div>
@@ -83,9 +83,9 @@ export default function ShopPage() {
             onPurchaseSuccess={handlePurchaseSuccess}
             key={refreshKey}
           />
-        </LiquidCard>
+        </div>
 
-        <LiquidCard className="p-6 mt-8 bg-primary/5 border-primary/20">
+        <div className="glass-card p-6 bg-primary/5 border-primary/20 animate-fade-in-up stagger-2">
           <div className="flex items-start gap-4">
             <div className="text-3xl">💡</div>
             <div>
@@ -98,7 +98,7 @@ export default function ShopPage() {
               </ul>
             </div>
           </div>
-        </LiquidCard>
+        </div>
       </div>
     </div>
   )
