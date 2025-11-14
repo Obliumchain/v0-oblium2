@@ -46,12 +46,12 @@ export function WalletConnectButton({
       setIsConnecting(true)
       setError(null)
       
-      console.log("[v0] New wallet connected:", walletName, walletAddress)
+      console.log("[v0] Phantom wallet detected:", walletName, walletAddress)
 
       try {
-        await new Promise(resolve => setTimeout(resolve, 1200))
+        await new Promise(resolve => setTimeout(resolve, 1500))
         
-        console.log("[v0] Saving wallet connection to database...")
+        console.log("[v0] Attempting to save wallet connection...")
         const response = await fetch("/api/wallet/connect", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -63,7 +63,7 @@ export function WalletConnectButton({
         })
 
         const data = await response.json()
-        console.log("[v0] API response:", response.status, data)
+        console.log("[v0] Wallet connect response:", response.status, data)
 
         if (data.success) {
           if (data.bonus_awarded > 0) {
@@ -72,29 +72,35 @@ export function WalletConnectButton({
             setSuccessMessage("Wallet connected successfully!")
           }
           onConnect?.({ address: walletAddress, type: walletName, connected_at: new Date().toISOString() })
+          
+          setTimeout(() => setSuccessMessage(null), 5000)
         } else {
           if (response.status === 401) {
             setError(
-              "Unable to save wallet. Please refresh the page and try again."
+              "Your session expired. Please refresh the page and log in again, then reconnect your wallet."
             )
-            console.error("[v0] Auth error saving wallet. ErrorId:", data.errorId)
+            console.error("[v0] Authentication error. ErrorId:", data.errorId)
           } else if (data.error?.includes("already connected")) {
-            setError("This wallet is already connected to another account")
+            setError("This wallet is already connected to another account. Please use a different wallet.")
           } else {
-            setError(data.error || "Failed to save wallet connection")
+            setError(data.error || "Failed to connect wallet. Please try again.")
           }
-          console.error("[v0] Wallet save failed:", data)
+          console.error("[v0] Wallet connection failed:", data)
+          
+          setTimeout(() => disconnect(), 3000)
         }
       } catch (err) {
-        console.error("[v0] Network error saving wallet:", err)
+        console.error("[v0] Network error connecting wallet:", err)
         setError("Connection failed. Please check your internet and try again.")
+        
+        setTimeout(() => disconnect(), 3000)
       } finally {
         setIsConnecting(false)
       }
     }
 
     handleConnection()
-  }, [connected, publicKey, wallet, propWalletAddress, isConnecting, onConnect])
+  }, [connected, publicKey, wallet, propWalletAddress, isConnecting, onConnect, disconnect])
 
   const handleConnect = () => {
     setError(null)

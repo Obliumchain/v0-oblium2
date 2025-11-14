@@ -22,7 +22,7 @@ export async function POST(request: Request) {
 
     const supabase = await createClient()
 
-    console.log(`[${errorId}] Checking user authentication...`)
+    console.log(`[${errorId}] Checking user authentication for wallet: ${wallet_address}`)
     const {
       data: { user },
       error: authError,
@@ -33,10 +33,11 @@ export async function POST(request: Request) {
         message: authError.message,
         status: authError.status,
         name: authError.name,
+        wallet_type: wallet_type || "unknown",
       })
       return NextResponse.json(
         {
-          error: "Authentication failed. Please refresh the page and try logging in again.",
+          error: "Your session expired. Please refresh and log in again.",
           errorId,
           details: authError.message,
         },
@@ -45,18 +46,20 @@ export async function POST(request: Request) {
     }
 
     if (!user) {
-      console.error(`[${errorId}] No user session found`)
+      console.error(`[${errorId}] No user session found for wallet connection`)
       return NextResponse.json(
         {
-          error: "No active session found. Please refresh the page and log in again.",
+          error: "No active session. Please refresh the page and log in.",
           errorId,
         },
         { status: 401 },
       )
     }
 
-    console.log(`[${errorId}] User authenticated successfully:`, user.id, "connecting wallet:", wallet_address)
+    console.log(`[${errorId}] User authenticated: ${user.id}, email_confirmed: ${user.email_confirmed_at ? 'yes' : 'no'}`)
+    console.log(`[${errorId}] Connecting wallet: ${wallet_address} (${wallet_type})`)
 
+    console.log(`[${errorId}] Checking if wallet is already connected...`)
     const { data: existingWallet } = await supabase
       .from("profiles")
       .select("id")
@@ -71,6 +74,7 @@ export async function POST(request: Request) {
       )
     }
 
+    console.log(`[${errorId}] Fetching user profile...`)
     const { data: profile } = await supabase
       .from("profiles")
       .select("wallet_address, points")
@@ -85,6 +89,7 @@ export async function POST(request: Request) {
     const bonusPoints = isFirstConnection ? 500 : 0
     const newPoints = profile.points + bonusPoints
 
+    console.log(`[${errorId}] Updating user profile with wallet information...`)
     const { error } = await supabase
       .from("profiles")
       .update({
@@ -100,7 +105,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Failed to connect wallet", errorId }, { status: 500 })
     }
 
-    console.log(`[${errorId}] Wallet connected successfully for user:`, user.id)
+    console.log(`[${errorId}] Wallet connected successfully for user: ${user.id}, wallet: ${wallet_address}`)
 
     return NextResponse.json({
       success: true,
@@ -113,7 +118,7 @@ export async function POST(request: Request) {
     console.error(`[${errorId}] Unexpected error:`, error)
     return NextResponse.json(
       {
-        error: "Internal server error. Please try again.",
+        error: "Connection failed. Please try again.",
         errorId,
         details: error instanceof Error ? error.message : String(error),
       },
