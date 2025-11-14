@@ -63,11 +63,6 @@ export function BoosterShop({ walletAddress, userId, onPurchaseSuccess }: Booste
   }, [])
 
   const handlePurchaseBooster = async (booster: Booster) => {
-    if (!connected || !publicKey) {
-      setError("Please connect your Phantom wallet first")
-      return
-    }
-
     if (!userId) {
       setError("User not authenticated")
       return
@@ -163,13 +158,11 @@ export function BoosterShop({ walletAddress, userId, onPurchaseSuccess }: Booste
 
               <GlowButton
                 onClick={() => handlePurchaseBooster(booster)}
-                disabled={isRedirecting === booster.id || !connected}
+                disabled={isRedirecting === booster.id}
                 className="w-full"
               >
                 {isRedirecting === booster.id ? t("redirecting") || "Redirecting..." : t("buyNow")}
               </GlowButton>
-
-              {!connected && <p className="text-xs text-center text-foreground/40">{t("connectWalletToBuy")}</p>}
             </div>
           </LiquidCard>
         ))}

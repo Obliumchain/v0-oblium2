@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter } from 'next/navigation'
 import { createClient } from "@/lib/supabase/client"
 import { Navigation } from "@/components/navigation"
 import { LiquidCard } from "@/components/ui/liquid-card"
@@ -274,11 +274,6 @@ export default function DashboardPage() {
   }
 
   const handleBrowseBoostersClick = () => {
-    if (!userProfile?.wallet_address) {
-      setShowWalletNotification(true)
-      setTimeout(() => setShowWalletNotification(false), 3000)
-      return
-    }
     setShowBoosterShop(!showBoosterShop)
   }
 
@@ -422,9 +417,6 @@ export default function DashboardPage() {
               {showBoosterShop ? t("hideShop") : t("browseBoosters")}
             </GlowButton>
 
-            {!userProfile?.wallet_address && (
-              <p className="text-xs text-center text-foreground/40 mt-2">{t("connectWalletToPurchase")}</p>
-            )}
           </LiquidCard>
         </div>
 
