@@ -8,7 +8,7 @@ export async function POST(request: Request) {
   console.log(`[${errorId}] Wallet connect request received`)
   
   try {
-    const { wallet_address } = await request.json()
+    const { wallet_address, wallet_type } = await request.json()
 
     if (!wallet_address || typeof wallet_address !== "string") {
       console.log(`[${errorId}] Invalid wallet address provided`)
@@ -57,7 +57,6 @@ export async function POST(request: Request) {
 
     console.log(`[${errorId}] User authenticated successfully:`, user.id, "connecting wallet:", wallet_address)
 
-
     const { data: existingWallet } = await supabase
       .from("profiles")
       .select("id")
@@ -90,6 +89,7 @@ export async function POST(request: Request) {
       .from("profiles")
       .update({
         wallet_address,
+        wallet_type: wallet_type || "unknown",
         wallet_connected_at: isFirstConnection ? new Date().toISOString() : undefined,
         points: newPoints,
       })
@@ -105,6 +105,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       wallet_address,
+      wallet_type: wallet_type || "unknown",
       bonus_awarded: bonusPoints,
       new_points: newPoints,
     })

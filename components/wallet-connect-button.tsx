@@ -49,14 +49,17 @@ export function WalletConnectButton({
       console.log("[v0] New wallet connected:", walletName, walletAddress)
 
       try {
-        await new Promise(resolve => setTimeout(resolve, 800))
+        await new Promise(resolve => setTimeout(resolve, 1200))
         
         console.log("[v0] Saving wallet connection to database...")
         const response = await fetch("/api/wallet/connect", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
-          body: JSON.stringify({ wallet_address: walletAddress }),
+          body: JSON.stringify({ 
+            wallet_address: walletAddress,
+            wallet_type: walletName
+          }),
         })
 
         const data = await response.json()

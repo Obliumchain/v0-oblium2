@@ -4,10 +4,14 @@ import { NextResponse, type NextRequest } from "next/server"
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname
 
+  if (path.startsWith("/api")) {
+    return NextResponse.next()
+  }
+
   // Skip middleware for static assets only
   if (
     path.startsWith("/_next") ||
-    path.includes(".") && !path.startsWith("/api") // Files with extension but not API routes
+    (path.includes(".") && !path.startsWith("/api"))
   ) {
     return NextResponse.next()
   }
@@ -39,6 +43,13 @@ export async function middleware(request: NextRequest) {
       console.log(`[middleware] Auth error for ${path}:`, error.message)
     } else if (user) {
       console.log(`[middleware] User authenticated: ${user.id} accessing ${path}`)
+
+      if (path.startsWith("/auth")) {
+        console.log(`[middleware] User already authenticated, redirecting to dashboard`)
+        const url = request.nextUrl.clone()
+        url.pathname = "/dashboard"
+        return NextResponse.redirect(url)
+      }
     } else {
       if (!path.startsWith("/auth") && path !== "/") {
         console.log(`[middleware] No user found, redirecting to auth from ${path}`)
