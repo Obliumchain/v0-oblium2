@@ -7,16 +7,23 @@ import { GlowButton } from "@/components/ui/glow-button"
 import { useRouter } from 'next/navigation'
 import bs58 from "bs58"
 
-export function WalletAuthButton() {
+interface WalletAuthButtonProps {
+  mode?: "auth" | "link"
+  onSuccess?: () => void
+}
+
+export function WalletAuthButton({ mode = "auth", onSuccess }: WalletAuthButtonProps) {
   const { publicKey, signMessage, connected, disconnect } = useWallet()
   const { setVisible } = useWalletModal()
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState(false)
 
   const handleWalletAuth = async () => {
     try {
       setError(null)
+      setSuccess(false)
       setIsLoading(true)
 
       if (!connected || !publicKey) {
@@ -31,7 +38,7 @@ export function WalletAuthButton() {
       }
 
       // Create message to sign
-      const message = `Sign this message to authenticate with Oblium.\n\nWallet: ${publicKey.toBase58()}\nTimestamp: ${Date.now()}`
+      const message = `Sign this message to ${mode === "link" ? "link your wallet to" : "authenticate with"} Oblium.\n\nWallet: ${publicKey.toBase58()}\nTimestamp: ${Date.now()}`
       const messageBytes = new TextEncoder().encode(message)
 
       console.log("[v0] Requesting signature from wallet...")
@@ -42,7 +49,6 @@ export function WalletAuthButton() {
 
       console.log("[v0] Signature received, authenticating...")
 
-      // Send to backend for verification and account creation/login
       const response = await fetch("/api/auth/wallet", {
         method: "POST",
         headers: {
@@ -52,6 +58,7 @@ export function WalletAuthButton() {
           walletAddress: publicKey.toBase58(),
           signature: signatureBase58,
           message,
+          mode,
         }),
       })
 
@@ -63,20 +70,30 @@ export function WalletAuthButton() {
 
       console.log("[v0] Authentication successful:", data)
 
-      // Redirect to dashboard
-      if (data.isNewUser) {
-        console.log("[v0] New user created, redirecting to dashboard")
+      if (mode === "link") {
+        setSuccess(true)
+        if (onSuccess) {
+          onSuccess()
+        }
+        // Don't redirect, stay on profile page
+        setTimeout(() => {
+          disconnect()
+        }, 2000)
       } else {
-        console.log("[v0] Existing user signed in, redirecting to dashboard")
+        // Auth mode - redirect to dashboard
+        if (data.isNewUser) {
+          console.log("[v0] New user created, redirecting to dashboard")
+        } else {
+          console.log("[v0] Existing user signed in, redirecting to dashboard")
+        }
+        router.push("/dashboard")
       }
-
-      router.push("/dashboard")
     } catch (err: any) {
       console.error("[v0] Wallet auth error:", err)
       if (err.message?.includes("User rejected")) {
         setError("Signature request was rejected. Please try again.")
       } else {
-        setError(err.message || "Failed to authenticate with wallet")
+        setError(err.message || `Failed to ${mode === "link" ? "link wallet" : "authenticate"}`)
       }
       // Disconnect on error so user can try again
       disconnect()
@@ -85,10 +102,26 @@ export function WalletAuthButton() {
     }
   }
 
+  if (success && mode === "link") {
+    return (
+      <div className="p-4 bg-success/10 border border-success/30 rounded-lg text-center">
+        <div className="text-success text-xl mb-2">✓</div>
+        <p className="text-sm font-bold text-success mb-1">Wallet Linked Successfully!</p>
+        <p className="text-xs text-foreground/60">
+          You can now sign in using your Solana wallet.
+        </p>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-3">
       <GlowButton onClick={handleWalletAuth} disabled={isLoading} className="w-full">
-        {isLoading ? "Authenticating..." : connected ? "Sign & Continue" : "Connect Wallet"}
+        {isLoading 
+          ? (mode === "link" ? "Linking Wallet..." : "Authenticating...") 
+          : connected 
+            ? "Sign & Continue" 
+            : (mode === "link" ? "Connect & Link Wallet" : "Connect Wallet")}
       </GlowButton>
 
       {error && (
@@ -98,7 +131,9 @@ export function WalletAuthButton() {
       )}
 
       <p className="text-xs text-center text-foreground/50">
-        Sign a message with your wallet to create an account or log in. No password needed!
+        {mode === "link" 
+          ? "Connect your wallet and sign a message to enable wallet-based login."
+          : "Sign a message with your wallet to create an account or log in. No password needed!"}
       </p>
     </div>
   )

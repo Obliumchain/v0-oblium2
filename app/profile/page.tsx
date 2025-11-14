@@ -1,9 +1,10 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter } from 'next/navigation'
 import { createClient } from "@/lib/supabase/client"
 import { WalletConnectButton } from "@/components/wallet-connect-button"
+import { WalletAuthButton } from "@/components/wallet-auth-button"
 import { Navigation } from "@/components/navigation"
 import { LiquidCard } from "@/components/ui/liquid-card"
 import { GlowButton } from "@/components/ui/glow-button"
@@ -331,13 +332,73 @@ export default function ProfilePage() {
         {/* Wallet & Referral */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <LiquidCard className="p-8">
-            <h3 className="text-xl font-display font-bold text-primary mb-6">{t("connectWallet")}</h3>
-            <WalletConnectButton
-              walletAddress={profile?.wallet_address}
-              onConnect={handleWalletConnect}
-              onDisconnect={handleWalletDisconnect}
-              variant="primary"
-            />
+            <h3 className="text-xl font-display font-bold text-primary mb-4">{t("connectWallet")}</h3>
+            
+            {!profile?.wallet_address ? (
+              <div className="space-y-4">
+                <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
+                  <p className="text-sm text-foreground/80 mb-3">
+                    Link your Solana wallet to enable wallet-based sign in and purchase boosters.
+                  </p>
+                  <div className="flex items-center gap-2 text-xs text-primary">
+                    <span>✓</span>
+                    <span>Sign in with wallet</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-primary">
+                    <span>✓</span>
+                    <span>Purchase boosters</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-primary">
+                    <span>✓</span>
+                    <span>Earn 500 bonus points</span>
+                  </div>
+                </div>
+                
+                <WalletAuthButton 
+                  mode="link" 
+                  onSuccess={async () => {
+                    const supabase = createClient()
+                    const { data: { user } } = await supabase.auth.getUser()
+                    if (user) {
+                      const { data: updatedProfile } = await supabase
+                        .from("profiles")
+                        .select("*")
+                        .eq("id", user.id)
+                        .single()
+                      
+                      if (updatedProfile) {
+                        setProfile(updatedProfile as UserProfile)
+                      }
+                    }
+                  }}
+                />
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="p-4 bg-success/10 border border-success/30 rounded-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-success text-xl">✓</span>
+                    <span className="text-sm font-bold text-success">Wallet Connected & Linked</span>
+                  </div>
+                  <div className="text-xs text-foreground/60 break-all">
+                    {profile.wallet_address}
+                  </div>
+                  <div className="mt-3 pt-3 border-t border-success/20">
+                    <p className="text-xs text-foreground/70">
+                      You can now sign in using your Solana wallet on the login page.
+                    </p>
+                  </div>
+                </div>
+                
+                <WalletConnectButton
+                  walletAddress={profile.wallet_address}
+                  onConnect={handleWalletConnect}
+                  onDisconnect={handleWalletDisconnect}
+                  variant="primary"
+                />
+              </div>
+            )}
+            
             <p className="text-xs text-foreground/50 mt-4">{t("connectWalletDesc")}</p>
           </LiquidCard>
 

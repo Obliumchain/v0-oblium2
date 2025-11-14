@@ -3,12 +3,13 @@ import { createClient } from "@/lib/supabase/server"
 import nacl from "tweetnacl"
 import { PublicKey } from "@solana/web3.js"
 import bs58 from "bs58"
+import crypto from "crypto"
 
 export async function POST(request: Request) {
   try {
-    const { walletAddress, signature, message } = await request.json()
+    const { walletAddress, signature, message, mode = "auth" } = await request.json()
 
-    console.log("[v0] Wallet auth request:", { walletAddress })
+    console.log("[v0] Wallet auth request:", { walletAddress, mode })
 
     if (!walletAddress || !signature || !message) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
@@ -35,6 +36,71 @@ export async function POST(request: Request) {
 
     const supabase = await createClient()
 
+    if (mode === "link") {
+      const { data: { user }, error: userError } = await supabase.auth.getUser()
+
+      if (userError || !user) {
+        console.error("[v0] Not authenticated for linking:", userError)
+        return NextResponse.json({ error: "You must be logged in to link a wallet" }, { status: 401 })
+      }
+
+      // Check if wallet is already linked to another account
+      const { data: existingWallet, error: walletCheckError } = await supabase
+        .from("profiles")
+        .select("id, nickname")
+        .eq("wallet_address", walletAddress)
+        .single()
+
+      if (walletCheckError && walletCheckError.code !== "PGRST116") {
+        console.error("[v0] Wallet check error:", walletCheckError)
+        return NextResponse.json({ error: "Database error" }, { status: 500 })
+      }
+
+      if (existingWallet && existingWallet.id !== user.id) {
+        return NextResponse.json(
+          { error: "This wallet is already linked to another account" },
+          { status: 400 }
+        )
+      }
+
+      // Link wallet to current user's profile
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .update({
+          wallet_address: walletAddress,
+          wallet_type: "phantom",
+          wallet_connected_at: new Date().toISOString(),
+        })
+        .eq("id", user.id)
+
+      if (updateError) {
+        console.error("[v0] Profile update error:", updateError)
+        return NextResponse.json({ error: "Failed to link wallet" }, { status: 500 })
+      }
+
+      // Award bonus points if wallet wasn't already connected
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("points")
+        .eq("id", user.id)
+        .single()
+
+      if (profile && !existingWallet) {
+        await supabase
+          .from("profiles")
+          .update({ points: profile.points + 500 })
+          .eq("id", user.id)
+      }
+
+      console.log("[v0] Wallet linked successfully to user:", user.id)
+
+      return NextResponse.json({
+        success: true,
+        message: "Wallet linked successfully",
+        bonusAwarded: !existingWallet,
+      })
+    }
+
     // Check if user with this wallet already exists
     const { data: existingProfile, error: profileError } = await supabase
       .from("profiles")
@@ -47,28 +113,52 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Database error" }, { status: 500 })
     }
 
+    const supabaseAdmin = await createClient()
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+    if (!serviceRoleKey) {
+      console.error("[v0] SUPABASE_SERVICE_ROLE_KEY not found")
+      return NextResponse.json({ error: "Server configuration error" }, { status: 500 })
+    }
+
     let userId: string
+    const virtualEmail = `${walletAddress}@wallet.oblium.com`
 
     if (existingProfile) {
       // User exists - sign them in
       console.log("[v0] Existing user found:", existingProfile.id)
       userId = existingProfile.id
 
-      // Create a session for this user using admin auth
-      const virtualEmail = `${walletAddress}@wallet.oblium.com`
-      
-      const { data: sessionData, error: sessionError } = await supabase.auth.admin.generateLink({
-        type: "magiclink",
-        email: virtualEmail,
-      })
+      const { data: { properties }, error: linkError } = await fetch(
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/admin/generate_link`,
+        {
+          method: "POST",
+          headers: {
+            "apikey": serviceRoleKey,
+            "Authorization": `Bearer ${serviceRoleKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            type: "magiclink",
+            email: virtualEmail,
+          }),
+        }
+      ).then((r) => r.json())
 
-      if (sessionError) {
-        console.error("[v0] Session creation error:", sessionError)
+      if (linkError) {
+        console.error("[v0] Magic link generation error:", linkError)
         return NextResponse.json({ error: "Failed to create session" }, { status: 500 })
       }
 
+      // Extract the tokens from the magic link URL
+      const url = new URL(properties.action_link)
+      const accessToken = url.searchParams.get("access_token")
+      const refreshToken = url.searchParams.get("refresh_token")
+
       return NextResponse.json({
         success: true,
+        access_token: accessToken,
+        refresh_token: refreshToken,
         user: {
           id: userId,
           wallet_address: walletAddress,
@@ -80,22 +170,31 @@ export async function POST(request: Request) {
       // New user - create account
       console.log("[v0] Creating new wallet user")
 
-      // Create auth user with virtual email
-      const virtualEmail = `${walletAddress}@wallet.oblium.com`
-      const randomPassword = Math.random().toString(36).slice(-16) + Math.random().toString(36).slice(-16)
+      const randomPassword = crypto.randomUUID() + crypto.randomUUID()
 
-      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-        email: virtualEmail,
-        password: randomPassword,
-        email_confirm: true,
-        user_metadata: {
-          wallet_address: walletAddress,
-          auth_type: "wallet",
-        },
-      })
+      const { data: authData, error: authError } = await fetch(
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/admin/users`,
+        {
+          method: "POST",
+          headers: {
+            "apikey": serviceRoleKey,
+            "Authorization": `Bearer ${serviceRoleKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: virtualEmail,
+            password: randomPassword,
+            email_confirm: true,
+            user_metadata: {
+              wallet_address: walletAddress,
+              auth_type: "wallet",
+            },
+          }),
+        }
+      ).then((r) => r.json())
 
-      if (authError) {
-        console.error("[v0] User creation error:", authError)
+      if (authError || !authData.user) {
+        console.error("[v0] User creation error:", authError || "No user returned")
         return NextResponse.json({ error: "Failed to create user" }, { status: 500 })
       }
 
@@ -120,8 +219,35 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "Failed to create profile" }, { status: 500 })
       }
 
+      const { data: { properties }, error: linkError } = await fetch(
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/admin/generate_link`,
+        {
+          method: "POST",
+          headers: {
+            "apikey": serviceRoleKey,
+            "Authorization": `Bearer ${serviceRoleKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            type: "magiclink",
+            email: virtualEmail,
+          }),
+        }
+      ).then((r) => r.json())
+
+      if (linkError) {
+        console.error("[v0] Session creation error:", linkError)
+        return NextResponse.json({ error: "Failed to create session" }, { status: 500 })
+      }
+
+      const url = new URL(properties.action_link)
+      const accessToken = url.searchParams.get("access_token")
+      const refreshToken = url.searchParams.get("refresh_token")
+
       return NextResponse.json({
         success: true,
+        access_token: accessToken,
+        refresh_token: refreshToken,
         user: {
           id: userId,
           wallet_address: walletAddress,
