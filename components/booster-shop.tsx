@@ -32,7 +32,7 @@ export function BoosterShop({ walletAddress, userId, onPurchaseSuccess }: Booste
   const [isPurchasing, setIsPurchasing] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const { t } = useLanguage()
-  const { publicKey, sendTransaction, connected } = useWallet()
+  const { publicKey, sendTransaction, connected, wallet } = useWallet()
   const { connection } = useConnection()
   const { toast } = useToast()
 
@@ -67,17 +67,29 @@ export function BoosterShop({ walletAddress, userId, onPurchaseSuccess }: Booste
 
   const handlePurchaseBooster = async (booster: Booster) => {
     if (!connected || !publicKey) {
-      setError("Please connect your Phantom wallet first")
+      toast({
+        variant: "destructive",
+        title: "Wallet Not Connected",
+        description: "Please connect your Phantom wallet first",
+      })
       return
     }
 
     if (!userId) {
-      setError("User not authenticated")
+      toast({
+        variant: "destructive",
+        title: "Authentication Error",
+        description: "Please refresh the page and try again",
+      })
       return
     }
 
     if (!validateRecipientWallet()) {
-      setError("Payment system not configured. Please contact support.")
+      toast({
+        variant: "destructive",
+        title: "Configuration Error",
+        description: "Payment system not configured. Please contact support.",
+      })
       return
     }
 
@@ -86,6 +98,11 @@ export function BoosterShop({ walletAddress, userId, onPurchaseSuccess }: Booste
 
     try {
       console.log("[v0] Creating Solana transaction for", booster.price_sol, "SOL")
+      console.log("[v0] Wallet info:", {
+        connected,
+        publicKey: publicKey?.toBase58(),
+        walletName: wallet?.adapter.name,
+      })
 
       const recipientPubkey = new PublicKey(RECIPIENT_WALLET)
       const lamports = Math.round(booster.price_sol * LAMPORTS_PER_SOL)
@@ -120,11 +137,14 @@ export function BoosterShop({ walletAddress, userId, onPurchaseSuccess }: Booste
       const response = await fetch("/api/boosters/purchase", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
           userId,
           boosterId: booster.id,
           walletTxHash: signature,
           amountSol: booster.price_sol,
+          walletAddress: publicKey.toBase58(),
+          walletType: wallet?.adapter.name || "unknown",
         }),
       })
 
@@ -145,6 +165,11 @@ export function BoosterShop({ walletAddress, userId, onPurchaseSuccess }: Booste
       const message = err instanceof Error ? err.message : "Purchase failed"
       console.error("[v0] Purchase error:", err)
       setError(message)
+      toast({
+        variant: "destructive",
+        title: "Purchase Failed",
+        description: message,
+      })
     } finally {
       setIsPurchasing(null)
     }

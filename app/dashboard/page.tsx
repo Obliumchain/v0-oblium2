@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter } from 'next/navigation'
 import { createClient } from "@/lib/supabase/client"
 import { Navigation } from "@/components/navigation"
 import { LiquidCard } from "@/components/ui/liquid-card"
@@ -14,6 +14,7 @@ import { ConversionCountdown } from "@/components/conversion-countdown"
 import { PresaleCountdown } from "@/components/presale-countdown"
 import { NewTaskNotification } from "@/components/new-task-notification"
 import { DashboardCarousel } from "@/components/dashboard-carousel"
+import { NewsTicker } from "@/components/news-ticker"
 import { useLanguage } from "@/lib/language-context"
 
 interface UserProfile {
@@ -353,6 +354,11 @@ export default function DashboardPage() {
       )}
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 py-8">
+        {/* Added NewsTicker above the DashboardCarousel */}
+        <div className="mb-6">
+          <NewsTicker />
+        </div>
+
         <div className="mb-8">
           <DashboardCarousel />
         </div>
