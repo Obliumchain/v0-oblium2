@@ -35,7 +35,13 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  await supabase.auth.getUser()
+  const { data: { session } } = await supabase.auth.getSession()
+  
+  console.log("[v0] Middleware session check:", {
+    path,
+    hasSession: !!session,
+    userId: session?.user?.id
+  })
 
   return response
 }

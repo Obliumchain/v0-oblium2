@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter } from 'next/navigation'
 import { createClient } from "@/lib/supabase/client"
 import { Navigation } from "@/components/navigation"
 import { LiquidCard } from "@/components/ui/liquid-card"
@@ -45,8 +45,6 @@ export default function DashboardPage() {
   const [isClaiming, setIsClaiming] = useState(false)
   const [referralCopied, setReferralCopied] = useState(false)
   const [referralLinkCopied, setReferralLinkCopied] = useState(false)
-  const [showWalletNotification, setShowWalletNotification] = useState(false)
-  const [referralCount, setReferralCount] = useState(0)
   const [showWelcomeModal, setShowWelcomeModal] = useState(false)
 
   const loadUserData = useCallback(async () => {
@@ -274,11 +272,6 @@ export default function DashboardPage() {
   }
 
   const handleBrowseBoostersClick = () => {
-    if (!userProfile?.wallet_address) {
-      setShowWalletNotification(true)
-      setTimeout(() => setShowWalletNotification(false), 3000)
-      return
-    }
     setShowBoosterShop(!showBoosterShop)
   }
 
@@ -311,20 +304,6 @@ export default function DashboardPage() {
             <GlowButton onClick={() => setShowWelcomeModal(false)} className="w-full">
               Let's Get Started! 🚀
             </GlowButton>
-          </LiquidCard>
-        </div>
-      )}
-
-      {showWalletNotification && (
-        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-top">
-          <LiquidCard className="p-4 bg-yellow-500/20 border-yellow-500/50">
-            <div className="flex items-center gap-3">
-              <span className="text-2xl">⚠️</span>
-              <div>
-                <p className="text-foreground font-bold text-sm mb-1">{t("walletRequired")}</p>
-                <p className="text-foreground/70 text-xs">{t("walletRequiredDesc")}</p>
-              </div>
-            </div>
           </LiquidCard>
         </div>
       )}
@@ -421,10 +400,6 @@ export default function DashboardPage() {
             <GlowButton onClick={handleBrowseBoostersClick} variant="secondary" className="w-full">
               {showBoosterShop ? t("hideShop") : t("browseBoosters")}
             </GlowButton>
-
-            {!userProfile?.wallet_address && (
-              <p className="text-xs text-center text-foreground/40 mt-2">{t("connectWalletToPurchase")}</p>
-            )}
           </LiquidCard>
         </div>
 
@@ -450,20 +425,6 @@ export default function DashboardPage() {
             />
           </LiquidCard>
         )}
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <LiquidCard className="p-8">
-            <h2 className="text-xl font-display font-bold text-accent mb-6">{t("walletConnection")}</h2>
-            <WalletConnectButton
-              walletAddress={userProfile?.wallet_address}
-              onConnect={handleWalletConnect}
-              variant="accent"
-            />
-            {!userProfile?.wallet_address && (
-              <p className="text-foreground/60 text-sm mt-4">{t("connectWalletBonus")}</p>
-            )}
-          </LiquidCard>
-        </div>
 
         <LiquidCard className="p-8 mt-6">
           <h2 className="text-xl font-display font-bold text-accent mb-6">{t("referFriends")}</h2>

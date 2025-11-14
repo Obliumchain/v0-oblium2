@@ -20,7 +20,7 @@ interface Booster {
 }
 
 interface BoosterShopProps {
-  walletAddress?: string | null
+  walletAddress?: string | null // Kept for backwards compatibility but no longer required
   userId?: string
   onPurchaseSuccess?: () => void
 }
@@ -65,7 +65,7 @@ export function BoosterShop({ walletAddress, userId, onPurchaseSuccess }: Booste
 
   const handlePurchaseBooster = async (booster: Booster) => {
     if (!connected || !publicKey) {
-      setError("Please connect your Phantom wallet first")
+      setError("Please connect your Phantom wallet to make a purchase")
       return
     }
 
