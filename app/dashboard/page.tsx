@@ -142,13 +142,14 @@ export default function DashboardPage() {
     
     const paymentStatus = searchParams.get('status')
     if (paymentStatus === 'success') {
-      console.log('[v0] Payment success detected, refreshing booster data...')
+      console.log('[v0] Payment success detected, refreshing booster data in 2 seconds...')
       setShowPaymentSuccess(true)
-      setTimeout(() => {
-        handleRefreshBoosters()
+      
+      setTimeout(async () => {
+        await loadUserData() // Full reload including boosters
         setShowPaymentSuccess(false)
         router.replace('/dashboard')
-      }, 1500)
+      }, 2000)
     } else if (paymentStatus === 'failed') {
       console.log('[v0] Payment failed:', searchParams.get('error'))
     }
