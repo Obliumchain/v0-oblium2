@@ -131,6 +131,7 @@ export default function TasksPage() {
     const shareUrl = `https://www.obliumtoken.com?ref=${referralCode}`
 
     try {
+      window.focus() // Focus the document before copying to avoid clipboard error
       await navigator.clipboard.writeText(shareUrl)
       setCopiedTaskId(taskId)
 
@@ -171,10 +172,10 @@ export default function TasksPage() {
         window.open(actionUrl, "_blank")
       }
 
-      // Call API to complete task and award points
       const response = await fetch("/api/tasks/complete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include", // Send cookies for authentication
         body: JSON.stringify({ taskId }),
       })
 
