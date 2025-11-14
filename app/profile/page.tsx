@@ -3,15 +3,12 @@
 import { useState, useEffect } from "react"
 import { useRouter } from 'next/navigation'
 import { createClient } from "@/lib/supabase/client"
-import { WalletConnectButton } from "@/components/wallet-connect-button"
-import { WalletAuthButton } from "@/components/wallet-auth-button"
 import { Navigation } from "@/components/navigation"
 import { LiquidCard } from "@/components/ui/liquid-card"
 import { GlowButton } from "@/components/ui/glow-button"
 import { BackgroundAnimation } from "@/components/background-animation"
 import { CubeLoader } from "@/components/ui/cube-loader"
 import { ConversionCountdown } from "@/components/conversion-countdown"
-import type { WalletInfo } from "@/lib/wallet/wallet-adapter"
 import { useLanguage } from "@/lib/language-context"
 
 interface UserProfile {
@@ -183,46 +180,6 @@ export default function ProfilePage() {
     }
   }
 
-  const handleWalletConnect = async (wallet: WalletInfo) => {
-    const supabase = createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (user) {
-      await supabase
-        .from("profiles")
-        .update({
-          wallet_address: wallet.address,
-          wallet_type: wallet.type,
-          wallet_connected_at: wallet.connected_at,
-        })
-        .eq("id", user.id)
-
-      setProfile((prev) => (prev ? { ...prev, wallet_address: wallet.address } : null))
-    }
-  }
-
-  const handleWalletDisconnect = async () => {
-    const supabase = createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (user) {
-      await supabase
-        .from("profiles")
-        .update({
-          wallet_address: null,
-          wallet_type: null,
-          wallet_connected_at: null,
-        })
-        .eq("id", user.id)
-
-      setProfile((prev) => (prev ? { ...prev, wallet_address: null } : null))
-    }
-  }
-
   const handleLogout = async () => {
     const supabase = createClient()
     await supabase.auth.signOut()
@@ -329,100 +286,27 @@ export default function ProfilePage() {
           </LiquidCard>
         </div>
 
-        {/* Wallet & Referral */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <LiquidCard className="p-8">
-            <h3 className="text-xl font-display font-bold text-primary mb-4">{t("connectWallet")}</h3>
-            
-            {!profile?.wallet_address ? (
-              <div className="space-y-4">
-                <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
-                  <p className="text-sm text-foreground/80 mb-3">
-                    Link your Solana wallet to enable wallet-based sign in and purchase boosters.
-                  </p>
-                  <div className="flex items-center gap-2 text-xs text-primary">
-                    <span>✓</span>
-                    <span>Sign in with wallet</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs text-primary">
-                    <span>✓</span>
-                    <span>Purchase boosters</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs text-primary">
-                    <span>✓</span>
-                    <span>Earn 500 bonus points</span>
-                  </div>
-                </div>
-                
-                <WalletAuthButton 
-                  mode="link" 
-                  onSuccess={async () => {
-                    const supabase = createClient()
-                    const { data: { user } } = await supabase.auth.getUser()
-                    if (user) {
-                      const { data: updatedProfile } = await supabase
-                        .from("profiles")
-                        .select("*")
-                        .eq("id", user.id)
-                        .single()
-                      
-                      if (updatedProfile) {
-                        setProfile(updatedProfile as UserProfile)
-                      }
-                    }
-                  }}
-                />
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <div className="p-4 bg-success/10 border border-success/30 rounded-lg">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-success text-xl">✓</span>
-                    <span className="text-sm font-bold text-success">Wallet Connected & Linked</span>
-                  </div>
-                  <div className="text-xs text-foreground/60 break-all">
-                    {profile.wallet_address}
-                  </div>
-                  <div className="mt-3 pt-3 border-t border-success/20">
-                    <p className="text-xs text-foreground/70">
-                      You can now sign in using your Solana wallet on the login page.
-                    </p>
-                  </div>
-                </div>
-                
-                <WalletConnectButton
-                  walletAddress={profile.wallet_address}
-                  onConnect={handleWalletConnect}
-                  onDisconnect={handleWalletDisconnect}
-                  variant="primary"
-                />
-              </div>
-            )}
-            
-            <p className="text-xs text-foreground/50 mt-4">{t("connectWalletDesc")}</p>
-          </LiquidCard>
+        {/* Referral Card */}
+        <LiquidCard className="p-8 max-w-2xl mx-auto">
+          <h3 className="text-xl font-display font-bold text-accent mb-6">{t("yourReferralCodeTitle")}</h3>
+          <div className="p-4 bg-background/50 border border-accent/30 rounded-lg mb-4">
+            <div className="text-xs text-foreground/60 mb-2">{t("shareCodeDesc")}</div>
+            <div className="text-lg font-display font-bold text-accent">{profile?.referral_code || "Loading..."}</div>
+          </div>
 
-          <LiquidCard className="p-8">
-            <h3 className="text-xl font-display font-bold text-accent mb-6">{t("yourReferralCodeTitle")}</h3>
-            <div className="p-4 bg-background/50 border border-accent/30 rounded-lg mb-4">
-              <div className="text-xs text-foreground/60 mb-2">{t("shareCodeDesc")}</div>
-              <div className="text-lg font-display font-bold text-accent">{profile?.referral_code || "Loading..."}</div>
-            </div>
+          <div className="space-y-3">
+            <GlowButton onClick={copyReferral} className="w-full" variant="accent">
+              {referralCopied ? `✓ ${t("copied")}` : t("copyCode")}
+            </GlowButton>
+            <GlowButton onClick={copyReferralLink} className="w-full" variant="secondary">
+              {referralLinkCopied ? "✓ Link Copied!" : "📎 Copy Referral Link"}
+            </GlowButton>
+          </div>
 
-            <div className="space-y-3">
-              <GlowButton onClick={copyReferral} className="w-full" variant="accent">
-                {referralCopied ? `✓ ${t("copied")}` : t("copyCode")}
-              </GlowButton>
-              <GlowButton onClick={copyReferralLink} className="w-full" variant="secondary">
-                {referralLinkCopied ? "✓ Link Copied!" : "📎 Copy Referral Link"}
-              </GlowButton>
-            </div>
-
-            <p className="text-xs text-foreground/50 mt-3 text-center">
-              Share your link and both of you earn 500 points!
-            </p>
-          </LiquidCard>
-        </div>
+          <p className="text-xs text-foreground/50 mt-3 text-center">
+            Share your link and both of you earn 500 points!
+          </p>
+        </LiquidCard>
 
         <LiquidCard className="p-8">
           <h3 className="text-xl font-display font-bold text-success mb-6">{t("conversionHistoryTitle")}</h3>
