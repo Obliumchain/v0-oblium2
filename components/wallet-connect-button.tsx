@@ -26,6 +26,13 @@ export function WalletConnectButton({
   const [isConnecting, setIsConnecting] = useState(false)
 
   useEffect(() => {
+    if (!connected && !propWalletAddress) {
+      setError(null)
+      setSuccessMessage(null)
+    }
+  }, [connected, propWalletAddress])
+
+  useEffect(() => {
     const handleConnection = async () => {
       if (!connected || !publicKey || isConnecting || propWalletAddress) {
         return
@@ -45,14 +52,15 @@ export function WalletConnectButton({
         
         if (sessionError || !session) {
           console.error("[v0] No valid session found:", sessionError?.message)
-          setError("Please refresh the page and log in again before connecting your wallet.")
-          setTimeout(() => disconnect(), 2000)
+          setError("Please log in again to connect your wallet.")
+          await disconnect()
+          setIsConnecting(false)
           return
         }
 
         console.log("[v0] Valid session found, user:", session.user.id)
         
-        await new Promise(resolve => setTimeout(resolve, 2000))
+        await new Promise(resolve => setTimeout(resolve, 1000))
         
         console.log("[v0] Saving wallet connection...")
         const response = await fetch("/api/wallet/connect", {
@@ -82,7 +90,7 @@ export function WalletConnectButton({
           setTimeout(() => setSuccessMessage(null), 5000)
         } else {
           if (response.status === 401) {
-            setError("Session expired. Please refresh the page and try again.")
+            setError("Session expired. Please refresh and log in again.")
           } else if (data.error?.includes("already connected")) {
             setError("This wallet is already connected to another account.")
           } else {
@@ -90,13 +98,13 @@ export function WalletConnectButton({
           }
           console.error("[v0] Wallet connection failed:", data)
           
-          setTimeout(() => disconnect(), 2000)
+          await disconnect()
         }
       } catch (err) {
         console.error("[v0] Network error connecting wallet:", err)
         setError("Connection failed. Please check your internet and try again.")
         
-        setTimeout(() => disconnect(), 2000)
+        await disconnect()
       } finally {
         setIsConnecting(false)
       }
