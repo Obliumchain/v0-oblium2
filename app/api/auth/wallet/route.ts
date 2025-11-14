@@ -37,12 +37,16 @@ export async function POST(request: Request) {
     const supabase = await createClient()
 
     if (mode === "link") {
-      const { data: { user }, error: userError } = await supabase.auth.getUser()
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
 
-      if (userError || !user) {
-        console.error("[v0] Not authenticated for linking:", userError)
+      if (sessionError || !session?.user) {
+        console.error("[v0] Not authenticated for linking. Session error:", sessionError)
+        console.error("[v0] Session data:", session)
         return NextResponse.json({ error: "You must be logged in to link a wallet" }, { status: 401 })
       }
+
+      const user = session.user
+      console.log("[v0] User authenticated for linking:", user.id)
 
       // Check if wallet is already linked to another account
       const { data: existingWallet, error: walletCheckError } = await supabase

@@ -42,7 +42,7 @@ export function WalletConnectButton({
         console.log("[v0] Wallet connected:", walletAddress)
 
         console.log("[v0] Waiting for session to stabilize...")
-        await new Promise((resolve) => setTimeout(resolve, 1500))
+        await new Promise((resolve) => setTimeout(resolve, 2000))
 
         try {
           console.log("[v0] Sending wallet connection request...")
@@ -64,9 +64,14 @@ export function WalletConnectButton({
               setSuccessMessage("Wallet connected successfully!")
             }
             onConnect?.({ address: walletAddress, type: "phantom", connected_at: new Date().toISOString() })
+            
+            setTimeout(() => {
+              window.location.reload()
+            }, 1500)
           } else {
             if (response.status === 401) {
-              setError("Authentication error. Please refresh the page and try connecting again.")
+              setError("Session expired. Please log out and log in again, then connect your wallet.")
+              await disconnect()
             } else {
               setError(data.error || "Failed to save wallet connection")
             }
@@ -74,12 +79,13 @@ export function WalletConnectButton({
         } catch (err) {
           console.error("[v0] Connection error:", err)
           setError(err instanceof Error ? err.message : "Connection failed")
+          await disconnect()
         }
       }
     }
 
     handleConnection()
-  }, [connected, publicKey, onConnect])
+  }, [connected, publicKey, onConnect, disconnect])
 
   const handleConnect = () => {
     setError(null)

@@ -24,32 +24,24 @@ export async function POST(request: Request) {
     
     console.log(`[${errorId}] Creating Supabase client and checking auth...`)
     
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+    
+    console.log(`[${errorId}] Session check:`, {
+      hasSession: !!session,
+      hasUser: !!session?.user,
+      sessionError: sessionError?.message
+    })
 
-    if (authError) {
-      console.error(`[${errorId}] Auth error details:`, {
-        message: authError.message,
-        status: authError.status,
-        name: authError.name
-      })
+    if (sessionError || !session) {
+      console.error(`[${errorId}] No valid session found:`, sessionError?.message)
       return NextResponse.json({ 
-        error: "Authentication failed. Please refresh the page and try again.", 
+        error: "No active session. Please log in again.", 
         errorId,
-        details: authError.message 
+        details: 'Auth session missing!'
       }, { status: 401 })
     }
 
-    if (!user) {
-      console.error(`[${errorId}] No user found in session - cookies may be missing or invalid`)
-      return NextResponse.json({ 
-        error: "No active session found. Please refresh the page and try again.", 
-        errorId 
-      }, { status: 401 })
-    }
-
+    const user = session.user
     console.log(`[${errorId}] User authenticated successfully:`, user.id)
 
     const { data: existingWallet } = await supabase

@@ -54,6 +54,7 @@ export function WalletAuthButton({ mode = "auth", onSuccess }: WalletAuthButtonP
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify({
           walletAddress: publicKey.toBase58(),
           signature: signatureBase58,
@@ -75,10 +76,9 @@ export function WalletAuthButton({ mode = "auth", onSuccess }: WalletAuthButtonP
         if (onSuccess) {
           onSuccess()
         }
-        // Don't redirect, stay on profile page
         setTimeout(() => {
-          disconnect()
-        }, 2000)
+          window.location.reload()
+        }, 1500)
       } else {
         // Auth mode - redirect to dashboard
         if (data.isNewUser) {
