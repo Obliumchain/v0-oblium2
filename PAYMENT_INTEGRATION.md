@@ -21,13 +21,14 @@ User clicks "Buy Booster" → Redirected to Payment App → Payment Processed �
 Users will be redirected to your payment app with these URL parameters:
 
 \`\`\`
-https://your-payment-app.com/checkout?userId={userId}&boosterId={boosterId}&amount={amount}&returnUrl={returnUrl}
+https://payment.obliumtoken.com/checkout?userId={userId}&boosterId={boosterId}&amount={amount}&boosterName={name}&returnUrl={returnUrl}
 \`\`\`
 
 **Parameters:**
 - `userId` (UUID): The Oblium user ID
 - `boosterId` (UUID): The booster they want to purchase
 - `amount` (number): Price in SOL
+- `boosterName` (string): Display name of the booster
 - `returnUrl` (string): URL to redirect user back to Oblium
 
 ## 2. Processing Payment

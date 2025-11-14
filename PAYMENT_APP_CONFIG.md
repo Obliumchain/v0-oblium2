@@ -12,7 +12,7 @@ OBLIUM_WEBHOOK_URL=https://obliumtoken.com/api/webhooks/payment
 WEBHOOK_SECRET=GHiTWomHMdmvpV7Nd3Spz9ZtpchCTt6EsDQjZBw2ESUe7aQFKmoWU7yJKzNrEL2Brdt52gy3xz44dcvJwWbvSKPv
 
 # Your payment app URL
-NEXT_PUBLIC_APP_URL=https://v0-solana-payment-connection.vercel.app
+NEXT_PUBLIC_APP_URL=https://payment.obliumtoken.com
 
 # Solana Configuration
 NEXT_PUBLIC_SOLANA_NETWORK=devnet
@@ -39,7 +39,7 @@ https://obliumtoken.com/api/webhooks/payment
 ## Integration Flow
 
 1. **User clicks "Buy" in Oblium** → Redirected to your payment app
-   - URL: `https://v0-solana-payment-connection.vercel.app/checkout?userId={userId}&boosterId={boosterId}&returnUrl={returnUrl}`
+   - URL: `https://payment.obliumtoken.com/checkout?userId={userId}&boosterId={boosterId}&amount={amount}&boosterName={name}&returnUrl={returnUrl}`
 
 2. **User completes payment** → Your app processes Solana transaction
 

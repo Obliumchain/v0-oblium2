@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname } from 'next/navigation'
 import Image from "next/image"
 import { LanguageSelector } from "./language-selector"
 import { useLanguage } from "@/lib/language-context"
@@ -19,6 +19,14 @@ const TasksIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <path d="M9 11l3 3L22 4" />
     <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
+  </svg>
+)
+
+const ShopIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <circle cx="9" cy="21" r="1" />
+    <circle cx="20" cy="21" r="1" />
+    <path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6" />
   </svg>
 )
 
@@ -43,6 +51,7 @@ const ProfileIcon = () => (
 const iconMap = {
   "/dashboard": DashboardIcon,
   "/tasks": TasksIcon,
+  "/booster": ShopIcon,
   "/leaderboard": LeaderboardIcon,
   "/profile": ProfileIcon,
 }
@@ -54,6 +63,7 @@ export function Navigation() {
   const navItems = [
     { href: "/dashboard", label: t("dashboard"), key: "dashboard" },
     { href: "/tasks", label: t("tasks"), key: "tasks" },
+    { href: "/booster", label: "Booster", key: "booster" },
     { href: "/leaderboard", label: t("leaderboard"), key: "leaderboard" },
     { href: "/profile", label: t("profile"), key: "profile" },
   ]
@@ -112,7 +122,7 @@ export function Navigation() {
         <nav className="fixed bottom-0 left-0 right-0 z-50 px-4 pb-6 pt-2">
           <div className="relative mx-auto max-w-md">
             <div className="relative bg-gradient-to-b from-gray-900/95 to-gray-950/95 backdrop-blur-2xl rounded-3xl border border-cyan-500/20 shadow-2xl shadow-cyan-500/10 overflow-hidden">
-              <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-400/50 to-transparent" />
+              <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent" />
 
               <div className="flex items-center justify-around px-2 py-4">
                 {navItems.map((item, index) => {

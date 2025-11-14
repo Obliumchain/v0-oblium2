@@ -42,14 +42,14 @@ export function BoosterShop({ walletAddress, userId, onPurchaseSuccess }: Booste
           .from("boosters")
           .select("*")
           .eq("active", true)
-          .eq("duration_hours", 120)
+          .order("price_sol", { ascending: true })
 
         if (fetchError) {
           console.error("[v0] Error fetching boosters:", fetchError)
           throw fetchError
         }
 
-        console.log("[v0] 5-day boosters loaded:", data?.length || 0, "items")
+        console.log("[v0] Boosters loaded:", data?.length || 0, "items")
         setBoosters(data || [])
       } catch (err) {
         console.error("[v0] Error loading boosters:", err)

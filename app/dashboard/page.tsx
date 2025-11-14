@@ -8,8 +8,6 @@ import { LiquidCard } from "@/components/ui/liquid-card"
 import { GlowButton } from "@/components/ui/glow-button"
 import { CountdownTimer } from "@/components/ui/countdown-timer"
 import { BackgroundAnimation } from "@/components/background-animation"
-import { BoosterShop } from "@/components/booster-shop"
-import { WalletConnectButton } from "@/components/wallet-connect-button"
 import { ConversionCountdown } from "@/components/conversion-countdown"
 import { useLanguage } from "@/lib/language-context"
 
@@ -40,7 +38,6 @@ export default function DashboardPage() {
   const [canClaim, setCanClaim] = useState(false)
   const [oblm, setOblm] = useState(0)
   const [activeBoosters, setActiveBoosters] = useState<ActiveBooster[]>([])
-  const [showBoosterShop, setShowBoosterShop] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [isClaiming, setIsClaiming] = useState(false)
   const [referralCopied, setReferralCopied] = useState(false)
@@ -246,6 +243,16 @@ export default function DashboardPage() {
     }
   }
 
+  const handleWalletConnect = async (wallet: any) => {
+    const supabase = createClient()
+    const { data: profile } = await supabase.from("profiles").select("*").eq("id", userProfile?.id).single()
+
+    if (profile) {
+      setUserProfile(profile)
+      setOblm(profile.task_completion_bonus_awarded ? 200 : 0)
+    }
+  }
+
   const copyReferral = () => {
     if (userProfile?.referral_code) {
       navigator.clipboard.writeText(userProfile.referral_code)
@@ -261,20 +268,6 @@ export default function DashboardPage() {
       setReferralLinkCopied(true)
       setTimeout(() => setReferralLinkCopied(false), 2000)
     }
-  }
-
-  const handleWalletConnect = async (wallet: any) => {
-    const supabase = createClient()
-    const { data: profile } = await supabase.from("profiles").select("*").eq("id", userProfile?.id).single()
-
-    if (profile) {
-      setUserProfile(profile)
-      setOblm(profile.task_completion_bonus_awarded ? 200 : 0)
-    }
-  }
-
-  const handleBrowseBoostersClick = () => {
-    setShowBoosterShop(!showBoosterShop)
   }
 
   if (isLoading) {
@@ -397,7 +390,7 @@ export default function DashboardPage() {
               <div className="text-center py-8">
                 <div className="text-4xl mb-3">💤</div>
                 <p className="text-foreground/60 text-sm mb-4">{t("noActiveBoosters")}</p>
-                <p className="text-xs text-foreground/40">Purchase boosters below to enhance your mining rewards!</p>
+                <p className="text-xs text-foreground/40">Visit the Shop to purchase boosters!</p>
               </div>
             )}
           </LiquidCard>
@@ -413,8 +406,12 @@ export default function DashboardPage() {
               <p className="text-sm text-foreground/60">{t("unlockMultipliers")}</p>
             </div>
 
-            <GlowButton onClick={handleBrowseBoostersClick} variant="secondary" className="w-full">
-              {showBoosterShop ? t("hideShop") : t("browseBoosters")}
+            <GlowButton 
+              onClick={() => router.push('/booster')} 
+              variant="secondary" 
+              className="w-full"
+            >
+              {t("browseBoosters")}
             </GlowButton>
 
           </LiquidCard>
@@ -424,67 +421,36 @@ export default function DashboardPage() {
           <ConversionCountdown />
         </div>
 
-        {showBoosterShop && (
-          <LiquidCard className="p-8 mb-8">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-display font-bold text-primary">{t("boosterShop")}</h2>
-              <button
-                onClick={() => setShowBoosterShop(false)}
-                className="text-foreground/60 hover:text-foreground transition"
-              >
-                ✕
-              </button>
-            </div>
-            <BoosterShop
-              walletAddress={userProfile?.wallet_address}
-              userId={userProfile?.id}
-              onPurchaseSuccess={handleRefreshBoosters}
-            />
-          </LiquidCard>
-        )}
-
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <LiquidCard className="p-8">
-            <h2 className="text-xl font-display font-bold text-accent mb-6">{t("walletConnection")}</h2>
-            <WalletConnectButton
-              walletAddress={userProfile?.wallet_address}
-              onConnect={handleWalletConnect}
-              variant="accent"
-            />
-            {!userProfile?.wallet_address && (
-              <p className="text-foreground/60 text-sm mt-4">{t("connectWalletBonus")}</p>
-            )}
-          </LiquidCard>
-        </div>
-
-        <LiquidCard className="p-8 mt-6">
-          <h2 className="text-xl font-display font-bold text-accent mb-6">{t("referFriends")}</h2>
-          <div className="flex flex-col md:flex-row items-center gap-6">
-            <div className="flex-1">
-              <p className="text-foreground/60 text-sm mb-4">{t("referFriendsDesc")}</p>
-              <div className="p-4 bg-accent/10 border border-accent/30 rounded-lg">
-                <div className="text-xs text-foreground/60 mb-2">{t("yourReferralCode")}</div>
-                <div className="text-2xl font-display font-bold text-accent">
-                  {userProfile?.referral_code || "Loading..."}
-                </div>
-                <div className="text-xs text-foreground/60 mt-2">
-                  {referralCount} {referralCount === 1 ? "friend" : "friends"} referred · Earn 500 points per referral!
+            <h2 className="text-xl font-display font-bold text-accent mb-6">{t("referFriends")}</h2>
+            <div className="flex flex-col md:flex-row items-center gap-6">
+              <div className="flex-1">
+                <p className="text-foreground/60 text-sm mb-4">{t("referFriendsDesc")}</p>
+                <div className="p-4 bg-accent/10 border border-accent/30 rounded-lg">
+                  <div className="text-xs text-foreground/60 mb-2">{t("yourReferralCode")}</div>
+                  <div className="text-2xl font-display font-bold text-accent">
+                    {userProfile?.referral_code || "Loading..."}
+                  </div>
+                  <div className="text-xs text-foreground/60 mt-2">
+                    {referralCount} {referralCount === 1 ? "friend" : "friends"} referred · Earn 500 points per referral!
+                  </div>
                 </div>
               </div>
+              <div className="flex flex-col gap-3 w-full md:w-auto">
+                <GlowButton onClick={copyReferral} className="w-full md:w-auto" variant="accent">
+                  {referralCopied ? `✓ ${t("copied")}` : t("copyCode")}
+                </GlowButton>
+                <GlowButton onClick={copyReferralLink} className="w-full md:w-auto" variant="secondary">
+                  {referralLinkCopied ? "✓ Link Copied!" : "📎 Copy Link"}
+                </GlowButton>
+              </div>
             </div>
-            <div className="flex flex-col gap-3 w-full md:w-auto">
-              <GlowButton onClick={copyReferral} className="w-full md:w-auto" variant="accent">
-                {referralCopied ? `✓ ${t("copied")}` : t("copyCode")}
-              </GlowButton>
-              <GlowButton onClick={copyReferralLink} className="w-full md:w-auto" variant="secondary">
-                {referralLinkCopied ? "✓ Link Copied!" : "📎 Copy Link"}
-              </GlowButton>
-            </div>
-          </div>
-          <p className="text-xs text-foreground/50 mt-4 text-center">
-            Share your referral link with friends - it's easier than entering codes!
-          </p>
-        </LiquidCard>
+            <p className="text-xs text-foreground/50 mt-4 text-center">
+              Share your referral link with friends - it's easier than entering codes!
+            </p>
+          </LiquidCard>
+        </div>
       </div>
     </div>
   )
