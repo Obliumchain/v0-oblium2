@@ -39,17 +39,22 @@ export function WalletConnectButton({
       if (connected && publicKey) {
         const walletAddress = publicKey.toString()
         const walletName = wallet?.adapter?.name || "Unknown"
-        console.log("[v0] Wallet connected:", walletName, walletAddress)
+        console.log("[v0] Wallet connected, attempting to save:", walletName, walletAddress)
 
         try {
+          await new Promise(resolve => setTimeout(resolve, 500))
+          
+          console.log("[v0] Making API request to save wallet connection...")
           const response = await fetch("/api/wallet/connect", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
+            credentials: "include", // Ensure cookies are sent with request
             body: JSON.stringify({ wallet_address: walletAddress }),
-            credentials: "include",
           })
 
+          console.log("[v0] API response status:", response.status)
           const data = await response.json()
+          console.log("[v0] API response data:", data)
 
           if (data.success) {
             if (data.bonus_awarded > 0) {
@@ -60,15 +65,18 @@ export function WalletConnectButton({
             onConnect?.({ address: walletAddress, type: walletName, connected_at: new Date().toISOString() })
           } else {
             if (response.status === 401) {
-              setError("Authentication error: Please refresh the page and try again.")
+              setError(
+                "Session expired. Please refresh the page and try connecting your wallet again."
+              )
+              console.error("[v0] Auth error. ErrorId:", data.errorId, "Details:", data.details)
             } else {
               setError(data.error || "Failed to save wallet connection")
+              console.error("[v0] Wallet connection failed:", data)
             }
-            console.error("[v0] Wallet connection error:", data)
           }
         } catch (err) {
-          console.error("[v0] Connection error:", err)
-          setError(err instanceof Error ? err.message : "Connection failed")
+          console.error("[v0] Network or connection error:", err)
+          setError("Connection failed. Please check your internet and try again.")
         }
       }
     }

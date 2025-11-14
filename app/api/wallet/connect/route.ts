@@ -4,18 +4,58 @@ import { isValidSolanaAddress, generateErrorId } from "@/lib/validation"
 
 export async function POST(request: Request) {
   const errorId = generateErrorId()
+  
+  console.log(`[${errorId}] Wallet connect request received`)
+  
   try {
     const { wallet_address } = await request.json()
 
     if (!wallet_address || typeof wallet_address !== "string") {
+      console.log(`[${errorId}] Invalid wallet address provided`)
       return NextResponse.json({ error: "Wallet address required", errorId }, { status: 400 })
     }
 
     if (!isValidSolanaAddress(wallet_address)) {
+      console.log(`[${errorId}] Invalid Solana address format: ${wallet_address}`)
       return NextResponse.json({ error: "Invalid Solana wallet address format", errorId }, { status: 400 })
     }
 
     const supabase = await createClient()
+
+    console.log(`[${errorId}] Checking user authentication...`)
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
+
+    if (authError) {
+      console.error(`[${errorId}] Supabase auth error:`, {
+        message: authError.message,
+        status: authError.status,
+        name: authError.name,
+      })
+      return NextResponse.json(
+        {
+          error: "Authentication failed. Please refresh the page and try logging in again.",
+          errorId,
+          details: authError.message,
+        },
+        { status: 401 },
+      )
+    }
+
+    if (!user) {
+      console.error(`[${errorId}] No user session found`)
+      return NextResponse.json(
+        {
+          error: "No active session found. Please refresh the page and log in again.",
+          errorId,
+        },
+        { status: 401 },
+      )
+    }
+
+    console.log(`[${errorId}] User authenticated successfully:`, user.id, "connecting wallet:", wallet_address)
 
     const {
       data: { user },
@@ -98,10 +138,10 @@ export async function POST(request: Request) {
       new_points: newPoints,
     })
   } catch (error) {
-    console.error(`[${errorId}] Wallet connection error:`, error)
+    console.error(`[${errorId}] Unexpected error:`, error)
     return NextResponse.json(
       {
-        error: "Internal server error",
+        error: "Internal server error. Please try again.",
         errorId,
         details: error instanceof Error ? error.message : String(error),
       },
