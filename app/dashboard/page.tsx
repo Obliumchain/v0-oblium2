@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from "@/lib/supabase/client"
 import { Navigation } from "@/components/navigation"
 import { LiquidCard } from "@/components/ui/liquid-card"
@@ -32,6 +32,7 @@ interface ActiveBooster {
 
 export default function DashboardPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { t } = useLanguage()
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
   const [nextClaim, setNextClaim] = useState<Date | null>(null)
@@ -45,6 +46,7 @@ export default function DashboardPage() {
   const [showWalletNotification, setShowWalletNotification] = useState(false)
   const [referralCount, setReferralCount] = useState(0)
   const [showWelcomeModal, setShowWelcomeModal] = useState(false)
+  const [showPaymentSuccess, setShowPaymentSuccess] = useState(false)
 
   const loadUserData = useCallback(async () => {
     try {
@@ -137,7 +139,20 @@ export default function DashboardPage() {
 
   useEffect(() => {
     loadUserData()
-  }, [loadUserData])
+    
+    const paymentStatus = searchParams.get('status')
+    if (paymentStatus === 'success') {
+      console.log('[v0] Payment success detected, refreshing booster data...')
+      setShowPaymentSuccess(true)
+      setTimeout(() => {
+        handleRefreshBoosters()
+        setShowPaymentSuccess(false)
+        router.replace('/dashboard')
+      }, 1500)
+    } else if (paymentStatus === 'failed') {
+      console.log('[v0] Payment failed:', searchParams.get('error'))
+    }
+  }, [loadUserData, searchParams, router])
 
   useEffect(() => {
     if (!userProfile || !canClaim || !userProfile.has_auto_claim) return
@@ -284,6 +299,20 @@ export default function DashboardPage() {
       <BackgroundAnimation />
       <Navigation />
 
+      {showPaymentSuccess && (
+        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-top">
+          <LiquidCard className="p-4 bg-success/20 border-success/50">
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">✅</span>
+              <div>
+                <p className="text-foreground font-bold text-sm mb-1">Payment Successful!</p>
+                <p className="text-foreground/70 text-xs">Your booster is now active. Refreshing data...</p>
+              </div>
+            </div>
+          </LiquidCard>
+        </div>
+      )}
+
       {showWelcomeModal && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <LiquidCard className="max-w-lg w-full p-8 text-center border-2 border-primary animate-in zoom-in-95">
@@ -390,30 +419,32 @@ export default function DashboardPage() {
               <div className="text-center py-8">
                 <div className="text-4xl mb-3">💤</div>
                 <p className="text-foreground/60 text-sm mb-4">{t("noActiveBoosters")}</p>
-                <p className="text-xs text-foreground/40">Visit the Shop to purchase boosters!</p>
+                <p className="text-xs text-foreground/40">Visit the Booster page to purchase boosters!</p>
               </div>
             )}
           </LiquidCard>
+        </div>
 
-          <LiquidCard className="p-8 flex flex-col">
-            <h2 className="text-xl font-display font-bold text-secondary mb-6">{t("boosters")}</h2>
-
-            <div className="flex-grow mb-6">
-              <div className="p-4 bg-secondary/10 border border-secondary/30 rounded-lg mb-4">
-                <div className="text-xs text-foreground/60 mb-1">{t("startingFrom")}</div>
-                <div className="text-2xl font-display font-bold text-secondary">0.035 SOL</div>
-              </div>
-              <p className="text-sm text-foreground/60">{t("unlockMultipliers")}</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <LiquidCard 
+            className="p-8 text-center cursor-pointer hover:scale-105 transition-transform duration-300"
+            onClick={() => router.push('/booster')}
+          >
+            <div className="text-foreground/60 text-sm mb-2">Boosters Available</div>
+            <div className="text-5xl font-display font-black text-secondary mb-2">
+              Starting at
             </div>
+            <div className="text-3xl font-display font-bold text-primary">0.035 SOL</div>
+            <div className="h-1 bg-gradient-to-r from-secondary to-primary rounded-full mt-4" />
+            <div className="mt-4 text-xs text-foreground/60">
+              Click to browse all boosters
+            </div>
+          </LiquidCard>
 
-            <GlowButton 
-              onClick={() => router.push('/booster')} 
-              variant="secondary" 
-              className="w-full"
-            >
-              {t("browseBoosters")}
-            </GlowButton>
-
+          <LiquidCard className="p-8 text-center md:col-span-2">
+            <div className="text-foreground/60 text-sm mb-2">{t("conversionStatus")}</div>
+            <div className="text-lg font-display font-bold text-success mb-4">{t("active")}</div>
+            <div className="text-xs text-foreground/60">{t("autoConvert")}</div>
           </LiquidCard>
         </div>
 
