@@ -4,45 +4,54 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
 export async function selectAvatar(avatarUrl: string) {
+  console.log('[v0] Avatar selection server action called with:', avatarUrl)
+  
   try {
     const supabase = await createClient()
     
-    // Get current user
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    console.log('[v0] Supabase client created')
     
-    if (authError || !user) {
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+    
+    console.log('[v0] Session check:', {
+      hasSession: !!session,
+      userId: session?.user?.id,
+      sessionError: sessionError?.message
+    })
+    
+    if (sessionError) {
+      console.error('[v0] Session error:', sessionError)
       return { 
         success: false, 
-        error: 'Not authenticated' 
+        error: 'Session error: ' + sessionError.message 
+      }
+    }
+    
+    if (!session?.user) {
+      console.error('[v0] No session or user found')
+      return { 
+        success: false, 
+        error: 'Not authenticated - no session' 
       }
     }
 
-    console.log('[v0] Server: Selecting avatar for user:', user.id)
-    
-    // Check if user already has an avatar
-    const { data: currentProfile } = await supabase
-      .from('profiles')
-      .select('avatar_url')
-      .eq('id', user.id)
-      .single()
+    const userId = session.user.id
+    console.log('[v0] Updating avatar for user:', userId)
 
-    const isFirstAvatar = !currentProfile?.avatar_url
-
-    // Update profile with avatar URL
     const { error: updateError } = await supabase
       .from('profiles')
       .update({ avatar_url: avatarUrl })
-      .eq('id', user.id)
+      .eq('id', userId)
 
     if (updateError) {
-      console.error('[v0] Server: Profile update error:', updateError)
+      console.error('[v0] Profile update error:', updateError)
       return { 
         success: false, 
-        error: 'Failed to update profile' 
+        error: 'Failed to update profile: ' + updateError.message 
       }
     }
 
-    console.log('[v0] Server: Profile updated with avatar')
+    console.log('[v0] Avatar updated successfully')
 
     // Revalidate pages that show avatar
     revalidatePath('/profile')
@@ -54,7 +63,7 @@ export async function selectAvatar(avatarUrl: string) {
       avatarUrl 
     }
   } catch (error) {
-    console.error('[v0] Server: Avatar selection error:', error)
+    console.error('[v0] Avatar selection error:', error)
     return { 
       success: false, 
       error: error instanceof Error ? error.message : 'Failed to select avatar' 
