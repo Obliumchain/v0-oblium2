@@ -70,32 +70,32 @@ export function Navigation() {
   return (
     <>
       <nav className="hidden lg:block fixed top-4 left-1/2 -translate-x-1/2 z-50 animate-fade-in-down">
-        <div className="bg-white/95 backdrop-blur-xl rounded-full shadow-2xl border border-gray-200/50 px-6 py-3">
-          <div className="flex items-center gap-8">
-            <Link href="/welcome" className="flex items-center gap-2 pr-6 border-r border-gray-200">
+        <div className="bg-background/95 backdrop-blur-xl rounded-full shadow-2xl border border-cyan-500/20 px-6 py-3">
+          <div className="flex items-center gap-6">
+            <Link href="/welcome" className="flex items-center gap-2 pr-4 border-r border-foreground/10">
               <Image
                 src="/logo.png"
                 alt="OBLM"
-                width={32}
-                height={32}
+                width={28}
+                height={28}
                 className="hover:scale-110 transition-transform duration-300"
               />
-              <span className="text-xl font-black tracking-tight text-gray-900" style={{ fontFamily: 'Quantico, sans-serif' }}>
+              <span className="text-xl font-black tracking-tight text-foreground" style={{ fontFamily: 'Quantico, sans-serif' }}>
                 OBLM
               </span>
             </Link>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
               {navItems.map((item) => {
                 const Icon = iconMap[item.href as keyof typeof iconMap]
                 const isActive = pathname === item.href
                 return (
                   <Link key={item.href} href={item.href}>
                     <div
-                      className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-300 text-sm font-medium ${
+                      className={`flex items-center gap-2 px-3 py-2 rounded-full transition-all duration-300 text-xs font-medium ${
                         isActive 
-                          ? "text-cyan-600 bg-cyan-50" 
-                          : "text-gray-600 hover:text-cyan-600 hover:bg-gray-50"
+                          ? "text-green-400 bg-green-500/10" 
+                          : "text-foreground/70 hover:text-green-400 hover:bg-foreground/5"
                       }`}
                       style={{ fontFamily: 'Quantico, sans-serif' }}
                     >
@@ -107,7 +107,7 @@ export function Navigation() {
               })}
             </div>
 
-            <div className="pl-6 border-l border-gray-200">
+            <div className="pl-4 border-l border-foreground/10">
               <LanguageSelector />
             </div>
           </div>

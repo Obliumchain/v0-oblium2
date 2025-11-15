@@ -25,7 +25,6 @@ export function LanguageSelector() {
         className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 hover:bg-cyan-500/20 transition-colors text-xs font-bold text-cyan-400"
         style={{ fontFamily: 'Quantico, sans-serif' }}
       >
-        <span>{currentLanguage.flag}</span>
         <span>{currentLanguage.code.toUpperCase()}</span>
         <svg
           width="12"

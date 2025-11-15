@@ -461,16 +461,16 @@ export default function DashboardPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <div className="animate-fade-in-up">
+          <div className="animate-fade-in-up stagger-6">
             <PresaleCountdown />
           </div>
 
-          <div className="animate-fade-in-up">
+          <div className="animate-fade-in-up stagger-7">
             <ConversionCountdown />
           </div>
         </div>
 
-        <div className="glass-card p-8 animate-fade-in-up">
+        <div className="glass-card p-8 animate-fade-in-up stagger-8">
           <h2 className="font-display font-bold text-accent mb-6" style={{ fontSize: 'var(--text-base)' }}>
             {t("referFriends")}
           </h2>

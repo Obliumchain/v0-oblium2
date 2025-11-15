@@ -88,44 +88,35 @@ export function NewsCarousel() {
           </h3>
           <div className="flex items-center gap-1 bg-foreground/5 rounded-lg p-1">
             <button
-              onClick={(e) => {
-                e.preventDefault()
-                setActiveTab("all")
-              }}
-              type="button"
+              onClick={() => setActiveTab("all")}
               className={`px-3 py-1.5 rounded text-xs font-medium transition-all ${
                 activeTab === "all" 
                   ? "bg-cyan-500/20 text-cyan-400 shadow-sm" 
                   : "text-foreground/60 hover:text-foreground hover:bg-foreground/5"
               }`}
+              style={{ fontFamily: 'Quantico, sans-serif' }}
             >
               All
             </button>
             <button
-              onClick={(e) => {
-                e.preventDefault()
-                setActiveTab("news")
-              }}
-              type="button"
+              onClick={() => setActiveTab("news")}
               className={`px-3 py-1.5 rounded text-xs font-medium transition-all ${
                 activeTab === "news" 
                   ? "bg-purple-500/20 text-purple-400 shadow-sm" 
                   : "text-foreground/60 hover:text-foreground hover:bg-foreground/5"
               }`}
+              style={{ fontFamily: 'Quantico, sans-serif' }}
             >
               News
             </button>
             <button
-              onClick={(e) => {
-                e.preventDefault()
-                setActiveTab("update")
-              }}
-              type="button"
+              onClick={() => setActiveTab("update")}
               className={`px-3 py-1.5 rounded text-xs font-medium transition-all ${
                 activeTab === "update" 
                   ? "bg-cyan-500/20 text-cyan-400 shadow-sm" 
                   : "text-foreground/60 hover:text-foreground hover:bg-foreground/5"
               }`}
+              style={{ fontFamily: 'Quantico, sans-serif' }}
             >
               Updates
             </button>
