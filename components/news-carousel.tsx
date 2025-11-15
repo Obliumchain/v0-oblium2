@@ -89,6 +89,7 @@ export function NewsCarousel() {
           <div className="flex items-center gap-1 bg-foreground/5 rounded-lg p-1">
             <button
               onClick={() => setActiveTab("all")}
+              type="button" // Added type button to prevent form submission
               className={`px-3 py-1.5 rounded text-xs font-medium transition-all ${
                 activeTab === "all" 
                   ? "bg-cyan-500/20 text-cyan-400 shadow-sm" 
@@ -100,6 +101,7 @@ export function NewsCarousel() {
             </button>
             <button
               onClick={() => setActiveTab("news")}
+              type="button" // Added type button
               className={`px-3 py-1.5 rounded text-xs font-medium transition-all ${
                 activeTab === "news" 
                   ? "bg-purple-500/20 text-purple-400 shadow-sm" 
@@ -111,6 +113,7 @@ export function NewsCarousel() {
             </button>
             <button
               onClick={() => setActiveTab("update")}
+              type="button" // Added type button
               className={`px-3 py-1.5 rounded text-xs font-medium transition-all ${
                 activeTab === "update" 
                   ? "bg-cyan-500/20 text-cyan-400 shadow-sm" 

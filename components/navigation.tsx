@@ -10,7 +10,7 @@ const DashboardIcon = ({ isActive }: { isActive?: boolean }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
     <g fill="none" stroke={isActive ? "#86efac" : "currentColor"} strokeWidth="1">
       <circle cx="19" cy="5" r="2.5" strokeWidth="1.5"/>
-      <path strokeLinecap="round" strokeWidth="1.5" d="M21.25 10v5.25a6 6 0 0 1-6 6h-6.5a6 6 0 0 1-6-6v-6.5a6 6 0 0 1 6-6H14"/>
+      <path strokeLinecap="round" strokeWidth="1.5" d="M21.25 10v5.25a6 6 0 0 1-6 6h-6.5a6 6 0 0 1-6-6V14"/>
       <path strokeLinecap="round" strokeWidth="1.6" d="M8.276 16.036v-4.388m3.83 4.388V8.769m3.618 7.267v-5.51"/>
     </g>
   </svg>
@@ -49,7 +49,7 @@ const ProfileIcon = ({ isActive }: { isActive?: boolean }) => (
 
 const iconMap = {
   "/dashboard": DashboardIcon,
-  "/tasks": TasksIcon,
+  "/questions": TasksIcon,
   "/booster": BoosterIcon,
   "/leaderboard": LeaderboardIcon,
   "/profile": ProfileIcon,
@@ -61,7 +61,7 @@ export function Navigation() {
 
   const navItems = [
     { href: "/dashboard", label: t("dashboard"), key: "dashboard" },
-    { href: "/tasks", label: t("tasks"), key: "tasks" },
+    { href: "/questions", label: t("questions"), key: "questions" },
     { href: "/booster", label: "Booster", key: "booster" },
     { href: "/leaderboard", label: t("leaderboard"), key: "leaderboard" },
     { href: "/profile", label: t("profile"), key: "profile" },

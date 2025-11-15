@@ -11,6 +11,7 @@ import { CubeLoader } from "@/components/ui/cube-loader"
 import { ConversionCountdown } from "@/components/conversion-countdown"
 import { useLanguage } from "@/lib/language-context"
 import { AvatarSelector } from "@/components/avatar-selector"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 
 interface UserProfile {
   nickname: string
@@ -48,9 +49,6 @@ export default function ProfilePage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const { t } = useLanguage()
-
-  const [showPointsNotification, setShowPointsNotification] = useState(false)
-  const [pointsAwarded, setPointsAwarded] = useState(0)
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -191,22 +189,9 @@ export default function ProfilePage() {
     router.push("/welcome")
   }
 
-  const handleAvatarUpdated = (avatarUrl: string, points: number) => {
-    // Update local profile state
+  const handleAvatarUpdated = (avatarUrl: string) => {
     if (profile) {
       setProfile({ ...profile, avatar_url: avatarUrl } as any)
-    }
-
-    // Show points notification if points were awarded
-    if (points > 0) {
-      setPointsAwarded(points)
-      setShowPointsNotification(true)
-      setTimeout(() => setShowPointsNotification(false), 5000)
-
-      // Update stats
-      if (stats) {
-        setStats({ ...stats, totalPoints: stats.totalPoints + points })
-      }
     }
   }
 
@@ -245,20 +230,6 @@ export default function ProfilePage() {
       <BackgroundAnimation />
       <Navigation />
 
-      {showPointsNotification && (
-        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-50 animate-fade-in-up">
-          <div className="glass-card p-4 flex items-center gap-3 shadow-xl border-2 border-success">
-            <span className="text-2xl">🎉</span>
-            <div>
-              <div className="font-display font-bold text-success">
-                +{pointsAwarded.toLocaleString()} Points!
-              </div>
-              <div className="text-xs text-foreground/60">Avatar selected successfully</div>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 pt-24 pb-8 space-y-8">
         <div className="mb-8 animate-fade-in-up">
@@ -269,16 +240,22 @@ export default function ProfilePage() {
         <ConversionCountdown />
 
         <div className="glass-card p-8 text-center animate-fade-in-up stagger-1">
-          <AvatarSelector
-            currentAvatarUrl={(profile as any)?.avatar_url}
-            userId={profile?.id || ""}
-            nickname={profile?.nickname || "User"}
-            onAvatarUpdated={handleAvatarUpdated}
-          />
+          {/* Current Avatar Display */}
+          <div className="flex justify-center mb-6">
+            <Avatar className="w-32 h-32 border-4 border-primary/20">
+              {(profile as any)?.avatar_url ? (
+                <AvatarImage src={(profile as any)?.avatar_url || "/placeholder.svg"} alt="Avatar" />
+              ) : (
+                <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-background text-4xl font-display font-bold">
+                  {profile?.nickname?.[0]?.toUpperCase() || "U"}
+                </AvatarFallback>
+              )}
+            </Avatar>
+          </div>
 
-          <h2 className="text-3xl font-display font-bold text-foreground mb-3">{profile?.nickname || "Miner"}</h2>
+          <h2 className="text-3xl font-display font-bold text-foreground mb-6">{profile?.nickname || "Miner"}</h2>
           {profile?.created_at && (
-            <p className="text-foreground/60">
+            <p className="text-foreground/60 mb-6">
               {t("joined")}{" "}
               {new Date(profile.created_at).toLocaleDateString("en-US", {
                 year: "numeric",
@@ -288,11 +265,22 @@ export default function ProfilePage() {
             </p>
           )}
 
-          <div className="mt-6">
-            <GlowButton onClick={handleLogout} className="w-full max-w-xs mx-auto" variant="destructive">
-              Logout
-            </GlowButton>
+          <div className="mb-6">
+            <AvatarSelector
+              currentAvatarUrl={(profile as any)?.avatar_url}
+              nickname={profile?.nickname || "User"}
+              onAvatarUpdated={handleAvatarUpdated}
+            />
           </div>
+
+          <GlowButton onClick={handleLogout} className="w-full max-w-xs mx-auto" variant="destructive">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="inline-block mr-2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+              <polyline points="16 17 21 12 16 7"/>
+              <line x1="21" x2="9" y1="12" y2="12"/>
+            </svg>
+            {t("logout") || "Logout"}
+          </GlowButton>
         </div>
 
         {/* Stats Grid */}
@@ -348,6 +336,7 @@ export default function ProfilePage() {
           </p>
         </div>
 
+        {/* Conversion History */}
         <div className="glass-card p-8 animate-fade-in-up stagger-4">
           <h3 className="text-xl font-display font-bold text-success mb-6">{t("conversionHistoryTitle")}</h3>
 

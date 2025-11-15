@@ -44,70 +44,6 @@ export async function selectAvatar(avatarUrl: string) {
 
     console.log('[v0] Server: Profile updated with avatar')
 
-    // If this is the first avatar, award points
-    let pointsAwarded = 0
-    if (isFirstAvatar) {
-      console.log('[v0] Server: First avatar - checking for task...')
-
-      const { data: avatarTask } = await supabase
-        .from('tasks')
-        .select('id, reward')
-        .eq('title', 'Set Your Profile Avatar')
-        .eq('active', true)
-        .single()
-
-      if (avatarTask) {
-        console.log('[v0] Server: Avatar task found:', avatarTask.id)
-
-        // Check if task already completed
-        const { data: existingCompletion } = await supabase
-          .from('task_completions')
-          .select('id')
-          .eq('user_id', user.id)
-          .eq('task_id', avatarTask.id)
-          .maybeSingle()
-
-        if (!existingCompletion) {
-          console.log('[v0] Server: Recording task completion...')
-
-          // Insert task completion
-          const { error: taskError } = await supabase
-            .from('task_completions')
-            .insert({
-              user_id: user.id,
-              task_id: avatarTask.id,
-              points_awarded: avatarTask.reward,
-            })
-
-          if (taskError) {
-            console.error('[v0] Server: Task completion error:', taskError)
-          } else {
-            // Update user points
-            const { data: profile } = await supabase
-              .from('profiles')
-              .select('points')
-              .eq('id', user.id)
-              .single()
-
-            if (profile) {
-              const newPoints = (profile.points || 0) + avatarTask.reward
-              const { error: pointsError } = await supabase
-                .from('profiles')
-                .update({ points: newPoints })
-                .eq('id', user.id)
-
-              if (!pointsError) {
-                pointsAwarded = avatarTask.reward
-                console.log('[v0] Server: Points awarded:', pointsAwarded)
-              }
-            }
-          }
-        } else {
-          console.log('[v0] Server: Task already completed')
-        }
-      }
-    }
-
     // Revalidate pages that show avatar
     revalidatePath('/profile')
     revalidatePath('/leaderboard')
@@ -115,8 +51,7 @@ export async function selectAvatar(avatarUrl: string) {
 
     return { 
       success: true, 
-      avatarUrl, 
-      pointsAwarded 
+      avatarUrl 
     }
   } catch (error) {
     console.error('[v0] Server: Avatar selection error:', error)
