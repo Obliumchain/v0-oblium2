@@ -1,8 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { createClient } from "@/lib/supabase/client"
-import { GlowButton } from "@/components/ui/glow-button"
+import { selectAvatar } from "@/app/actions/avatar-actions"
 import { LiquidCard } from "@/components/ui/liquid-card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
@@ -30,97 +29,37 @@ export function AvatarSelector({ currentAvatarUrl, userId, nickname, onAvatarUpd
   const [isUpdating, setIsUpdating] = useState(false)
   const [selectedAvatar, setSelectedAvatar] = useState<string | null>(currentAvatarUrl || null)
   const [error, setError] = useState<string | null>(null)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
 
   const handleAvatarSelect = async (avatarUrl: string) => {
     setError(null)
+    setSuccessMessage(null)
     setIsUpdating(true)
 
     try {
       console.log("[v0] Selecting avatar:", avatarUrl)
+      
+      const result = await selectAvatar(avatarUrl)
 
-      const supabase = createClient()
+      if (!result.success) {
+        throw new Error(result.error || "Failed to update avatar")
+      }
 
-      // Check if user already has an avatar
-      const { data: currentProfile } = await supabase
-        .from("profiles")
-        .select("avatar_url")
-        .eq("id", userId)
-        .single()
+      console.log("[v0] Avatar updated successfully")
+      setSelectedAvatar(result.avatarUrl)
 
-      const isFirstAvatar = !currentProfile?.avatar_url
-
-      // Update profile with avatar URL
-      const { error: updateError } = await supabase
-        .from("profiles")
-        .update({ avatar_url: avatarUrl })
-        .eq("id", userId)
-
-      if (updateError) throw updateError
-
-      console.log("[v0] Profile updated with avatar")
-      setSelectedAvatar(avatarUrl)
-
-      // If this is the first avatar, award points via task completion
-      let pointsAwarded = 0
-      if (isFirstAvatar) {
-        console.log("[v0] First avatar selection - checking for task...")
-
-        const { data: avatarTask } = await supabase
-          .from("tasks")
-          .select("id, reward")
-          .eq("title", "Set Your Profile Avatar")
-          .eq("active", true)
-          .single()
-
-        if (avatarTask) {
-          console.log("[v0] Avatar task found:", avatarTask.id)
-
-          const { data: existingCompletion } = await supabase
-            .from("task_completions")
-            .select("id")
-            .eq("user_id", userId)
-            .eq("task_id", avatarTask.id)
-            .single()
-
-          if (!existingCompletion) {
-            console.log("[v0] Awarding task completion...")
-
-            const { error: taskError } = await supabase
-              .from("task_completions")
-              .insert({
-                user_id: userId,
-                task_id: avatarTask.id,
-                points_awarded: avatarTask.reward,
-              })
-
-            if (!taskError) {
-              // Update user points
-              const { data: profile } = await supabase
-                .from("profiles")
-                .select("points")
-                .eq("id", userId)
-                .single()
-
-              if (profile) {
-                const newPoints = profile.points + avatarTask.reward
-                const { error: pointsError } = await supabase
-                  .from("profiles")
-                  .update({ points: newPoints })
-                  .eq("id", userId)
-
-                if (!pointsError) {
-                  pointsAwarded = avatarTask.reward
-                  console.log("[v0] Points awarded:", pointsAwarded)
-                }
-              }
-            }
-          }
-        }
+      if (result.pointsAwarded > 0) {
+        setSuccessMessage(`🎉 Avatar set! You earned ${result.pointsAwarded.toLocaleString()} points!`)
+      } else {
+        setSuccessMessage("✓ Avatar updated successfully!")
       }
 
       if (onAvatarUpdated) {
-        onAvatarUpdated(avatarUrl, pointsAwarded)
+        onAvatarUpdated(result.avatarUrl, result.pointsAwarded)
       }
+
+      // Clear success message after 3 seconds
+      setTimeout(() => setSuccessMessage(null), 3000)
     } catch (err) {
       console.error("[v0] Avatar selection error:", err)
       setError(err instanceof Error ? err.message : "Failed to update avatar")
@@ -184,6 +123,12 @@ export function AvatarSelector({ currentAvatarUrl, userId, nickname, onAvatarUpd
             </button>
           ))}
         </div>
+
+        {successMessage && (
+          <div className="text-xs sm:text-sm text-success bg-success/10 border border-success/20 rounded-lg p-3 animate-in fade-in slide-in-from-bottom-2">
+            {successMessage}
+          </div>
+        )}
 
         {error && (
           <div className="text-xs sm:text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg p-3">
