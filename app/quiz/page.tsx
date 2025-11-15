@@ -268,7 +268,7 @@ export default function QuestionsPage() {
   const progress = ((currentQuestion + 1) / questions.length) * 100
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-32">
       <Navigation />
       
       <div className="container mx-auto px-4 py-8 pt-32 max-w-4xl">
@@ -343,7 +343,7 @@ export default function QuestionsPage() {
             </LiquidCard>
 
             {/* Navigation Buttons */}
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between mb-8">
               <Button
                 onClick={handlePrevious}
                 disabled={currentQuestion === 0}
@@ -443,7 +443,7 @@ export default function QuestionsPage() {
               })}
             </div>
 
-            <div className="text-center mt-8">
+            <div className="text-center mt-8 mb-8">
               <Button onClick={() => router.push('/dashboard')} size="lg">
                 Back to Dashboard
               </Button>
