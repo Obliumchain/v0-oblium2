@@ -3,7 +3,7 @@ export const translations = {
     // Navigation
     dashboard: "Dashboard",
     tasks: "Tasks",
-    questions: "Questions",
+    quiz: "Quiz", // Changed from questions to quiz
     leaderboard: "Leaderboard",
     profile: "Profile",
 
@@ -128,7 +128,7 @@ export const translations = {
     // Navigation
     dashboard: "Panel",
     tasks: "Tareas",
-    questions: "Preguntas",
+    quiz: "Quiz", // Changed from questions to quiz
     leaderboard: "Clasificación",
     profile: "Perfil",
 
@@ -253,7 +253,7 @@ export const translations = {
     // Navigation
     dashboard: "Tableau de bord",
     tasks: "Tâches",
-    questions: "Questions",
+    quiz: "Quiz", // Changed from questions to quiz
     leaderboard: "Classement",
     profile: "Profil",
 
@@ -379,7 +379,7 @@ export const translations = {
     // Navigation
     dashboard: "لوحة التحكم",
     tasks: "المهام",
-    questions: "الأسئلة",
+    quiz: "اختبار", // Changed from questions to quiz (Arabic translation for quiz)
     leaderboard: "المتصدرين",
     profile: "الملف الشخصي",
 
@@ -504,7 +504,7 @@ export const translations = {
     // Navigation
     dashboard: "Dashboard",
     tasks: "Aufgaben",
-    questions: "Fragen",
+    quiz: "Quiz", // Changed from questions to quiz
     leaderboard: "Bestenliste",
     profile: "Profil",
 
@@ -629,7 +629,7 @@ export const translations = {
     // Navigation
     dashboard: "仪表盘",
     tasks: "任务",
-    questions: "问题",
+    quiz: "测验", // Changed from questions to quiz (Chinese translation for quiz)
     leaderboard: "排行榜",
     profile: "个人资料",
 

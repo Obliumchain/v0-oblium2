@@ -49,7 +49,7 @@ const ProfileIcon = ({ isActive }: { isActive?: boolean }) => (
 
 const iconMap = {
   "/dashboard": DashboardIcon,
-  "/questions": TasksIcon,
+  "/quiz": TasksIcon,
   "/booster": BoosterIcon,
   "/leaderboard": LeaderboardIcon,
   "/profile": ProfileIcon,
@@ -61,7 +61,7 @@ export function Navigation() {
 
   const navItems = [
     { href: "/dashboard", label: t("dashboard"), key: "dashboard" },
-    { href: "/questions", label: t("questions"), key: "questions" },
+    { href: "/quiz", label: t("quiz"), key: "quiz" },
     { href: "/booster", label: "Booster", key: "booster" },
     { href: "/leaderboard", label: t("leaderboard"), key: "leaderboard" },
     { href: "/profile", label: t("profile"), key: "profile" },

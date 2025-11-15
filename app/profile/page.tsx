@@ -10,7 +10,6 @@ import { BackgroundAnimation } from "@/components/background-animation"
 import { CubeLoader } from "@/components/ui/cube-loader"
 import { ConversionCountdown } from "@/components/conversion-countdown"
 import { useLanguage } from "@/lib/language-context"
-import { AvatarSelector } from "@/components/avatar-selector"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 
 interface UserProfile {
@@ -189,12 +188,6 @@ export default function ProfilePage() {
     router.push("/welcome")
   }
 
-  const handleAvatarUpdated = (avatarUrl: string) => {
-    if (profile) {
-      setProfile({ ...profile, avatar_url: avatarUrl } as any)
-    }
-  }
-
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background via-[#0a0015] to-background flex items-center justify-center">
@@ -264,14 +257,6 @@ export default function ProfilePage() {
               })}
             </p>
           )}
-
-          <div className="mb-6">
-            <AvatarSelector
-              currentAvatarUrl={(profile as any)?.avatar_url}
-              nickname={profile?.nickname || "User"}
-              onAvatarUpdated={handleAvatarUpdated}
-            />
-          </div>
 
           <GlowButton onClick={handleLogout} className="w-full max-w-xs mx-auto" variant="destructive">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="inline-block mr-2">
