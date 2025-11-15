@@ -10,12 +10,8 @@ import { GlowButton } from "@/components/ui/glow-button"
 import { BackgroundAnimation } from "@/components/background-animation"
 import { useLanguage } from "@/lib/language-context"
 import { LanguageSelector } from "@/components/language-selector"
-import { WalletAuthButton } from "@/components/wallet-auth-button"
-import { SolanaWalletProvider } from "@/lib/wallet/wallet-provider"
 
-type AuthMode = "email" | "wallet"
-
-function AuthPageContent() {
+export default function AuthPage() {
   const router = useRouter()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -28,7 +24,6 @@ function AuthPageContent() {
   const [referralMessage, setReferralMessage] = useState<string | null>(null)
   const [referralSuccess, setReferralSuccess] = useState(false)
   const { t } = useLanguage()
-  const [authMode, setAuthMode] = useState<AuthMode>("email")
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -184,168 +179,189 @@ function AuthPageContent() {
     <div className="min-h-screen bg-gradient-to-br from-background via-[#0a0015] to-background overflow-hidden flex items-center justify-center px-4">
       <BackgroundAnimation />
 
-      <div className="fixed top-4 right-4 z-50">
+      <div className="fixed top-8 right-8 z-50">
         <LanguageSelector />
       </div>
 
-      <div className="relative z-10 w-full max-w-md animate-fade-in">
-        <LiquidCard className="p-8">
-          <div className="text-center mb-8">
-            <Image src="/logo.png" alt="Oblium Logo" width={64} height={64} className="mx-auto mb-4 drop-shadow-lg" />
-            <h1 className="text-3xl font-display font-bold text-primary mb-2">OBLIUM</h1>
-            <p className="text-foreground/60">{isSignUp ? t("createAccount") : t("enterMiningNetwork")}</p>
+      <div className="relative z-10 w-full max-w-md animate-fade-in-up">
+        <div className="glass-card p-8 md:p-10">
+          <div className="text-center mb-10">
+            <div className="relative w-20 h-20 mx-auto mb-6">
+              <Image 
+                src="/logo.png" 
+                alt="Oblium Logo" 
+                fill
+                className="object-contain drop-shadow-2xl drop-shadow-primary/50" 
+              />
+            </div>
+            <h1 
+              className="font-display font-bold text-primary mb-3 tracking-wide" 
+              style={{ fontSize: 'var(--text-xl)' }}
+            >
+              OBLM
+            </h1>
+            <p 
+              className="text-foreground/70 font-medium" 
+              style={{ fontSize: 'var(--text-base)' }}
+            >
+              {isSignUp ? t("createAccount") : t("enterMiningNetwork")}
+            </p>
           </div>
 
-          <div className="flex gap-2 mb-6">
-            <button
-              onClick={() => setAuthMode("wallet")}
-              className={`flex-1 py-2 px-4 rounded-lg font-bold transition-all ${
-                authMode === "wallet"
-                  ? "bg-primary text-background shadow-lg shadow-primary/20"
-                  : "bg-background/50 text-foreground/60 hover:text-foreground"
-              }`}
-            >
-              Wallet
-            </button>
-            <button
-              onClick={() => setAuthMode("email")}
-              className={`flex-1 py-2 px-4 rounded-lg font-bold transition-all ${
-                authMode === "email"
-                  ? "bg-primary text-background shadow-lg shadow-primary/20"
-                  : "bg-background/50 text-foreground/60 hover:text-foreground"
-              }`}
-            >
-              Email
-            </button>
-          </div>
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label 
+                className="block font-display font-bold text-foreground/90 mb-2.5" 
+                style={{ fontSize: 'var(--text-sm)' }}
+              >
+                {t("email")}
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder={t("emailPlaceholder")}
+                className="w-full px-4 py-3.5 bg-background/40 backdrop-blur-sm border border-primary/30 rounded-xl text-foreground placeholder:text-foreground/40 focus:outline-none focus:border-primary focus:bg-background/60 focus:shadow-lg focus:shadow-primary/10 transition-all duration-300 font-medium"
+                style={{ fontSize: 'var(--text-base)' }}
+                required
+              />
+            </div>
 
-          {authMode === "wallet" ? (
-            <WalletAuthButton />
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-bold text-foreground/80 mb-2">{t("email")}</label>
+            {isSignUp && (
+              <div className="animate-fade-in-up">
+                <label 
+                  className="block font-display font-bold text-foreground/90 mb-2.5" 
+                  style={{ fontSize: 'var(--text-sm)' }}
+                >
+                  {t("nickname")}
+                </label>
                 <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder={t("emailPlaceholder")}
-                  className="w-full px-4 py-3 bg-background/50 border border-primary/30 rounded-lg text-foreground placeholder:text-foreground/30 focus:outline-none focus:border-primary focus:shadow-lg focus:shadow-primary/20 transition-all duration-300"
+                  type="text"
+                  value={nickname}
+                  onChange={(e) => setNickname(e.target.value)}
+                  placeholder={t("nicknamePlaceholder")}
+                  className="w-full px-4 py-3.5 bg-background/40 backdrop-blur-sm border border-primary/30 rounded-xl text-foreground placeholder:text-foreground/40 focus:outline-none focus:border-primary focus:bg-background/60 focus:shadow-lg focus:shadow-primary/10 transition-all duration-300 font-medium"
+                  style={{ fontSize: 'var(--text-base)' }}
                   required
                 />
               </div>
+            )}
 
-              {isSignUp && (
-                <div>
-                  <label className="block text-sm font-bold text-foreground/80 mb-2">{t("nickname")}</label>
-                  <input
-                    type="text"
-                    value={nickname}
-                    onChange={(e) => setNickname(e.target.value)}
-                    placeholder={t("nicknamePlaceholder")}
-                    className="w-full px-4 py-3 bg-background/50 border border-primary/30 rounded-lg text-foreground placeholder:text-foreground/30 focus:outline-none focus:border-primary focus:shadow-lg focus:shadow-primary/20 transition-all duration-300"
-                    required
-                  />
-                </div>
-              )}
+            <div>
+              <label 
+                className="block font-display font-bold text-foreground/90 mb-2.5" 
+                style={{ fontSize: 'var(--text-sm)' }}
+              >
+                {t("password")}
+              </label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder={t("passwordPlaceholder")}
+                className="w-full px-4 py-3.5 bg-background/40 backdrop-blur-sm border border-primary/30 rounded-xl text-foreground placeholder:text-foreground/40 focus:outline-none focus:border-primary focus:bg-background/60 focus:shadow-lg focus:shadow-primary/10 transition-all duration-300 font-medium"
+                style={{ fontSize: 'var(--text-base)' }}
+                required
+              />
+            </div>
 
-              <div>
-                <label className="block text-sm font-bold text-foreground/80 mb-2">{t("password")}</label>
+            {isSignUp && (
+              <div className="animate-fade-in-up">
+                <label 
+                  className="block font-display font-bold text-foreground/90 mb-2.5" 
+                  style={{ fontSize: 'var(--text-sm)' }}
+                >
+                  {t("repeatPassword")}
+                </label>
                 <input
                   type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={repeatPassword}
+                  onChange={(e) => setRepeatPassword(e.target.value)}
                   placeholder={t("passwordPlaceholder")}
-                  className="w-full px-4 py-3 bg-background/50 border border-primary/30 rounded-lg text-foreground placeholder:text-foreground/30 focus:outline-none focus:border-primary focus:shadow-lg focus:shadow-primary/20 transition-all duration-300"
+                  className="w-full px-4 py-3.5 bg-background/40 backdrop-blur-sm border border-primary/30 rounded-xl text-foreground placeholder:text-foreground/40 focus:outline-none focus:border-primary focus:bg-background/60 focus:shadow-lg focus:shadow-primary/10 transition-all duration-300 font-medium"
+                  style={{ fontSize: 'var(--text-base)' }}
                   required
                 />
               </div>
+            )}
 
-              {isSignUp && (
-                <div>
-                  <label className="block text-sm font-bold text-foreground/80 mb-2">{t("repeatPassword")}</label>
-                  <input
-                    type="password"
-                    value={repeatPassword}
-                    onChange={(e) => setRepeatPassword(e.target.value)}
-                    placeholder={t("passwordPlaceholder")}
-                    className="w-full px-4 py-3 bg-background/50 border border-primary/30 rounded-lg text-foreground placeholder:text-foreground/30 focus:outline-none focus:border-primary focus:shadow-lg focus:shadow-primary/20 transition-all duration-300"
-                    required
-                  />
-                </div>
-              )}
-
-              {isSignUp && (
-                <div>
-                  <label className="block text-sm font-bold text-foreground/80 mb-2">{t("referralCodeOptional")}</label>
-                  <input
-                    type="text"
-                    value={referralCode}
-                    onChange={(e) => setReferralCode(e.target.value)}
-                    placeholder={t("referralCodePlaceholder")}
-                    className="w-full px-4 py-3 bg-background/50 border border-accent/30 rounded-lg text-foreground placeholder:text-foreground/30 focus:outline-none focus:border-accent focus:shadow-lg focus:shadow-accent/20 transition-all duration-300"
-                  />
-                  <p className="text-xs text-foreground/50 mt-1">
-                    Enter a friend's referral code to earn 500 bonus points!
-                  </p>
-                </div>
-              )}
-
-              {error && (
-                <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
-                  <p className="text-sm text-red-400">{error}</p>
-                </div>
-              )}
-
-              {referralMessage && (
-                <div
-                  className={`p-3 border rounded-lg ${
-                    referralSuccess ? "bg-green-500/10 border-green-500/30" : "bg-yellow-500/10 border-yellow-500/30"
-                  }`}
+            {isSignUp && (
+              <div className="animate-fade-in-up">
+                <label 
+                  className="block font-display font-bold text-foreground/90 mb-2.5" 
+                  style={{ fontSize: 'var(--text-sm)' }}
                 >
-                  <p className={`text-sm ${referralSuccess ? "text-green-400" : "text-yellow-400"}`}>
-                    {referralSuccess ? "✓ " : "⚠️ "}
-                    {referralMessage}
-                  </p>
-                </div>
-              )}
+                  {t("referralCodeOptional")}
+                </label>
+                <input
+                  type="text"
+                  value={referralCode}
+                  onChange={(e) => setReferralCode(e.target.value)}
+                  placeholder={t("referralCodePlaceholder")}
+                  className="w-full px-4 py-3.5 bg-background/40 backdrop-blur-sm border border-accent/30 rounded-xl text-foreground placeholder:text-foreground/40 focus:outline-none focus:border-accent focus:bg-background/60 focus:shadow-lg focus:shadow-accent/10 transition-all duration-300 font-medium"
+                  style={{ fontSize: 'var(--text-base)' }}
+                />
+                <p className="text-foreground/50 mt-2" style={{ fontSize: 'var(--text-xs)' }}>
+                  Enter a friend's referral code to earn 500 bonus points!
+                </p>
+              </div>
+            )}
 
-              <GlowButton type="submit" disabled={isLoading} className="w-full">
-                {isLoading
-                  ? isSignUp
-                    ? t("creatingAccount")
-                    : t("connecting")
-                  : isSignUp
-                    ? t("createAccount")
-                    : t("startMining")}
-              </GlowButton>
-            </form>
-          )}
+            {error && (
+              <div className="p-4 bg-destructive/10 backdrop-blur-sm border border-destructive/30 rounded-xl animate-fade-in">
+                <p className="text-destructive font-medium" style={{ fontSize: 'var(--text-sm)' }}>{error}</p>
+              </div>
+            )}
 
-          <div className="text-center text-sm text-foreground/60 mt-6">
-            {isSignUp ? t("alreadyHaveAccount") : t("newToOblium")}{" "}
-            <button
-              onClick={() => {
-                setIsSignUp(!isSignUp)
-                setError(null)
-                setReferralMessage(null)
-                setReferralSuccess(false)
-              }}
-              className="text-primary hover:underline font-bold"
+            {referralMessage && (
+              <div
+                className={`p-4 backdrop-blur-sm border rounded-xl animate-fade-in ${
+                  referralSuccess ? "bg-success/10 border-success/30" : "bg-warning/10 border-warning/30"
+                }`}
+              >
+                <p 
+                  className={`font-medium ${referralSuccess ? "text-success" : "text-warning"}`}
+                  style={{ fontSize: 'var(--text-sm)' }}
+                >
+                  {referralSuccess ? "✓ " : "⚠️ "}
+                  {referralMessage}
+                </p>
+              </div>
+            )}
+
+            <GlowButton 
+              type="submit" 
+              disabled={isLoading} 
+              className="w-full py-4 text-lg font-display font-bold mt-6"
             >
-              {isSignUp ? t("signIn") : t("createAccount")}
-            </button>
+              {isLoading
+                ? isSignUp
+                  ? t("creatingAccount")
+                  : t("connecting")
+                : isSignUp
+                  ? t("createAccount")
+                  : t("startMining")}
+            </GlowButton>
+          </form>
+
+          <div className="text-center mt-8">
+            <p className="text-foreground/60 font-medium" style={{ fontSize: 'var(--text-sm)' }}>
+              {isSignUp ? t("alreadyHaveAccount") : t("newToOblium")}{" "}
+              <button
+                onClick={() => {
+                  setIsSignUp(!isSignUp)
+                  setError(null)
+                  setReferralMessage(null)
+                  setReferralSuccess(false)
+                }}
+                className="text-primary hover:text-accent font-display font-bold transition-colors duration-300"
+              >
+                {isSignUp ? t("signIn") : t("createAccount")}
+              </button>
+            </p>
           </div>
-        </LiquidCard>
+        </div>
       </div>
     </div>
-  )
-}
-
-export default function AuthPage() {
-  return (
-    <SolanaWalletProvider>
-      <AuthPageContent />
-    </SolanaWalletProvider>
   )
 }
