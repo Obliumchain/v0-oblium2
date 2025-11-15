@@ -60,7 +60,6 @@ export default function AuthPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log("[v0] Form submitted, isSignUp:", isSignUp)
     setIsLoading(true)
     setError(null)
     setReferralMessage(null)
@@ -70,7 +69,6 @@ export default function AuthPage() {
 
     try {
       if (isSignUp) {
-        console.log("[v0] Starting signup process...")
         if (password !== repeatPassword) {
           throw new Error("Passwords do not match")
         }
@@ -84,7 +82,6 @@ export default function AuthPage() {
             email,
             password,
             options: {
-              emailRedirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || `${window.location.origin}/dashboard`,
               data: {
                 nickname: nickname.trim(),
                 referral_code: referralCode.trim() || null,
@@ -150,7 +147,6 @@ export default function AuthPage() {
           referralCode.trim() ? 2000 : 500,
         )
       } else {
-        console.log("[v0] Starting login process...")
         const { error: loginError } = await retryWithBackoff(() =>
           supabase.auth.signInWithPassword({
             email,
@@ -333,10 +329,10 @@ export default function AuthPage() {
               </div>
             )}
 
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full py-4 text-lg font-display font-bold mt-6 btn-primary rounded-xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+            <GlowButton 
+              type="submit" 
+              disabled={isLoading} 
+              className="w-full py-4 text-lg font-display font-bold mt-6"
             >
               {isLoading
                 ? isSignUp
@@ -345,22 +341,20 @@ export default function AuthPage() {
                 : isSignUp
                   ? t("createAccount")
                   : t("startMining")}
-            </button>
+            </GlowButton>
           </form>
 
           <div className="text-center mt-8">
             <p className="text-foreground/60 font-medium" style={{ fontSize: 'var(--text-sm)' }}>
               {isSignUp ? t("alreadyHaveAccount") : t("newToOblium")}{" "}
               <button
-                type="button"
                 onClick={() => {
-                  console.log("[v0] Toggling auth mode, current isSignUp:", isSignUp)
                   setIsSignUp(!isSignUp)
                   setError(null)
                   setReferralMessage(null)
                   setReferralSuccess(false)
                 }}
-                className="text-primary hover:text-accent font-display font-bold transition-colors duration-300 underline decoration-primary/50 hover:decoration-accent"
+                className="text-primary hover:text-accent font-display font-bold transition-colors duration-300"
               >
                 {isSignUp ? t("signIn") : t("createAccount")}
               </button>
