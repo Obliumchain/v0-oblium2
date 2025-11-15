@@ -10,7 +10,6 @@ import { BackgroundAnimation } from "@/components/background-animation"
 import { CubeLoader } from "@/components/ui/cube-loader"
 import { ConversionCountdown } from "@/components/conversion-countdown"
 import { useLanguage } from "@/lib/language-context"
-import { AvatarSelector } from "@/components/avatar-selector"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 
 interface UserProfile {
@@ -48,6 +47,7 @@ export default function ProfilePage() {
   const [referralLinkCopied, setReferralLinkCopied] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
   const { t } = useLanguage()
 
   useEffect(() => {
@@ -184,14 +184,23 @@ export default function ProfilePage() {
   }
 
   const handleLogout = async () => {
-    const supabase = createClient()
-    await supabase.auth.signOut()
-    router.push("/welcome")
-  }
-
-  const handleAvatarUpdated = (avatarUrl: string) => {
-    if (profile) {
-      setProfile({ ...profile, avatar_url: avatarUrl } as any)
+    try {
+      setIsLoggingOut(true)
+      console.log("[v0] Starting logout...")
+      const supabase = createClient()
+      const { error } = await supabase.auth.signOut()
+      
+      if (error) {
+        console.error("[v0] Logout error:", error)
+        throw error
+      }
+      
+      console.log("[v0] Logout successful, redirecting...")
+      router.push("/welcome")
+      router.refresh()
+    } catch (error) {
+      console.error("[v0] Failed to logout:", error)
+      setIsLoggingOut(false)
     }
   }
 
@@ -265,21 +274,18 @@ export default function ProfilePage() {
             </p>
           )}
 
-          <div className="mb-6">
-            <AvatarSelector
-              currentAvatarUrl={(profile as any)?.avatar_url}
-              nickname={profile?.nickname || "User"}
-              onAvatarUpdated={handleAvatarUpdated}
-            />
-          </div>
-
-          <GlowButton onClick={handleLogout} className="w-full max-w-xs mx-auto" variant="destructive">
+          <GlowButton 
+            onClick={handleLogout} 
+            className="w-full max-w-xs mx-auto" 
+            variant="destructive"
+            disabled={isLoggingOut}
+          >
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="inline-block mr-2">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
               <polyline points="16 17 21 12 16 7"/>
               <line x1="21" x2="9" y1="12" y2="12"/>
             </svg>
-            {t("logout") || "Logout"}
+            {isLoggingOut ? "Logging out..." : (t("logout") || "Logout")}
           </GlowButton>
         </div>
 
