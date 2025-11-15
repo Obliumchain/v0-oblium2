@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/client"
 import { Navigation } from "@/components/navigation"
 import { BackgroundAnimation } from "@/components/background-animation"
 import { useLanguage } from "@/lib/language-context"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Crown } from 'lucide-react'
 
 interface LeaderboardEntry {
@@ -13,6 +13,7 @@ interface LeaderboardEntry {
   id: string
   nickname: string
   points: number
+  avatar_url?: string | null // Add avatar_url field
 }
 
 export default function LeaderboardPage() {
@@ -43,7 +44,7 @@ export default function LeaderboardPage() {
 
         const { data: profiles, error } = await supabase
           .from("profiles")
-          .select("id, nickname, points")
+          .select("id, nickname, points, avatar_url")
           .order("points", { ascending: false })
           .limit(10)
 
@@ -59,6 +60,7 @@ export default function LeaderboardPage() {
               id: profile.id,
               nickname: displayName,
               points: profile.points || 0,
+              avatar_url: profile.avatar_url, // Include avatar_url
             }
           })
 
@@ -121,9 +123,13 @@ export default function LeaderboardPage() {
                 <div className="glass-card p-8 text-center hover:scale-105 transition-transform duration-300 border-2 border-primary/30">
                   <div className="relative inline-block mb-4">
                     <Avatar className="w-28 h-28 border-4 border-yellow-400 shadow-xl shadow-yellow-400/30">
-                      <AvatarFallback className="bg-gradient-to-br from-yellow-400 to-yellow-600 text-background text-3xl font-display font-bold">
-                        {top3[0]?.nickname[0]?.toUpperCase()}
-                      </AvatarFallback>
+                      {top3[0]?.avatar_url ? (
+                        <AvatarImage src={top3[0].avatar_url || "/placeholder.svg"} alt={top3[0].nickname} />
+                      ) : (
+                        <AvatarFallback className="bg-gradient-to-br from-yellow-400 to-yellow-600 text-background text-3xl font-display font-bold">
+                          {top3[0]?.nickname[0]?.toUpperCase()}
+                        </AvatarFallback>
+                      )}
                     </Avatar>
                     <div className="absolute -top-2 -right-2">
                       <Crown className="w-10 h-10 text-yellow-400 fill-yellow-400 animate-float" />
@@ -154,9 +160,13 @@ export default function LeaderboardPage() {
                   <div className="glass-card p-4 text-center hover:scale-105 transition-transform duration-300">
                     <div className="relative inline-block mb-3">
                       <Avatar className="w-20 h-20 border-4 border-silver shadow-lg">
-                        <AvatarFallback className="bg-gradient-to-br from-gray-300 to-gray-500 text-background text-xl font-display font-bold">
-                          {top3[1]?.nickname[0]?.toUpperCase()}
-                        </AvatarFallback>
+                        {top3[1]?.avatar_url ? (
+                          <AvatarImage src={top3[1].avatar_url || "/placeholder.svg"} alt={top3[1].nickname} />
+                        ) : (
+                          <AvatarFallback className="bg-gradient-to-br from-gray-300 to-gray-500 text-background text-xl font-display font-bold">
+                            {top3[1]?.nickname[0]?.toUpperCase()}
+                          </AvatarFallback>
+                        )}
                       </Avatar>
                     </div>
                     
@@ -182,9 +192,13 @@ export default function LeaderboardPage() {
                   <div className="glass-card p-4 text-center hover:scale-105 transition-transform duration-300">
                     <div className="relative inline-block mb-3">
                       <Avatar className="w-20 h-20 border-4 border-orange-400 shadow-lg">
-                        <AvatarFallback className="bg-gradient-to-br from-orange-400 to-orange-600 text-background text-xl font-display font-bold">
-                          {top3[2]?.nickname[0]?.toUpperCase()}
-                        </AvatarFallback>
+                        {top3[2]?.avatar_url ? (
+                          <AvatarImage src={top3[2].avatar_url || "/placeholder.svg"} alt={top3[2].nickname} />
+                        ) : (
+                          <AvatarFallback className="bg-gradient-to-br from-orange-400 to-orange-600 text-background text-xl font-display font-bold">
+                            {top3[2]?.nickname[0]?.toUpperCase()}
+                          </AvatarFallback>
+                        )}
                       </Avatar>
                     </div>
                     
@@ -214,9 +228,13 @@ export default function LeaderboardPage() {
                 <div className="glass-card p-6 text-center hover:scale-105 transition-transform duration-300">
                   <div className="relative inline-block mb-4">
                     <Avatar className="w-24 h-24 border-4 border-silver shadow-lg">
-                      <AvatarFallback className="bg-gradient-to-br from-gray-300 to-gray-500 text-background text-2xl font-display font-bold">
-                        {top3[1]?.nickname[0]?.toUpperCase()}
-                      </AvatarFallback>
+                      {top3[1]?.avatar_url ? (
+                        <AvatarImage src={top3[1].avatar_url || "/placeholder.svg"} alt={top3[1].nickname} />
+                      ) : (
+                        <AvatarFallback className="bg-gradient-to-br from-gray-300 to-gray-500 text-background text-2xl font-display font-bold">
+                          {top3[1]?.nickname[0]?.toUpperCase()}
+                        </AvatarFallback>
+                      )}
                     </Avatar>
                   </div>
                   
@@ -242,9 +260,13 @@ export default function LeaderboardPage() {
                 <div className="glass-card p-8 text-center hover:scale-105 transition-transform duration-300 border-2 border-primary/30">
                   <div className="relative inline-block mb-4">
                     <Avatar className="w-32 h-32 border-4 border-yellow-400 shadow-xl shadow-yellow-400/30">
-                      <AvatarFallback className="bg-gradient-to-br from-yellow-400 to-yellow-600 text-background text-3xl font-display font-bold">
-                        {top3[0]?.nickname[0]?.toUpperCase()}
-                      </AvatarFallback>
+                      {top3[0]?.avatar_url ? (
+                        <AvatarImage src={top3[0].avatar_url || "/placeholder.svg"} alt={top3[0].nickname} />
+                      ) : (
+                        <AvatarFallback className="bg-gradient-to-br from-yellow-400 to-yellow-600 text-background text-3xl font-display font-bold">
+                          {top3[0]?.nickname[0]?.toUpperCase()}
+                        </AvatarFallback>
+                      )}
                     </Avatar>
                     <div className="absolute -top-2 -right-2">
                       <Crown className="w-10 h-10 text-yellow-400 fill-yellow-400 animate-float" />
@@ -273,9 +295,13 @@ export default function LeaderboardPage() {
                 <div className="glass-card p-6 text-center hover:scale-105 transition-transform duration-300">
                   <div className="relative inline-block mb-4">
                     <Avatar className="w-24 h-24 border-4 border-orange-400 shadow-lg">
-                      <AvatarFallback className="bg-gradient-to-br from-orange-400 to-orange-600 text-background text-2xl font-display font-bold">
-                        {top3[2]?.nickname[0]?.toUpperCase()}
-                      </AvatarFallback>
+                      {top3[2]?.avatar_url ? (
+                        <AvatarImage src={top3[2].avatar_url || "/placeholder.svg"} alt={top3[2].nickname} />
+                      ) : (
+                        <AvatarFallback className="bg-gradient-to-br from-orange-400 to-orange-600 text-background text-2xl font-display font-bold">
+                          {top3[2]?.nickname[0]?.toUpperCase()}
+                        </AvatarFallback>
+                      )}
                     </Avatar>
                   </div>
                   
@@ -320,9 +346,13 @@ export default function LeaderboardPage() {
                       </div>
                       
                       <Avatar className="w-12 h-12 border-2 border-foreground/20">
-                        <AvatarFallback className="bg-gradient-to-br from-primary/20 to-accent/20 text-foreground font-display font-bold">
-                          {entry.nickname[0]?.toUpperCase()}
-                        </AvatarFallback>
+                        {entry.avatar_url ? (
+                          <AvatarImage src={entry.avatar_url || "/placeholder.svg"} alt={entry.nickname} />
+                        ) : (
+                          <AvatarFallback className="bg-gradient-to-br from-primary/20 to-accent/20 text-foreground font-display font-bold">
+                            {entry.nickname[0]?.toUpperCase()}
+                          </AvatarFallback>
+                        )}
                       </Avatar>
                       
                       <div className="flex-1 min-w-0">

@@ -357,9 +357,9 @@ export default function DashboardPage() {
           <NewsCarousel />
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8">
-          {/* Total Points - Spans 2 columns on all screens */}
-          <div className="col-span-2 md:col-span-2 lg:col-span-2 glass-card p-6 text-center animate-fade-in-up stagger-1 hover:scale-105 transition-transform duration-300">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          {/* Total Points */}
+          <div className="sm:col-span-2 glass-card p-6 text-center animate-fade-in-up stagger-1 hover:scale-105 transition-transform duration-300">
             <div className="text-foreground/60 text-sm mb-2 font-display" style={{ fontSize: 'var(--text-sm)' }}>
               {t("totalPoints")}
             </div>
@@ -369,8 +369,8 @@ export default function DashboardPage() {
             <div className="h-1 bg-gradient-to-r from-primary to-accent rounded-full mt-4" />
           </div>
 
-          {/* OBLM Tokens - Single column on mobile, 2 on larger */}
-          <div className="col-span-1 md:col-span-2 lg:col-span-2 glass-card p-6 text-center animate-fade-in-up stagger-2 hover:scale-105 transition-transform duration-300">
+          {/* OBLM Tokens */}
+          <div className="glass-card p-6 text-center animate-fade-in-up stagger-2 hover:scale-105 transition-transform duration-300">
             <div className="text-foreground/60 text-sm mb-2 font-display" style={{ fontSize: 'var(--text-sm)' }}>
               {t("oblmTokens")}
             </div>
@@ -380,8 +380,8 @@ export default function DashboardPage() {
             <div className="h-1 bg-gradient-to-r from-accent to-primary rounded-full mt-4" />
           </div>
 
-          {/* Boosters - Single column on mobile, 2 on larger */}
-          <div className="col-span-1 md:col-span-2 lg:col-span-2 glass-card p-6 text-center animate-fade-in-up stagger-3 hover:scale-105 transition-transform duration-300 cursor-pointer"
+          {/* Boosters */}
+          <div className="glass-card p-6 text-center animate-fade-in-up stagger-3 hover:scale-105 transition-transform duration-300 cursor-pointer"
             onClick={() => router.push('/booster')}
           >
             <div className="text-foreground/60 text-sm mb-2 font-display" style={{ fontSize: 'var(--text-sm)' }}>
@@ -460,12 +460,14 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="mb-8 animate-fade-in-up">
-          <PresaleCountdown />
-        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <div className="animate-fade-in-up">
+            <PresaleCountdown />
+          </div>
 
-        <div className="mb-8 animate-fade-in-up">
-          <ConversionCountdown />
+          <div className="animate-fade-in-up">
+            <ConversionCountdown />
+          </div>
         </div>
 
         <div className="glass-card p-8 animate-fade-in-up">

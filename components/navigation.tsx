@@ -69,52 +69,64 @@ export function Navigation() {
 
   return (
     <>
-      <nav className="hidden lg:flex items-center justify-between w-full px-8 py-4 fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-cyan-500/20">
-        <Link href="/welcome" className="flex items-center gap-3">
-          <Image
-            src="/logo.png"
-            alt="OBLM"
-            width={40}
-            height={40}
-            className="hover:scale-110 transition-transform duration-300"
-          />
-          <span className="text-3xl font-black tracking-tight" style={{ fontFamily: 'Quantico, sans-serif' }}>
-            OBLM
-          </span>
-        </Link>
-
-        <div className="flex items-center gap-6 absolute left-1/2 -translate-x-1/2">
-          {navItems.map((item) => {
-            const Icon = iconMap[item.href as keyof typeof iconMap]
-            return (
-              <Link key={item.href} href={item.href}>
-                <div
-                  className={`flex items-center gap-2.5 px-5 py-2.5 rounded-xl transition-all duration-300 hover:bg-cyan-500/10 ${
-                    pathname === item.href ? "text-cyan-400 bg-cyan-500/10" : "text-gray-400 hover:text-cyan-400"
-                  }`}
-                >
-                  <Icon isActive={pathname === item.href} />
-                  <span className="font-medium text-base">{item.label}</span>
-                </div>
-              </Link>
-            )
-          })}
-        </div>
-
-        <LanguageSelector />
-      </nav>
-
-      <div className="lg:hidden">
-        <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-xl border-b border-cyan-500/20 px-4 py-3">
-          <div className="flex items-center justify-between">
-            <Link href="/welcome" className="flex items-center gap-2">
-              <Image src="/logo.png" alt="OBLM" width={32} height={32} />
-              <span className="text-2xl font-black tracking-tight" style={{ fontFamily: 'Quantico, sans-serif' }}>
+      <nav className="hidden lg:block fixed top-4 left-1/2 -translate-x-1/2 z-50 animate-fade-in-down">
+        <div className="bg-white/95 backdrop-blur-xl rounded-full shadow-2xl border border-gray-200/50 px-6 py-3">
+          <div className="flex items-center gap-8">
+            <Link href="/welcome" className="flex items-center gap-2 pr-6 border-r border-gray-200">
+              <Image
+                src="/logo.png"
+                alt="OBLM"
+                width={32}
+                height={32}
+                className="hover:scale-110 transition-transform duration-300"
+              />
+              <span className="text-xl font-black tracking-tight text-gray-900" style={{ fontFamily: 'Quantico, sans-serif' }}>
                 OBLM
               </span>
             </Link>
 
-            <LanguageSelector />
+            <div className="flex items-center gap-2">
+              {navItems.map((item) => {
+                const Icon = iconMap[item.href as keyof typeof iconMap]
+                const isActive = pathname === item.href
+                return (
+                  <Link key={item.href} href={item.href}>
+                    <div
+                      className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-300 text-sm font-medium ${
+                        isActive 
+                          ? "text-cyan-600 bg-cyan-50" 
+                          : "text-gray-600 hover:text-cyan-600 hover:bg-gray-50"
+                      }`}
+                      style={{ fontFamily: 'Quantico, sans-serif' }}
+                    >
+                      <Icon isActive={isActive} />
+                      <span>{item.label}</span>
+                    </div>
+                  </Link>
+                )
+              })}
+            </div>
+
+            <div className="pl-6 border-l border-gray-200">
+              <LanguageSelector />
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <div className="lg:hidden">
+        <nav className="fixed top-4 left-4 right-4 z-50 animate-fade-in-down">
+          <div className="bg-background/95 backdrop-blur-xl border border-cyan-500/20 rounded-full px-4 py-3 shadow-xl">
+            <div className="flex items-center justify-between">
+              <Link href="/welcome" className="flex items-center gap-2">
+                <Image src="/logo.png" alt="OBLM" width={28} height={28} />
+                <span className="text-lg font-black tracking-tight" style={{ fontFamily: 'Quantico, sans-serif' }}>
+                  OBLM
+                </span>
+              </Link>
+
+              <LanguageSelector />
+            </div>
           </div>
         </nav>
 
@@ -198,7 +210,7 @@ export function Navigation() {
         </nav>
       </div>
 
-      <div className="h-16 lg:h-20" />
+      <div className="h-20 lg:h-24" />
       <div className="h-24 lg:hidden" />
     </>
   )

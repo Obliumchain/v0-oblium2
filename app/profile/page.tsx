@@ -10,6 +10,7 @@ import { BackgroundAnimation } from "@/components/background-animation"
 import { CubeLoader } from "@/components/ui/cube-loader"
 import { ConversionCountdown } from "@/components/conversion-countdown"
 import { useLanguage } from "@/lib/language-context"
+import { AvatarSelector } from "@/components/avatar-selector"
 
 interface UserProfile {
   nickname: string
@@ -18,6 +19,7 @@ interface UserProfile {
   referral_code: string
   points: number
   task_completion_bonus_awarded: boolean
+  avatar_url?: string
 }
 
 interface UserStats {
@@ -46,6 +48,9 @@ export default function ProfilePage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const { t } = useLanguage()
+
+  const [showPointsNotification, setShowPointsNotification] = useState(false)
+  const [pointsAwarded, setPointsAwarded] = useState(0)
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -77,7 +82,7 @@ export default function ProfilePage() {
 
         const { data: profileData, error: profileError } = await supabase
           .from("profiles")
-          .select("nickname, created_at, wallet_address, referral_code, points, task_completion_bonus_awarded")
+          .select("nickname, created_at, wallet_address, referral_code, points, task_completion_bonus_awarded, avatar_url")
           .eq("id", user.id)
           .single()
 
@@ -186,6 +191,25 @@ export default function ProfilePage() {
     router.push("/welcome")
   }
 
+  const handleAvatarUpdated = (avatarUrl: string, points: number) => {
+    // Update local profile state
+    if (profile) {
+      setProfile({ ...profile, avatar_url: avatarUrl } as any)
+    }
+
+    // Show points notification if points were awarded
+    if (points > 0) {
+      setPointsAwarded(points)
+      setShowPointsNotification(true)
+      setTimeout(() => setShowPointsNotification(false), 5000)
+
+      // Update stats
+      if (stats) {
+        setStats({ ...stats, totalPoints: stats.totalPoints + points })
+      }
+    }
+  }
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background via-[#0a0015] to-background flex items-center justify-center">
@@ -221,6 +245,20 @@ export default function ProfilePage() {
       <BackgroundAnimation />
       <Navigation />
 
+      {showPointsNotification && (
+        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-50 animate-fade-in-up">
+          <div className="glass-card p-4 flex items-center gap-3 shadow-xl border-2 border-success">
+            <span className="text-2xl">🎉</span>
+            <div>
+              <div className="font-display font-bold text-success">
+                +{pointsAwarded.toLocaleString()} Points!
+              </div>
+              <div className="text-xs text-foreground/60">Avatar selected successfully</div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 pt-24 pb-8 space-y-8">
         <div className="mb-8 animate-fade-in-up">
@@ -231,11 +269,13 @@ export default function ProfilePage() {
         <ConversionCountdown />
 
         <div className="glass-card p-8 text-center animate-fade-in-up stagger-1">
-          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center mx-auto mb-6 shadow-lg shadow-primary/50">
-            <span className="text-5xl font-display font-bold text-background">
-              {profile?.nickname?.[0]?.toUpperCase() || "U"}
-            </span>
-          </div>
+          <AvatarSelector
+            currentAvatarUrl={(profile as any)?.avatar_url}
+            userId={profile?.id || ""}
+            nickname={profile?.nickname || "User"}
+            onAvatarUpdated={handleAvatarUpdated}
+          />
+
           <h2 className="text-3xl font-display font-bold text-foreground mb-3">{profile?.nickname || "Miner"}</h2>
           {profile?.created_at && (
             <p className="text-foreground/60">
