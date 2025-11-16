@@ -18,124 +18,124 @@ interface Question {
 
 const questions: Question[] = [
   {
-    id: 11,
-    question: "What is the purpose of the ObliumChain community education program?",
+    id: 21,
+    question: "What is the best way to keep your OBLM tokens safe?",
     options: [
-      { label: "A", text: "To train users to trade forex" },
-      { label: "B", text: "To help users understand blockchain and transparency principles" },
-      { label: "C", text: "To teach coding only" },
-      { label: "D", text: "To promote random projects" }
+      { label: "A", text: "Share your private keys with friends" },
+      { label: "B", text: "Store them in a secure wallet and never reveal your private key" },
+      { label: "C", text: "Keep them on public websites" },
+      { label: "D", text: "Save them in screenshots" }
     ],
     correctAnswer: "B",
-    explanation: "Education is key to Oblium's mission — helping the community understand blockchain, trust, and transparent innovation."
+    explanation: "Always store OBLM tokens in a secure wallet and never share your private keys — security starts with you."
   },
   {
-    id: 12,
-    question: "What does \"decentralization\" mean in ObliumChain?",
+    id: 22,
+    question: "What is staking in ObliumChain?",
     options: [
-      { label: "A", text: "Control by one central authority" },
-      { label: "B", text: "Shared control and power among community members" },
-      { label: "C", text: "Randomized token distribution" },
-      { label: "D", text: "Only developers make decisions" }
+      { label: "A", text: "Spending tokens on ads" },
+      { label: "B", text: "Locking OBLM tokens to support the network and earn rewards" },
+      { label: "C", text: "Burning tokens" },
+      { label: "D", text: "Trading tokens rapidly" }
     ],
     correctAnswer: "B",
-    explanation: "Oblium believes decentralization empowers the community — giving everyone a voice through DAO governance."
+    explanation: "Staking allows users to lock tokens, helping secure the ecosystem while earning passive rewards."
   },
   {
-    id: 13,
-    question: "Why is transparency important in the Oblium ecosystem?",
+    id: 23,
+    question: "How does ObliumChain promote community growth?",
     options: [
-      { label: "A", text: "It helps hide project information" },
-      { label: "B", text: "It builds trust between the team and community" },
-      { label: "C", text: "It increases token price" },
-      { label: "D", text: "It reduces blockchain speed" }
-    ],
-    correctAnswer: "B",
-    explanation: "Transparency builds long-term trust — a core principle of ObliumChain."
-  },
-  {
-    id: 14,
-    question: "What type of reward system does Oblium use to engage its users?",
-    options: [
-      { label: "A", text: "Proof-of-Stake only" },
-      { label: "B", text: "Task-to-Earn model" },
-      { label: "C", text: "Traditional mining only" },
-      { label: "D", text: "Lottery system" }
-    ],
-    correctAnswer: "B",
-    explanation: "Oblium rewards users for completing educational and community tasks — not just staking or trading."
-  },
-  {
-    id: 15,
-    question: "How can users contribute to the growth of ObliumChain?",
-    options: [
-      { label: "A", text: "By spreading FUD" },
-      { label: "B", text: "By engaging in community discussions, sharing ideas, and completing tasks" },
-      { label: "C", text: "By selling tokens quickly" },
-      { label: "D", text: "By keeping silent" }
-    ],
-    correctAnswer: "B",
-    explanation: "Oblium thrives through active participation and positive community engagement."
-  },
-  {
-    id: 16,
-    question: "Which of the following best defines a DAO (Decentralized Autonomous Organization)?",
-    options: [
-      { label: "A", text: "A central company managing all decisions" },
-      { label: "B", text: "A structure where decisions are made collectively using blockchain votes" },
-      { label: "C", text: "A government agency" },
-      { label: "D", text: "A random Telegram group" }
-    ],
-    correctAnswer: "B",
-    explanation: "Oblium uses DAO principles — empowering token holders to vote and shape future directions."
-  },
-  {
-    id: 17,
-    question: "What is one of the key goals of Oblium's partnerships (like with Kraken or DCM)?",
-    options: [
-      { label: "A", text: "To provide transparency, growth, and credibility to the ecosystem" },
-      { label: "B", text: "To make Oblium private and closed" },
-      { label: "C", text: "To hide funds" },
-      { label: "D", text: "To avoid regulation" }
+      { label: "A", text: "By allowing members to vote, learn, and earn" },
+      { label: "B", text: "By limiting access to a few users" },
+      { label: "C", text: "By hiding development progress" },
+      { label: "D", text: "By discouraging collaboration" }
     ],
     correctAnswer: "A",
-    explanation: "Partnerships are meant to strengthen trust and innovation within ObliumChain."
+    explanation: "Oblium thrives on inclusivity, letting members shape the future through DAO voting and educational tasks."
   },
   {
-    id: 18,
-    question: "What can users expect from participating in Oblium AMAs (Ask Me Anything events)?",
+    id: 24,
+    question: "What does \"Proof of Transparency\" mean in the Oblium context?",
     options: [
-      { label: "A", text: "Random entertainment" },
-      { label: "B", text: "Insight into project development and transparent updates" },
-      { label: "C", text: "Celebrity gossip" },
-      { label: "D", text: "Private token tips" }
+      { label: "A", text: "A system that hides blockchain data" },
+      { label: "B", text: "Every action and transaction can be verified by the public" },
+      { label: "C", text: "Only admins can see project details" },
+      { label: "D", text: "A manual process done by the team" }
     ],
     correctAnswer: "B",
-    explanation: "AMAs are open conversations to ensure transparency and educate the community on progress."
+    explanation: "\"Proof of Transparency\" means all operations and data on Oblium are open and verifiable by anyone."
   },
   {
-    id: 19,
-    question: "What technology ensures Oblium transactions are traceable and secure?",
+    id: 25,
+    question: "What type of content can users create to support Oblium's mission?",
     options: [
-      { label: "A", text: "Blockchain" },
-      { label: "B", text: "Cloud storage" },
-      { label: "C", text: "Central database" },
-      { label: "D", text: "Email verification" }
+      { label: "A", text: "Memes, videos, or educational posts promoting transparency" },
+      { label: "B", text: "Negative comments" },
+      { label: "C", text: "Fake news" },
+      { label: "D", text: "Spam messages" }
     ],
     correctAnswer: "A",
-    explanation: "Blockchain ensures transparency, immutability, and security of all transactions."
+    explanation: "Oblium encourages creative and positive content that educates others about its mission and values."
   },
   {
-    id: 20,
-    question: "What is ObliumChain's long-term vision for its community?",
+    id: 26,
+    question: "What role do partnerships play in the Oblium ecosystem?",
     options: [
-      { label: "A", text: "To build a strong, educated, and self-sustaining blockchain ecosystem" },
-      { label: "B", text: "To focus only on short-term profits" },
-      { label: "C", text: "To close operations after token launch" },
-      { label: "D", text: "To avoid user interaction" }
+      { label: "A", text: "They provide credibility, exposure, and development support" },
+      { label: "B", text: "They control the community" },
+      { label: "C", text: "They replace community members" },
+      { label: "D", text: "They only focus on price movement" }
     ],
     correctAnswer: "A",
-    explanation: "Oblium aims to empower people — creating an educated, transparent, and decentralized global community."
+    explanation: "Strategic partnerships help Oblium expand responsibly and bring innovation to the ecosystem."
+  },
+  {
+    id: 27,
+    question: "Why is education important for Web3 adoption according to Oblium?",
+    options: [
+      { label: "A", text: "Because knowledge reduces scams and increases trust" },
+      { label: "B", text: "Because it makes trading easier" },
+      { label: "C", text: "Because it replaces governance" },
+      { label: "D", text: "Because it increases inflation" }
+    ],
+    correctAnswer: "A",
+    explanation: "Oblium believes an informed community is a powerful one — education drives safe, smart adoption."
+  },
+  {
+    id: 28,
+    question: "What happens when you complete a task in the Oblium dApp?",
+    options: [
+      { label: "A", text: "You earn OBLM or XP rewards and strengthen your profile" },
+      { label: "B", text: "Nothing" },
+      { label: "C", text: "Your tokens disappear" },
+      { label: "D", text: "The app resets" }
+    ],
+    correctAnswer: "A",
+    explanation: "Completing verified tasks increases user rewards and builds trust through engagement."
+  },
+  {
+    id: 29,
+    question: "What is the goal of the Oblium quiz section?",
+    options: [
+      { label: "A", text: "To educate the community about blockchain, transparency, and Oblium's mission" },
+      { label: "B", text: "To test random topics" },
+      { label: "C", text: "To waste users' time" },
+      { label: "D", text: "To reduce engagement" }
+    ],
+    correctAnswer: "A",
+    explanation: "The quiz section helps users learn key concepts and earn rewards through education."
+  },
+  {
+    id: 30,
+    question: "How does ObliumChain encourage long-term commitment from users?",
+    options: [
+      { label: "A", text: "By offering consistent learning rewards and transparent updates" },
+      { label: "B", text: "By closing tasks early" },
+      { label: "C", text: "By reducing communication" },
+      { label: "D", text: "By hiding information" }
+    ],
+    correctAnswer: "A",
+    explanation: "Oblium builds loyalty through consistent transparency, education, and community-based rewards."
   }
 ]
 
