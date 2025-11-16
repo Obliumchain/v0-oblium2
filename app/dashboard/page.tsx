@@ -11,6 +11,7 @@ import { BackgroundAnimation } from "@/components/background-animation"
 import { ConversionCountdown } from "@/components/conversion-countdown"
 import { NewsCarousel } from "@/components/news-carousel"
 import { PresaleCountdown } from "@/components/presale-countdown"
+import { WalletConnectTile } from "@/components/wallet-connect-tile"
 import { useLanguage } from "@/lib/language-context"
 
 interface UserProfile {
@@ -398,10 +399,19 @@ export default function DashboardPage() {
               Click to browse all boosters
             </div>
           </div>
+
+          {/* Wallet Connect Tile */}
+          <div className="animate-fade-in-up stagger-4">
+            <WalletConnectTile 
+              userId={userProfile?.id || ''} 
+              walletAddress={userProfile?.wallet_address || null}
+              onWalletUpdate={loadUserData}
+            />
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          <div className="lg:col-span-2 glass-panel-strong p-8 animate-fade-in-up stagger-4">
+          <div className="lg:col-span-2 glass-panel-strong p-8 animate-fade-in-up stagger-5">
             <h2 className="font-display font-bold text-primary mb-6" style={{ fontSize: 'var(--text-lg)' }}>
               {t("miningPanel")}
             </h2>
@@ -426,7 +436,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="glass-panel-strong p-8 animate-fade-in-up stagger-5">
+          <div className="glass-panel-strong p-8 animate-fade-in-up stagger-6">
             <h2 className="font-display font-bold text-success mb-6" style={{ fontSize: 'var(--text-base)' }}>
               ⚡ {t("activeBoosters")}
             </h2>
@@ -461,16 +471,16 @@ export default function DashboardPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <div className="animate-fade-in-up stagger-6">
+          <div className="animate-fade-in-up stagger-7">
             <PresaleCountdown />
           </div>
 
-          <div className="animate-fade-in-up stagger-7">
+          <div className="animate-fade-in-up stagger-8">
             <ConversionCountdown />
           </div>
         </div>
 
-        <div className="glass-card p-8 animate-fade-in-up stagger-8">
+        <div className="glass-card p-8 animate-fade-in-up stagger-9">
           <h2 className="font-display font-bold text-accent mb-6" style={{ fontSize: 'var(--text-base)' }}>
             {t("referFriends")}
           </h2>

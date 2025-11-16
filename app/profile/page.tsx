@@ -9,10 +9,12 @@ import { GlowButton } from "@/components/ui/glow-button"
 import { BackgroundAnimation } from "@/components/background-animation"
 import { CubeLoader } from "@/components/ui/cube-loader"
 import { ConversionCountdown } from "@/components/conversion-countdown"
+import { WalletConnectTile } from "@/components/wallet-connect-tile"
 import { useLanguage } from "@/lib/language-context"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 
 interface UserProfile {
+  id: string
   nickname: string
   created_at: string
   wallet_address: string | null
@@ -79,7 +81,7 @@ export default function ProfilePage() {
 
         const { data: profileData, error: profileError } = await supabase
           .from("profiles")
-          .select("nickname, created_at, wallet_address, referral_code, points, task_completion_bonus_awarded, avatar_url")
+          .select("id, nickname, created_at, wallet_address, referral_code, points, task_completion_bonus_awarded, avatar_url")
           .eq("id", user.id)
           .single()
 
@@ -297,6 +299,15 @@ export default function ProfilePage() {
               #{stats?.rank || "0"}
             </div>
           </div>
+        </div>
+
+        {/* Wallet Connect Tile */}
+        <div className="animate-fade-in-up stagger-5 max-w-md mx-auto">
+          <WalletConnectTile 
+            userId={profile?.id || ''} 
+            walletAddress={profile?.wallet_address || null}
+            onWalletUpdate={loadProfile}
+          />
         </div>
 
         {/* Referral Card */}
