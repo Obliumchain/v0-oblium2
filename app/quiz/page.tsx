@@ -16,6 +16,8 @@ interface Question {
   explanation: string
 }
 
+const CURRENT_QUIZ_VERSION = 2
+
 const questions: Question[] = [
   {
     id: 21,
@@ -165,11 +167,11 @@ export default function QuestionsPage() {
 
     setUserId(user.id)
 
-    // Check if user has already completed the quiz
     const { data: completion } = await supabase
       .from('quiz_completions')
       .select('*')
       .eq('user_id', user.id)
+      .eq('quiz_version', CURRENT_QUIZ_VERSION)
       .maybeSingle()
 
     if (completion) {
@@ -206,7 +208,6 @@ export default function QuestionsPage() {
 
     setSubmitting(true)
 
-    // Calculate score
     let correctCount = 0
     questions.forEach((q) => {
       if (selectedAnswers[q.id] === q.correctAnswer) {
@@ -216,7 +217,6 @@ export default function QuestionsPage() {
 
     setScore(correctCount)
 
-    // Calculate points: 1000 per correct answer + 10000 bonus if all correct
     const pointsPerCorrect = 1000
     const bonusPoints = correctCount === 10 ? 10000 : 0
     const totalPoints = correctCount * pointsPerCorrect + bonusPoints
@@ -224,18 +224,17 @@ export default function QuestionsPage() {
     const supabase = createClient()
 
     try {
-      // Save quiz completion
       const { error: quizError } = await supabase.from('quiz_completions').insert({
         user_id: userId,
         answers: selectedAnswers,
         score: correctCount,
         total_questions: questions.length,
         points_awarded: totalPoints,
+        quiz_version: CURRENT_QUIZ_VERSION,
       })
 
       if (quizError) throw quizError
 
-      // Update user points
       const { error: pointsError } = await supabase.rpc('increment_points', {
         user_id: userId,
         points_to_add: totalPoints,
@@ -272,12 +271,11 @@ export default function QuestionsPage() {
       <Navigation />
       
       <div className="container mx-auto px-4 py-8 pt-32 max-w-4xl">
-        {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-500/10 rounded-full mb-4">
             <Brain className="w-5 h-5 text-cyan-400" />
             <span className="text-cyan-400 font-semibold" style={{ fontFamily: 'Quantico, sans-serif' }}>
-              ObliumChain Quiz
+              ObliumChain Quiz v{CURRENT_QUIZ_VERSION}
             </span>
           </div>
           <h1 className="text-4xl font-black mb-2" style={{ fontFamily: 'Quantico, sans-serif' }}>
@@ -290,7 +288,6 @@ export default function QuestionsPage() {
 
         {!showResults ? (
           <>
-            {/* Progress Bar */}
             <div className="mb-8">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm text-foreground/60">
@@ -308,7 +305,6 @@ export default function QuestionsPage() {
               </div>
             </div>
 
-            {/* Question Card */}
             <LiquidCard className="p-8 mb-6">
               <h2 className="text-xl font-bold mb-6" style={{ fontFamily: 'Quantico, sans-serif' }}>
                 {currentQ.question}
@@ -342,7 +338,6 @@ export default function QuestionsPage() {
               </div>
             </LiquidCard>
 
-            {/* Navigation Buttons */}
             <div className="flex items-center justify-between mb-8">
               <Button
                 onClick={handlePrevious}
@@ -384,7 +379,6 @@ export default function QuestionsPage() {
           </>
         ) : (
           <>
-            {/* Results */}
             <LiquidCard className="p-8 text-center mb-6">
               <Award className="w-16 h-16 text-cyan-400 mx-auto mb-4" />
               <h2 className="text-3xl font-black mb-2" style={{ fontFamily: 'Quantico, sans-serif' }}>
@@ -408,7 +402,6 @@ export default function QuestionsPage() {
               )}
             </LiquidCard>
 
-            {/* Answer Review */}
             <div className="space-y-4">
               <h3 className="text-xl font-bold mb-4" style={{ fontFamily: 'Quantico, sans-serif' }}>
                 Review Answers
