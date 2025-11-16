@@ -11,7 +11,6 @@ import { redirectToPaymentApp } from "@/lib/payment-redirect"
 
 const TOKEN_PRICE = 0.02 // $0.02 per OBLM token
 const MIN_PURCHASE_USD = 7 // $7 minimum
-const MIN_SOL = 0.05 // 0.05 SOL minimum
 
 export default function PresalePage() {
   const router = useRouter()
@@ -19,7 +18,7 @@ export default function PresalePage() {
   const [isPurchasing, setIsPurchasing] = useState(false)
   const [userId, setUserId] = useState<string | null>(null)
   const [tokenBalance, setTokenBalance] = useState<number>(0)
-  const [solAmount, setSolAmount] = useState<string>("0.05")
+  const [usdAmount, setUsdAmount] = useState<string>("7")
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
 
@@ -79,10 +78,8 @@ export default function PresalePage() {
     }
   }, [userId])
 
-  const calculateTokens = (sol: number): number => {
-    // Assuming 1 SOL = $140 (you can make this dynamic)
-    const usdAmount = sol * 140
-    return usdAmount / TOKEN_PRICE
+  const calculateTokens = (usd: number): number => {
+    return usd / TOKEN_PRICE
   }
 
   const handlePurchase = async () => {
@@ -91,10 +88,10 @@ export default function PresalePage() {
       return
     }
 
-    const sol = parseFloat(solAmount)
+    const usd = parseFloat(usdAmount)
     
-    if (isNaN(sol) || sol < MIN_SOL) {
-      setError(`Minimum purchase is ${MIN_SOL} SOL ($${MIN_PURCHASE_USD})`)
+    if (isNaN(usd) || usd < MIN_PURCHASE_USD) {
+      setError(`Minimum purchase is $${MIN_PURCHASE_USD}`)
       return
     }
 
@@ -105,13 +102,13 @@ export default function PresalePage() {
     try {
       console.log("[v0] Redirecting to payment app for presale...")
       
-      const tokensToReceive = calculateTokens(sol)
+      const tokensToReceive = calculateTokens(usd)
       
       // Redirect to external payment application
       redirectToPaymentApp({
         userId,
-        boosterId: 'presale', // Special identifier for presale
-        amount: sol,
+        boosterId: 'presale',
+        amount: usd,
         boosterName: `${tokensToReceive.toLocaleString()} OBLM Tokens`,
         isPresale: true,
         tokensAmount: tokensToReceive,
@@ -133,7 +130,7 @@ export default function PresalePage() {
     )
   }
 
-  const tokensToReceive = calculateTokens(parseFloat(solAmount) || 0)
+  const tokensToReceive = calculateTokens(parseFloat(usdAmount) || 0)
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-[#0a0015] to-background pb-32 lg:pb-8">
@@ -167,32 +164,32 @@ export default function PresalePage() {
           <h2 className="font-display font-bold text-2xl text-foreground mb-6">Buy OBLM Tokens</h2>
 
           <div className="space-y-6">
-            {/* SOL Input */}
+            {/* USD Input */}
             <div>
               <label className="block text-foreground/70 text-sm mb-2">
-                Amount in SOL (Minimum: {MIN_SOL} SOL)
+                Amount in USD (Minimum: ${MIN_PURCHASE_USD})
               </label>
-              <input
-                type="number"
-                step="0.01"
-                min={MIN_SOL}
-                value={solAmount}
-                onChange={(e) => setSolAmount(e.target.value)}
-                className="w-full px-4 py-3 bg-background/50 border border-primary/30 rounded-lg text-foreground focus:outline-none focus:border-primary transition-colors"
-                placeholder={`${MIN_SOL}`}
-              />
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/60 font-display">$</span>
+                <input
+                  type="number"
+                  step="0.01"
+                  min={MIN_PURCHASE_USD}
+                  value={usdAmount}
+                  onChange={(e) => setUsdAmount(e.target.value)}
+                  className="w-full pl-8 pr-4 py-3 bg-background/50 border border-primary/30 rounded-lg text-foreground font-display text-lg focus:outline-none focus:border-primary transition-colors"
+                  placeholder={`${MIN_PURCHASE_USD}.00`}
+                />
+              </div>
+              <p className="text-foreground/50 text-xs mt-1">Enter any amount $7 or more</p>
             </div>
 
-            {/* Calculation Display */}
+            {/* Simplified calculation display */}
             <div className="p-6 bg-primary/5 border border-primary/20 rounded-lg space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-foreground/60">You pay:</span>
-                <span className="font-display font-bold text-foreground">{solAmount} SOL</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-foreground/60">USD value (≈$140/SOL):</span>
-                <span className="font-display font-bold text-foreground">
-                  ${((parseFloat(solAmount) || 0) * 140).toFixed(2)}
+                <span className="font-display font-bold text-foreground text-xl">
+                  ${parseFloat(usdAmount || "0").toFixed(2)}
                 </span>
               </div>
               <div className="h-px bg-border/50"></div>
@@ -224,7 +221,7 @@ export default function PresalePage() {
             {/* Purchase Button */}
             <GlowButton
               onClick={handlePurchase}
-              disabled={isPurchasing || parseFloat(solAmount) < MIN_SOL}
+              disabled={isPurchasing || parseFloat(usdAmount) < MIN_PURCHASE_USD}
               className="w-full"
               variant="primary"
             >
@@ -234,14 +231,14 @@ export default function PresalePage() {
                   Loading Secure Payment Gateway...
                 </span>
               ) : (
-                `Buy ${tokensToReceive.toLocaleString()} OBLM Tokens`
+                `Buy ${tokensToReceive.toLocaleString()} OBLM Tokens for $${parseFloat(usdAmount || "0").toFixed(2)}`
               )}
             </GlowButton>
 
             {/* Info */}
             <div className="text-center text-xs text-foreground/50 space-y-1">
               <p>Tokens will be added to your profile after successful payment</p>
-              <p>Minimum purchase: ${MIN_PURCHASE_USD} ({MIN_SOL} SOL)</p>
+              <p>Minimum purchase: ${MIN_PURCHASE_USD}</p>
               <p>Presale price: ${TOKEN_PRICE} per OBLM token</p>
             </div>
           </div>
