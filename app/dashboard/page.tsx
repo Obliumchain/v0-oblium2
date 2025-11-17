@@ -144,12 +144,23 @@ export default function DashboardPage() {
     loadUserData()
     
     const paymentStatus = searchParams.get('status')
-    if (paymentStatus === 'success') {
+    const walletStatus = searchParams.get('wallet')
+    
+    if (walletStatus === 'connected') {
+      console.log('[v0] Wallet connection success detected')
+      setShowWalletNotification(true)
+      
+      setTimeout(async () => {
+        await loadUserData()
+        setShowWalletNotification(false)
+        router.replace('/dashboard')
+      }, 2000)
+    } else if (paymentStatus === 'success') {
       console.log('[v0] Payment success detected, refreshing booster data in 2 seconds...')
       setShowPaymentSuccess(true)
       
       setTimeout(async () => {
-        await loadUserData() // Full reload including boosters
+        await loadUserData()
         setShowPaymentSuccess(false)
         router.replace('/dashboard')
       }, 2000)
@@ -340,16 +351,16 @@ export default function DashboardPage() {
       )}
 
       {showWalletNotification && (
-        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-top">
-          <LiquidCard className="p-4 bg-yellow-500/20 border-yellow-500/50">
+        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-50 animate-scale-in">
+          <div className="glass-card p-4 border-success/50">
             <div className="flex items-center gap-3">
-              <span className="text-2xl">⚠️</span>
+              <span className="text-2xl">🔗</span>
               <div>
-                <p className="text-foreground font-bold text-sm mb-1">{t("walletRequired")}</p>
-                <p className="text-foreground/70 text-xs">{t("walletRequiredDesc")}</p>
+                <p className="text-foreground font-bold text-sm mb-1">Wallet Connected!</p>
+                <p className="text-foreground/70 text-xs">Your wallet has been successfully linked to your account.</p>
               </div>
             </div>
-          </LiquidCard>
+          </div>
         </div>
       )}
 

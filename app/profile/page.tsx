@@ -165,6 +165,19 @@ export default function ProfilePage() {
 
   useEffect(() => {
     loadProfile()
+    
+    const params = new URLSearchParams(window.location.search)
+    const walletStatus = params.get('wallet')
+    
+    if (walletStatus === 'connected') {
+      console.log('[v0] Wallet connection success detected on profile')
+      // Trigger a refresh after wallet connection
+      setTimeout(() => {
+        loadProfile()
+        // Clean up URL
+        window.history.replaceState({}, '', '/profile')
+      }, 1000)
+    }
   }, [loadProfile])
 
   const copyReferral = () => {
