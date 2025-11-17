@@ -18,7 +18,10 @@ export function WalletConnectTile({ userId, walletAddress, onWalletUpdate }: Wal
 
   const handleConnect = () => {
     const paymentAppUrl = process.env.NEXT_PUBLIC_PAYMENT_APP_URL || 'https://payment.obliumtoken.com'
-    const connectUrl = `${paymentAppUrl}/wallet-connect?userId=${userId}&redirectUrl=${encodeURIComponent(window.location.href)}`
+    const baseUrl = window.location.origin
+    const returnUrl = `${baseUrl}/dashboard?wallet=connected`
+    const connectUrl = `${paymentAppUrl}/wallet-connect?userId=${userId}&redirectUrl=${encodeURIComponent(returnUrl)}`
+    console.log('[v0] Redirecting to wallet connect:', connectUrl)
     window.location.href = connectUrl
   }
 

@@ -143,6 +143,13 @@ export default function DashboardPage() {
   useEffect(() => {
     loadUserData()
     
+    console.log('[v0] Dashboard URL params:', {
+      status: searchParams.get('status'),
+      wallet: searchParams.get('wallet'),
+      error: searchParams.get('error'),
+      allParams: Object.fromEntries(searchParams.entries())
+    })
+    
     const paymentStatus = searchParams.get('status')
     const walletStatus = searchParams.get('wallet')
     
