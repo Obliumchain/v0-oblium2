@@ -7,9 +7,9 @@ import { GlowButton } from "@/components/ui/glow-button"
 import { BackgroundAnimation } from "@/components/background-animation"
 import { TaskCompletionDialog } from "@/components/task-completion-dialog"
 import { createClient } from "@/lib/supabase/client"
-import { useRouter } from "next/navigation"
+import { useRouter } from 'next/navigation'
 import { useLanguage } from "@/lib/language-context"
-import { Share2 } from "lucide-react"
+import { Share2 } from 'lucide-react'
 
 interface Task {
   id: string
@@ -148,6 +148,20 @@ export default function TasksPage() {
 
   const handleCompleteTask = async (taskId: string, actionUrl: string | null, taskType: string) => {
     try {
+      if (taskType === "daily" && actionUrl) {
+        // Get user ID to pass to external task app
+        const {
+          data: { user },
+        } = await supabase.auth.getUser()
+        
+        if (user) {
+          // Redirect to task.obliumtoken.com with userId
+          const externalUrl = `${actionUrl}?userId=${user.id}&returnUrl=${encodeURIComponent(window.location.origin + '/tasks')}`
+          window.location.href = externalUrl
+          return
+        }
+      }
+      
       setCompletingTask(taskId)
 
       if (taskType === "twitter_engagement") {
