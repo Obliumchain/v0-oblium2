@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useRouter } from 'next/navigation'
 import { createClient } from "@/lib/supabase/client"
 import { Navigation } from "@/components/navigation"
@@ -51,7 +51,7 @@ export default function ProfilePage() {
   const [error, setError] = useState<string | null>(null)
   const { t } = useLanguage()
 
-  const loadProfile = async () => {
+  const loadProfile = useCallback(async () => {
     const supabase = createClient()
 
     try {
@@ -161,11 +161,11 @@ export default function ProfilePage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [router])
 
   useEffect(() => {
     loadProfile()
-  }, [router])
+  }, [loadProfile])
 
   const copyReferral = () => {
     if (profile?.referral_code) {
