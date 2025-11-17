@@ -21,6 +21,12 @@ export default function PresalePage() {
   const [usdAmount, setUsdAmount] = useState<string>("7")
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
+  const [presalePool, setPresalePool] = useState<{
+    total_tokens: number
+    tokens_sold: number
+    tokens_remaining: number
+    current_price: number
+  } | null>(null)
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -46,6 +52,15 @@ export default function PresalePage() {
         setTokenBalance(profile.oblm_token_balance || 0)
       }
 
+      const { data: pool } = await supabase
+        .from("presale_pool")
+        .select("*")
+        .single()
+
+      if (pool) {
+        setPresalePool(pool)
+      }
+
       setIsLoading(false)
     }
 
@@ -60,7 +75,7 @@ export default function PresalePage() {
 
     if (paymentStatus === 'success' && tokensReceived) {
       setSuccess(`Successfully purchased ${parseFloat(tokensReceived).toLocaleString()} OBLM tokens!`)
-      // Reload balance
+      // Reload balance and pool
       const supabase = createClient()
       supabase
         .from("profiles")
@@ -70,7 +85,13 @@ export default function PresalePage() {
         .then(({ data }) => {
           if (data) setTokenBalance(data.oblm_token_balance || 0)
         })
-      // Clean up URL
+      supabase
+        .from("presale_pool")
+        .select("*")
+        .single()
+        .then(({ data }) => {
+          if (data) setPresalePool(data)
+        })
       window.history.replaceState({}, '', window.location.pathname)
     } else if (paymentStatus === 'failed' && paymentError) {
       setError(decodeURIComponent(paymentError))
@@ -95,14 +116,19 @@ export default function PresalePage() {
       return
     }
 
+    const tokensToReceive = calculateTokens(usd)
+
+    if (presalePool && tokensToReceive > presalePool.tokens_remaining) {
+      setError(`Not enough tokens available. Only ${presalePool.tokens_remaining.toLocaleString()} tokens remaining.`)
+      return
+    }
+
     setIsPurchasing(true)
     setError(null)
     setSuccess(null)
 
     try {
       console.log("[v0] Redirecting to payment app for presale...")
-      
-      const tokensToReceive = calculateTokens(usd)
       
       // Redirect to external payment application
       redirectToPaymentApp({
@@ -131,6 +157,9 @@ export default function PresalePage() {
   }
 
   const tokensToReceive = calculateTokens(parseFloat(usdAmount) || 0)
+  const percentageSold = presalePool 
+    ? (presalePool.tokens_sold / presalePool.total_tokens) * 100 
+    : 0
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-[#0a0015] to-background pb-32 lg:pb-8">
@@ -150,6 +179,40 @@ export default function PresalePage() {
             Get OBLM tokens directly at presale price: ${TOKEN_PRICE} per token
           </p>
         </div>
+
+        {presalePool && (
+          <div className="glass-card p-6 animate-fade-in-up">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-display font-bold text-xl text-foreground">Presale Progress</h3>
+              <span className="text-foreground/60 text-sm">
+                {percentageSold.toFixed(2)}% Sold
+              </span>
+            </div>
+            
+            {/* Progress bar */}
+            <div className="relative h-4 bg-background/50 rounded-full overflow-hidden mb-4">
+              <div 
+                className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary to-accent rounded-full transition-all duration-500"
+                style={{ width: `${Math.min(percentageSold, 100)}%` }}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <div className="text-foreground/60 text-xs mb-1">Tokens Sold</div>
+                <div className="font-display font-bold text-lg text-primary">
+                  {presalePool.tokens_sold.toLocaleString()}
+                </div>
+              </div>
+              <div>
+                <div className="text-foreground/60 text-xs mb-1">Tokens Remaining</div>
+                <div className="font-display font-bold text-lg text-accent">
+                  {presalePool.tokens_remaining.toLocaleString()}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Current Balance */}
         <div className="glass-card p-8 text-center animate-fade-in-up stagger-1">

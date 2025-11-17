@@ -4,7 +4,7 @@ import { isValidUUID, generateErrorId } from "@/lib/validation"
 import crypto from "crypto"
 
 const TOKEN_PRICE = 0.02 // $0.02 per OBLM token
-const MIN_SOL = 0.05 // 0.05 SOL minimum
+const MIN_PURCHASE_USD = 7 // $7 minimum
 
 export async function POST(request: NextRequest) {
   const errorId = generateErrorId()
@@ -42,28 +42,25 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Extract payment details from webhook payload
-    const { userId, amountSol, tokensAmount, paymentId, status, transactionHash } = payload
+    const { userId, amountUsd, tokens, transactionId, paymentMethod, timestamp } = payload
 
     console.log(`[v0] [${errorId}] Payment details:`, {
       userId,
-      amountSol,
-      tokensAmount,
-      paymentId,
-      status,
-      transactionHash,
+      amountUsd,
+      tokens,
+      transactionId,
+      paymentMethod,
+      timestamp,
     })
 
     // Validate required fields
-    if (!userId || !amountSol || !tokensAmount || !paymentId) {
-      console.error(`[v0] [${errorId}] Missing required fields`)
-      return NextResponse.json({ error: "Missing required fields", errorId }, { status: 400 })
-    }
-
-    // Only process successful payments
-    if (status !== "completed" && status !== "success") {
-      console.log(`[v0] [${errorId}] Payment not completed, status: ${status}`)
-      return NextResponse.json({ message: "Payment not completed", errorId }, { status: 200 })
+    if (!userId || !amountUsd || !tokens || !transactionId) {
+      console.error(`[v0] [${errorId}] Missing required fields. Received:`, { userId, amountUsd, tokens, transactionId })
+      return NextResponse.json({ 
+        error: "Missing required fields", 
+        received: { userId: !!userId, amountUsd: !!amountUsd, tokens: !!tokens, transactionId: !!transactionId },
+        errorId 
+      }, { status: 400 })
     }
 
     // Validate UUID
@@ -72,14 +69,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid ID format", errorId }, { status: 400 })
     }
 
-    // Validate amounts
-    if (typeof amountSol !== "number" || amountSol < MIN_SOL || amountSol > 1000) {
-      console.error(`[v0] [${errorId}] Invalid SOL amount: ${amountSol}`)
+    if (typeof amountUsd !== "number" || amountUsd < MIN_PURCHASE_USD || amountUsd > 100000) {
+      console.error(`[v0] [${errorId}] Invalid USD amount: ${amountUsd}`)
       return NextResponse.json({ error: "Invalid amount", errorId }, { status: 400 })
     }
 
-    if (typeof tokensAmount !== "number" || tokensAmount <= 0) {
-      console.error(`[v0] [${errorId}] Invalid tokens amount: ${tokensAmount}`)
+    if (typeof tokens !== "number" || tokens <= 0) {
+      console.error(`[v0] [${errorId}] Invalid tokens amount: ${tokens}`)
       return NextResponse.json({ error: "Invalid tokens amount", errorId }, { status: 400 })
     }
 
@@ -104,47 +100,48 @@ export async function POST(request: NextRequest) {
     const { data: existingTx } = await supabase
       .from("presale_transactions")
       .select("id")
-      .eq("wallet_tx_hash", transactionHash || paymentId)
+      .eq("wallet_tx_hash", transactionId)
       .single()
 
     if (existingTx) {
-      console.log(`[v0] [${errorId}] Transaction already processed: ${paymentId}`)
+      console.log(`[v0] [${errorId}] Transaction already processed: ${transactionId}`)
       return NextResponse.json({ message: "Transaction already processed", errorId }, { status: 200 })
     }
 
     console.log(`[v0] [${errorId}] Processing presale purchase...`)
     
-    // Process the presale purchase using the database function
     const { data: result, error: rpcError } = await supabase.rpc("process_presale_purchase", {
       p_user_id: userId,
-      p_amount_sol: amountSol,
-      p_tokens_received: tokensAmount,
+      p_amount_sol: amountUsd, // Using amountUsd but keeping parameter name for compatibility
+      p_tokens_received: tokens,
       p_token_price: TOKEN_PRICE,
-      p_wallet_tx_hash: transactionHash || paymentId,
+      p_wallet_tx_hash: transactionId,
     })
 
     if (rpcError) {
       console.error(`[v0] [${errorId}] Failed to process presale:`, rpcError)
       return NextResponse.json({ 
         error: "Failed to process presale", 
-        details: rpcError,
+        details: rpcError.message,
         errorId 
       }, { status: 500 })
     }
 
     console.log(`[v0] [${errorId}] ====== PRESALE PROCESSED SUCCESSFULLY ======`)
     console.log(`[v0] [${errorId}] User: ${userId}`)
-    console.log(`[v0] [${errorId}] Tokens: ${tokensAmount}`)
-    console.log(`[v0] [${errorId}] Amount: ${amountSol} SOL`)
+    console.log(`[v0] [${errorId}] Tokens: ${tokens}`)
+    console.log(`[v0] [${errorId}] Amount: $${amountUsd}`)
+    console.log(`[v0] [${errorId}] Pool info:`, result?.pool_info)
 
     return NextResponse.json({
       success: true,
       message: "Presale tokens credited successfully",
       transaction: {
         userId,
-        tokensAmount,
-        amountSol,
+        tokensAmount: tokens,
+        amountUsd,
       },
+      poolInfo: result?.pool_info,
     })
   } catch (error) {
     console.error(`[v0] [${errorId}] ====== WEBHOOK ERROR ======`)
