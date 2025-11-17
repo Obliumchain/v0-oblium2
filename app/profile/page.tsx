@@ -51,119 +51,119 @@ export default function ProfilePage() {
   const [error, setError] = useState<string | null>(null)
   const { t } = useLanguage()
 
-  useEffect(() => {
-    const loadProfile = async () => {
-      const supabase = createClient()
+  const loadProfile = async () => {
+    const supabase = createClient()
 
-      try {
-        console.log("[v0] Loading profile data...")
+    try {
+      console.log("[v0] Loading profile data...")
 
-        const {
-          data: { user },
-          error: userError,
-        } = await supabase.auth.getUser()
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser()
 
-        if (userError) {
-          console.error("[v0] Auth error:", userError)
-          setError(`Auth error: ${userError.message}`)
-          router.push("/auth")
-          return
-        }
-
-        if (!user) {
-          console.log("[v0] No user found, redirecting to auth")
-          setError("No user found")
-          router.push("/auth")
-          return
-        }
-
-        console.log("[v0] User authenticated:", user.id)
-
-        const { data: profileData, error: profileError } = await supabase
-          .from("profiles")
-          .select("id, nickname, created_at, wallet_address, referral_code, points, task_completion_bonus_awarded, avatar_url")
-          .eq("id", user.id)
-          .single()
-
-        if (profileError) {
-          console.error("[v0] Profile query error:", profileError)
-          setError(`Profile error: ${profileError.message}`)
-          setIsLoading(false)
-          return
-        }
-
-        if (!profileData) {
-          console.error("[v0] No profile data returned")
-          setError("No profile data found for user")
-          setIsLoading(false)
-          return
-        }
-
-        console.log("[v0] Profile data loaded:", profileData)
-
-        if (profileData) {
-          setProfile(profileData as UserProfile)
-
-          const oblTokens = profileData.task_completion_bonus_awarded ? 200 : 0
-
-          const { count: referralCount, error: referralError } = await supabase
-            .from("referrals")
-            .select("*", { count: "exact", head: true })
-            .eq("referrer_id", user.id)
-
-          if (referralError) {
-            console.error("[v0] Referral count error:", referralError)
-          }
-
-          console.log("[v0] Referral count:", referralCount)
-
-          const { data: allUsers, error: usersError } = await supabase
-            .from("profiles")
-            .select("id, points")
-            .order("points", { ascending: false })
-
-          if (usersError) {
-            console.error("[v0] Users query error:", usersError)
-          }
-
-          let userRank = 0
-          const totalUsers = allUsers?.length || 0
-
-          if (allUsers) {
-            userRank = allUsers.findIndex((u) => u.id === user.id) + 1
-          }
-
-          console.log("[v0] User rank:", userRank, "of", totalUsers)
-
-          setStats({
-            totalPoints: profileData.points || 0,
-            oblTokens,
-            referralCount: referralCount || 0,
-            rank: userRank,
-            totalUsers,
-          })
-
-          const { data: conversionData, error: conversionError } = await supabase
-            .from("conversion_history")
-            .select("id, points_converted, obl_tokens_received, status, created_at")
-            .eq("user_id", user.id)
-            .order("created_at", { ascending: false })
-            .limit(10)
-
-          if (conversionError) {
-            console.error("[v0] Conversion history error:", conversionError)
-          }
-
-          setConversions(conversionData || [])
-        }
-      } catch (error) {
-        console.error("[v0] Unexpected error loading profile:", error)
-        setError(`Unexpected error: ${error instanceof Error ? error.message : String(error)}`)
-      } finally {
-        setIsLoading(false)
+      if (userError) {
+        console.error("[v0] Auth error:", userError)
+        setError(`Auth error: ${userError.message}`)
+        router.push("/auth")
+        return
       }
-    }
 
+      if (!user) {
+        console.log("[v0] No user found, redirecting to auth")
+        setError("No user found")
+        router.push("/auth")
+        return
+      }
+
+      console.log("[v0] User authenticated:", user.id)
+
+      const { data: profileData, error: profileError } = await supabase
+        .from("profiles")
+        .select("id, nickname, created_at, wallet_address, referral_code, points, task_completion_bonus_awarded, avatar_url")
+        .eq("id", user.id)
+        .single()
+
+      if (profileError) {
+        console.error("[v0] Profile query error:", profileError)
+        setError(`Profile error: ${profileError.message}`)
+        setIsLoading(false)
+        return
+      }
+
+      if (!profileData) {
+        console.error("[v0] No profile data returned")
+        setError("No profile data found for user")
+        setIsLoading(false)
+        return
+      }
+
+      console.log("[v0] Profile data loaded:", profileData)
+
+      if (profileData) {
+        setProfile(profileData as UserProfile)
+
+        const oblTokens = profileData.task_completion_bonus_awarded ? 200 : 0
+
+        const { count: referralCount, error: referralError } = await supabase
+          .from("referrals")
+          .select("*", { count: "exact", head: true })
+          .eq("referrer_id", user.id)
+
+        if (referralError) {
+          console.error("[v0] Referral count error:", referralError)
+        }
+
+        console.log("[v0] Referral count:", referralCount)
+
+        const { data: allUsers, error: usersError } = await supabase
+          .from("profiles")
+          .select("id, points")
+          .order("points", { ascending: false })
+
+        if (usersError) {
+          console.error("[v0] Users query error:", usersError)
+        }
+
+        let userRank = 0
+        const totalUsers = allUsers?.length || 0
+
+        if (allUsers) {
+          userRank = allUsers.findIndex((u) => u.id === user.id) + 1
+        }
+
+        console.log("[v0] User rank:", userRank, "of", totalUsers)
+
+        setStats({
+          totalPoints: profileData.points || 0,
+          oblTokens,
+          referralCount: referralCount || 0,
+          rank: userRank,
+          totalUsers,
+        })
+
+        const { data: conversionData, error: conversionError } = await supabase
+          .from("conversion_history")
+          .select("id, points_converted, obl_tokens_received, status, created_at")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false })
+          .limit(10)
+
+        if (conversionError) {
+          console.error("[v0] Conversion history error:", conversionError)
+        }
+
+        setConversions(conversionData || [])
+      }
+    } catch (error) {
+      console.error("[v0] Unexpected error loading profile:", error)
+      setError(`Unexpected error: ${error instanceof Error ? error.message : String(error)}`)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
     loadProfile()
   }, [router])
 
