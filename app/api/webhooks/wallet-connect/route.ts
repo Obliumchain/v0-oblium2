@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
-import { headers } from 'next/headers'
+import { createClient } from '@supabase/supabase-js'
 import crypto from 'crypto'
 
 function generateErrorId(): string {
@@ -13,8 +12,7 @@ export async function POST(request: NextRequest) {
   try {
     console.log(`[v0] [${errorId}] Wallet connect webhook received`)
 
-    const headersList = await headers()
-    const signature = headersList.get('x-webhook-signature')
+    const signature = request.headers.get('x-webhook-signature')
     const webhookSecret = process.env.WEBHOOK_SECRET
 
     if (!webhookSecret) {
@@ -67,7 +65,20 @@ export async function POST(request: NextRequest) {
 
     console.log(`[v0] [${errorId}] Attempting to update wallet for user:`, userId)
 
-    const supabase = await createClient()
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+    if (!supabaseUrl || !supabaseServiceKey) {
+      console.error(`[v0] [${errorId}] Supabase configuration missing`)
+      return NextResponse.json({ error: 'Server configuration error', errorId }, { status: 500 })
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    })
 
     const { data: existingProfile, error: fetchError } = await supabase
       .from('profiles')
@@ -95,6 +106,7 @@ export async function POST(request: NextRequest) {
       })
       .eq('id', userId)
       .select()
+      .single()
 
     if (error) {
       console.error(`[v0] [${errorId}] Error updating wallet:`, {
@@ -112,7 +124,7 @@ export async function POST(request: NextRequest) {
       }, { status: 500 })
     }
 
-    if (!data || data.length === 0) {
+    if (!data) {
       console.error(`[v0] [${errorId}] No data returned after update`)
       return NextResponse.json({ 
         error: 'Update failed - no data returned', 
@@ -121,9 +133,9 @@ export async function POST(request: NextRequest) {
     }
 
     console.log(`[v0] [${errorId}] Wallet connected successfully:`, {
-      userId: data[0].id,
-      walletAddress: data[0].wallet_address,
-      walletType: data[0].wallet_type
+      userId: data.id,
+      walletAddress: data.wallet_address,
+      walletType: data.wallet_type
     })
 
     return NextResponse.json({ 
