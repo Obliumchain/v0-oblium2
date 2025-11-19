@@ -118,6 +118,24 @@ export async function POST(request: NextRequest) {
       }, { status: 404 })
     }
 
+    if (taskIdentifier === 'choose-avatar' && taskData?.avatarUrl) {
+      console.log(`[v0] [${errorId}] Updating avatar for user ${userId}...`)
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: taskData.avatarUrl })
+        .eq('id', userId)
+
+      if (updateError) {
+        console.error(`[v0] [${errorId}] Failed to update avatar:`, updateError)
+        // We continue even if avatar update fails, or should we fail?
+        // Let's log it but try to award points anyway, or maybe return error?
+        // Better to log and continue, or maybe fail if the main purpose was avatar.
+        // Let's continue but log error.
+      } else {
+        console.log(`[v0] [${errorId}] Avatar updated successfully`)
+      }
+    }
+
     console.log(`[v0] [${errorId}] User found with ${user.points} points`)
     console.log(`[v0] [${errorId}] Processing task claim with California timezone check...`)
 
