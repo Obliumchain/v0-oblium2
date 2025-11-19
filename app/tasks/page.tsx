@@ -31,6 +31,8 @@ export default function TasksPage() {
   const [loading, setLoading] = useState(true)
   const [userId, setUserId] = useState<string>("")
   const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set())
+  const [openedTasks, setOpenedTasks] = useState<Set<string>>(new Set())
+  const [completingTask, setCompletingTask] = useState<string | null>(null)
   const router = useRouter()
   const supabase = createClient()
   const { t } = useLanguage()
@@ -52,7 +54,6 @@ export default function TasksPage() {
 
       setUserId(user.id)
 
-      // Get all active tasks
       const { data: allTasks, error: tasksError } = await supabase
         .from("tasks")
         .select("*")
@@ -69,11 +70,9 @@ export default function TasksPage() {
 
       if (userTasksError) throw userTasksError
 
-      // Create a set of completed task IDs
       const completed = new Set(userTaskCompletions?.map((tc) => tc.task_id) || [])
       setCompletedTasks(completed)
 
-      // Mark tasks as completed if they're in task_completions
       const tasksWithStatus =
         allTasks?.map((task) => ({
           ...task,
@@ -91,8 +90,38 @@ export default function TasksPage() {
   const handleTaskClick = (task: Task) => {
     if (!task.action_url) return
 
-    // Open the task URL in a new tab
+    setOpenedTasks((prev) => new Set(prev).add(task.id))
+
     window.open(task.action_url, "_blank", "noopener,noreferrer")
+  }
+
+  const handleCompleteTask = async (taskId: string) => {
+    setCompletingTask(taskId)
+
+    try {
+      const response = await fetch("/api/tasks/complete", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ taskId }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to complete task")
+      }
+
+      await loadTasks()
+
+      alert(`✅ Task completed! You earned ${data.pointsAwarded} points!`)
+    } catch (error) {
+      console.error("Error completing task:", error)
+      alert(`❌ ${error instanceof Error ? error.message : "Failed to complete task"}`)
+    } finally {
+      setCompletingTask(null)
+    }
   }
 
   const getTaskTypeLabel = (type: string) => {
@@ -139,28 +168,25 @@ export default function TasksPage() {
       <BackgroundAnimation />
       <Navigation />
 
-      {/* Main Content */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-4xl font-display font-bold text-primary mb-2">{t("tasksTitle")}</h1>
           <p className="text-foreground/60">{t("tasksSubtitle")}</p>
         </div>
 
-        {/* Info Banner */}
         <LiquidCard className="p-6 mb-8 bg-primary/5 border-primary/30">
           <div className="flex items-start gap-4">
             <div className="text-3xl">ℹ️</div>
             <div>
               <h3 className="font-display font-bold text-lg text-foreground mb-2">Complete Tasks to Earn Points</h3>
               <p className="text-foreground/70 text-sm">
-                Click on any task below to open the link and complete the required action. Points will be automatically
-                added to your account once verified.
+                Click "Start" to open the task link. Complete the action on X/Twitter, then return here and click "Claim
+                Reward" to receive your points.
               </p>
             </div>
           </div>
         </LiquidCard>
 
-        {/* Tasks Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {tasks.map((task) => (
             <LiquidCard
@@ -168,11 +194,9 @@ export default function TasksPage() {
               className={`p-6 h-full flex flex-col transition-all duration-300 ${
                 task.completed && !task.is_daily_repeatable
                   ? "opacity-60 border-green-500/30"
-                  : "hover:border-primary/50 cursor-pointer group"
+                  : "hover:border-primary/50 group"
               }`}
-              onClick={() => (!task.completed || task.is_daily_repeatable ? handleTaskClick(task) : null)}
             >
-              {/* Header */}
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <div className="text-4xl">{task.icon}</div>
@@ -187,11 +211,9 @@ export default function TasksPage() {
                 )}
               </div>
 
-              {/* Content */}
               <h3 className="font-display font-bold text-lg text-foreground mb-2">{task.title}</h3>
               <p className="text-foreground/60 text-sm mb-4 flex-grow">{task.description}</p>
 
-              {/* Footer */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="text-primary font-display font-bold text-xl">{task.reward}</span>
@@ -199,8 +221,18 @@ export default function TasksPage() {
                 </div>
                 {task.completed && !task.is_daily_repeatable ? (
                   <span className="text-green-500 text-sm font-semibold">Completed</span>
+                ) : openedTasks.has(task.id) ? (
+                  <GlowButton
+                    size="sm"
+                    onClick={() => handleCompleteTask(task.id)}
+                    disabled={completingTask === task.id}
+                  >
+                    {completingTask === task.id ? "Claiming..." : "Claim Reward"}
+                  </GlowButton>
                 ) : (
-                  <GlowButton size="sm">{t("start") || "Start"}</GlowButton>
+                  <GlowButton size="sm" onClick={() => handleTaskClick(task)}>
+                    {t("start") || "Start"}
+                  </GlowButton>
                 )}
               </div>
             </LiquidCard>
