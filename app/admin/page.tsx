@@ -6,7 +6,7 @@ import { Navigation } from "@/components/navigation"
 import { LiquidCard } from "@/components/ui/liquid-card"
 import { BackgroundAnimation } from "@/components/background-animation"
 import { Button } from "@/components/ui/button"
-import { Trash2, AlertTriangle } from "lucide-react"
+import { Trash2, AlertTriangle, Users } from 'lucide-react'
 
 interface User {
   id: string
@@ -23,6 +23,8 @@ export default function AdminPage() {
   const [isAuthorized, setIsAuthorized] = useState(false)
   const [deletingUserId, setDeletingUserId] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
+  const [isCleaningUp, setIsCleaningUp] = useState(false)
+  const [zeroPointUsersCount, setZeroPointUsersCount] = useState(0)
 
   useEffect(() => {
     checkAuth()
@@ -72,6 +74,14 @@ export default function AdminPage() {
       if (error) throw error
 
       if (profiles) {
+        const threeDaysAgo = new Date()
+        threeDaysAgo.setDate(threeDaysAgo.getDate() - 3)
+        
+        const zeroPointOldUsers = profiles.filter(
+          (p) => p.points === 0 && new Date(p.created_at) < threeDaysAgo
+        )
+        setZeroPointUsersCount(zeroPointOldUsers.length)
+
         // Get referral counts
         const usersWithCounts = await Promise.all(
           profiles.map(async (profile) => {
@@ -136,6 +146,40 @@ export default function AdminPage() {
     }
   }
 
+  const cleanupZeroPointUsers = async () => {
+    if (
+      !confirm(
+        `This will permanently delete all users with 0 points for 3+ days (${zeroPointUsersCount} users). This action cannot be undone. Are you sure?`
+      )
+    ) {
+      return
+    }
+
+    setIsCleaningUp(true)
+
+    try {
+      const response = await fetch("/api/admin/cleanup-zero-point-users", {
+        method: "POST",
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to cleanup users")
+      }
+
+      alert(
+        `Cleanup complete!\n\nDeleted: ${data.deletedCount} users\nTotal found: ${data.totalFound}\n\n${data.message}`
+      )
+      await loadUsers()
+    } catch (error: any) {
+      console.error("[v0] Error cleaning up users:", error)
+      alert(`Failed to cleanup users: ${error.message}`)
+    } finally {
+      setIsCleaningUp(false)
+    }
+  }
+
   const filteredUsers = users.filter(
     (user) =>
       user.nickname.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -178,6 +222,37 @@ export default function AdminPage() {
           <h1 className="text-4xl font-display font-bold text-primary mb-2">Admin Panel</h1>
           <p className="text-foreground/60">Manage users and detect suspicious activity</p>
         </div>
+
+        <LiquidCard className="p-6 mb-6 border-2 border-red-500/20">
+          <div className="flex items-start gap-4">
+            <div className="p-3 bg-red-500/10 rounded-lg">
+              <Users className="w-6 h-6 text-red-500" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-display font-bold text-foreground mb-1">
+                Cleanup Inactive Users
+              </h3>
+              <p className="text-sm text-foreground/60 mb-4">
+                Delete all users with 0 points who have been inactive for 3+ days.
+              </p>
+              <div className="flex items-center gap-4">
+                <div className="text-sm">
+                  <span className="text-foreground/60">Users eligible for deletion: </span>
+                  <span className="font-bold text-red-500">{zeroPointUsersCount}</span>
+                </div>
+                <Button
+                  onClick={cleanupZeroPointUsers}
+                  disabled={isCleaningUp || zeroPointUsersCount === 0}
+                  variant="destructive"
+                  className="gap-2"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  {isCleaningUp ? "Cleaning up..." : "Delete 0-Point Users (3+ days)"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </LiquidCard>
 
         <LiquidCard className="p-8 mb-6">
           <div className="flex items-center gap-4 mb-6">
