@@ -6,7 +6,6 @@ import { LiquidCard } from "@/components/ui/liquid-card"
 import { GlowButton } from "@/components/ui/glow-button"
 import { BackgroundAnimation } from "@/components/background-animation"
 import { createClient } from "@/lib/supabase/client"
-import { useRouter } from "next/navigation"
 import { useLanguage } from "@/lib/language-context"
 import { ExternalLink, Check } from "lucide-react"
 
@@ -18,42 +17,33 @@ interface Task {
   reward: number
   task_type: string
   action_url: string | null
-  completed: boolean
   is_daily_repeatable: boolean
-}
-
-interface UserTaskCompletion {
-  task_id: string
 }
 
 export default function TasksPage() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(true)
-  const [userId, setUserId] = useState<string>("")
   const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set())
   const [openedTasks, setOpenedTasks] = useState<Set<string>>(new Set())
   const [completingTask, setCompletingTask] = useState<string | null>(null)
-  const router = useRouter()
   const supabase = createClient()
   const { t } = useLanguage()
 
   useEffect(() => {
     loadTasks()
+    const stored = localStorage.getItem("oblium_completed_tasks")
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored)
+        setCompletedTasks(new Set(parsed))
+      } catch (e) {
+        console.error("Failed to parse stored tasks:", e)
+      }
+    }
   }, [])
 
   const loadTasks = async () => {
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-
-      if (!user) {
-        router.push("/auth")
-        return
-      }
-
-      setUserId(user.id)
-
       const { data: allTasks, error: tasksError } = await supabase
         .from("tasks")
         .select("*")
@@ -63,23 +53,7 @@ export default function TasksPage() {
 
       if (tasksError) throw tasksError
 
-      const { data: userTaskCompletions, error: userTasksError } = await supabase
-        .from("task_completions")
-        .select("task_id")
-        .eq("user_id", user.id)
-
-      if (userTasksError) throw userTasksError
-
-      const completed = new Set(userTaskCompletions?.map((tc) => tc.task_id) || [])
-      setCompletedTasks(completed)
-
-      const tasksWithStatus =
-        allTasks?.map((task) => ({
-          ...task,
-          completed: completed.has(task.id),
-        })) || []
-
-      setTasks(tasksWithStatus)
+      setTasks(allTasks || [])
     } catch (error) {
       console.error("Error loading tasks:", error)
     } finally {
@@ -96,42 +70,24 @@ export default function TasksPage() {
   }
 
   const handleCompleteTask = async (taskId: string) => {
+    if (completedTasks.has(taskId)) {
+      alert("You've already completed this task!")
+      return
+    }
+
     setCompletingTask(taskId)
 
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
+      const task = tasks.find((t) => t.id === taskId)
+      if (!task) throw new Error("Task not found")
 
-      if (!user) {
-        alert("❌ Your session has expired. Please log in again.")
-        router.push("/auth")
-        return
-      }
+      const newCompleted = new Set(completedTasks)
+      newCompleted.add(taskId)
+      setCompletedTasks(newCompleted)
 
-      const response = await fetch("/api/tasks/complete", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({ taskId }),
-      })
+      localStorage.setItem("oblium_completed_tasks", JSON.stringify(Array.from(newCompleted)))
 
-      const data = await response.json()
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          alert("❌ Your session has expired. Please log in again.")
-          router.push("/auth")
-          return
-        }
-        throw new Error(data.error || "Failed to complete task")
-      }
-
-      await loadTasks()
-
-      alert(`✅ Task completed! You earned ${data.pointsAwarded} points!`)
+      alert(`✅ Task completed! You earned ${task.reward} points!`)
     } catch (error) {
       console.error("Error completing task:", error)
       alert(`❌ ${error instanceof Error ? error.message : "Failed to complete task"}`)
@@ -204,55 +160,60 @@ export default function TasksPage() {
         </LiquidCard>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {tasks.map((task) => (
-            <LiquidCard
-              key={task.id}
-              className={`p-6 h-full flex flex-col transition-all duration-300 ${
-                task.completed && !task.is_daily_repeatable
-                  ? "opacity-60 border-green-500/30"
-                  : "hover:border-primary/50 group"
-              }`}
-            >
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <div className="text-4xl">{task.icon}</div>
-                  <span className={`text-xs px-2 py-1 rounded-full font-semibold ${getTaskTypeColor(task.task_type)}`}>
-                    {getTaskTypeLabel(task.task_type)}
-                  </span>
-                </div>
-                {task.completed && !task.is_daily_repeatable ? (
-                  <Check className="w-5 h-5 text-green-500" />
-                ) : (
-                  <ExternalLink className="w-5 h-5 text-foreground/40 group-hover:text-primary transition-colors" />
-                )}
-              </div>
+          {tasks.map((task) => {
+            const isCompleted = completedTasks.has(task.id)
+            const isOpened = openedTasks.has(task.id)
 
-              <h3 className="font-display font-bold text-lg text-foreground mb-2">{task.title}</h3>
-              <p className="text-foreground/60 text-sm mb-4 flex-grow">{task.description}</p>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="text-primary font-display font-bold text-xl">{task.reward}</span>
-                  <span className="text-foreground/60 text-xs">{t("pts")}</span>
+            return (
+              <LiquidCard
+                key={task.id}
+                className={`p-6 h-full flex flex-col transition-all duration-300 ${
+                  isCompleted ? "opacity-60 border-green-500/30" : "hover:border-primary/50 group"
+                }`}
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <div className="text-4xl">{task.icon}</div>
+                    <span
+                      className={`text-xs px-2 py-1 rounded-full font-semibold ${getTaskTypeColor(task.task_type)}`}
+                    >
+                      {getTaskTypeLabel(task.task_type)}
+                    </span>
+                  </div>
+                  {isCompleted ? (
+                    <Check className="w-5 h-5 text-green-500" />
+                  ) : (
+                    <ExternalLink className="w-5 h-5 text-foreground/40 group-hover:text-primary transition-colors" />
+                  )}
                 </div>
-                {task.completed && !task.is_daily_repeatable ? (
-                  <span className="text-green-500 text-sm font-semibold">Completed</span>
-                ) : openedTasks.has(task.id) ? (
-                  <GlowButton
-                    size="sm"
-                    onClick={() => handleCompleteTask(task.id)}
-                    disabled={completingTask === task.id}
-                  >
-                    {completingTask === task.id ? "Claiming..." : "Claim Reward"}
-                  </GlowButton>
-                ) : (
-                  <GlowButton size="sm" onClick={() => handleTaskClick(task)}>
-                    {t("start") || "Start"}
-                  </GlowButton>
-                )}
-              </div>
-            </LiquidCard>
-          ))}
+
+                <h3 className="font-display font-bold text-lg text-foreground mb-2">{task.title}</h3>
+                <p className="text-foreground/60 text-sm mb-4 flex-grow">{task.description}</p>
+
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-primary font-display font-bold text-xl">{task.reward}</span>
+                    <span className="text-foreground/60 text-xs">{t("pts")}</span>
+                  </div>
+                  {isCompleted ? (
+                    <span className="text-green-500 text-sm font-semibold">Completed</span>
+                  ) : isOpened ? (
+                    <GlowButton
+                      size="sm"
+                      onClick={() => handleCompleteTask(task.id)}
+                      disabled={completingTask === task.id}
+                    >
+                      {completingTask === task.id ? "Claiming..." : "Claim Reward"}
+                    </GlowButton>
+                  ) : (
+                    <GlowButton size="sm" onClick={() => handleTaskClick(task)}>
+                      {t("start") || "Start"}
+                    </GlowButton>
+                  )}
+                </div>
+              </LiquidCard>
+            )
+          })}
         </div>
 
         {tasks.length === 0 && (
