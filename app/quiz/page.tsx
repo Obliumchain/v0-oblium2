@@ -16,128 +16,128 @@ interface Question {
   explanation: string
 }
 
-const CURRENT_QUIZ_VERSION = 2
+const CURRENT_QUIZ_VERSION = 3
 
 const questions: Question[] = [
   {
-    id: 21,
-    question: "What is the best way to keep your OBLM tokens safe?",
+    id: 31,
+    question: "What is the main purpose of Oblium's booster system?",
     options: [
-      { label: "A", text: "Share your private keys with friends" },
-      { label: "B", text: "Store them in a secure wallet and never reveal your private key" },
-      { label: "C", text: "Keep them on public websites" },
-      { label: "D", text: "Save them in screenshots" }
+      { label: "A", text: "To slow down point accumulation" },
+      { label: "B", text: "To help users multiply their points and gain higher token allocation" },
+      { label: "C", text: "To remove points from inactive users" },
+      { label: "D", text: "To limit new users" }
     ],
     correctAnswer: "B",
-    explanation: "Always store OBLM tokens in a secure wallet and never share your private keys — security starts with you."
+    explanation: "Boosters give users an advantage by accelerating point growth, increasing their token allocation during conversion."
   },
   {
-    id: 22,
-    question: "What is staking in ObliumChain?",
+    id: 32,
+    question: "What does the Oblium whitepaper provide?",
     options: [
-      { label: "A", text: "Spending tokens on ads" },
-      { label: "B", text: "Locking OBLM tokens to support the network and earn rewards" },
-      { label: "C", text: "Burning tokens" },
-      { label: "D", text: "Trading tokens rapidly" }
-    ],
-    correctAnswer: "B",
-    explanation: "Staking allows users to lock tokens, helping secure the ecosystem while earning passive rewards."
-  },
-  {
-    id: 23,
-    question: "How does ObliumChain promote community growth?",
-    options: [
-      { label: "A", text: "By allowing members to vote, learn, and earn" },
-      { label: "B", text: "By limiting access to a few users" },
-      { label: "C", text: "By hiding development progress" },
-      { label: "D", text: "By discouraging collaboration" }
+      { label: "A", text: "A full breakdown of the project's vision, tokenomics, utilities, and roadmap" },
+      { label: "B", text: "Only memes" },
+      { label: "C", text: "Only the team members' birthdays" },
+      { label: "D", text: "A list of random crypto facts" }
     ],
     correctAnswer: "A",
-    explanation: "Oblium thrives on inclusivity, letting members shape the future through DAO voting and educational tasks."
+    explanation: "The whitepaper is the foundation of the project, detailing everything from technology to governance."
   },
   {
-    id: 24,
-    question: "What does \"Proof of Transparency\" mean in the Oblium context?",
+    id: 33,
+    question: "What is the purpose of the Oblium Ambassador Program?",
     options: [
-      { label: "A", text: "A system that hides blockchain data" },
-      { label: "B", text: "Every action and transaction can be verified by the public" },
-      { label: "C", text: "Only admins can see project details" },
-      { label: "D", text: "A manual process done by the team" }
-    ],
-    correctAnswer: "B",
-    explanation: "\"Proof of Transparency\" means all operations and data on Oblium are open and verifiable by anyone."
-  },
-  {
-    id: 25,
-    question: "What type of content can users create to support Oblium's mission?",
-    options: [
-      { label: "A", text: "Memes, videos, or educational posts promoting transparency" },
-      { label: "B", text: "Negative comments" },
-      { label: "C", text: "Fake news" },
-      { label: "D", text: "Spam messages" }
+      { label: "A", text: "To empower community leaders to educate, promote, and support global adoption" },
+      { label: "B", text: "To restrict information" },
+      { label: "C", text: "To remove users from the platform" },
+      { label: "D", text: "To only reward influencers" }
     ],
     correctAnswer: "A",
-    explanation: "Oblium encourages creative and positive content that educates others about its mission and values."
+    explanation: "Ambassadors act as educators and representatives, helping Oblium grow across regions and communities."
   },
   {
-    id: 26,
-    question: "What role do partnerships play in the Oblium ecosystem?",
+    id: 34,
+    question: "What does \"community-first development\" mean for Oblium?",
     options: [
-      { label: "A", text: "They provide credibility, exposure, and development support" },
-      { label: "B", text: "They control the community" },
-      { label: "C", text: "They replace community members" },
-      { label: "D", text: "They only focus on price movement" }
+      { label: "A", text: "The team makes decisions based on community feedback and transparency" },
+      { label: "B", text: "Only developers decide everything" },
+      { label: "C", text: "No one is allowed to give feedback" },
+      { label: "D", text: "Updates are kept secret" }
     ],
     correctAnswer: "A",
-    explanation: "Strategic partnerships help Oblium expand responsibly and bring innovation to the ecosystem."
+    explanation: "Oblium ensures users are part of the growth process through open discussions and DAO-driven decisions."
   },
   {
-    id: 27,
-    question: "Why is education important for Web3 adoption according to Oblium?",
+    id: 35,
+    question: "What is the Oblium Mainnet designed to achieve?",
     options: [
-      { label: "A", text: "Because knowledge reduces scams and increases trust" },
-      { label: "B", text: "Because it makes trading easier" },
-      { label: "C", text: "Because it replaces governance" },
-      { label: "D", text: "Because it increases inflation" }
+      { label: "A", text: "High scalability, low fees, and transparent operations" },
+      { label: "B", text: "Slow transactions" },
+      { label: "C", text: "High gas fees" },
+      { label: "D", text: "Limited accessibility" }
     ],
     correctAnswer: "A",
-    explanation: "Oblium believes an informed community is a powerful one — education drives safe, smart adoption."
+    explanation: "The Mainnet aims to provide a fast, efficient, and open ecosystem for users and developers."
   },
   {
-    id: 28,
-    question: "What happens when you complete a task in the Oblium dApp?",
+    id: 36,
+    question: "Why is transparency important in the Oblium ecosystem?",
     options: [
-      { label: "A", text: "You earn OBLM or XP rewards and strengthen your profile" },
-      { label: "B", text: "Nothing" },
-      { label: "C", text: "Your tokens disappear" },
-      { label: "D", text: "The app resets" }
+      { label: "A", text: "It builds trust and shows users every decision made" },
+      { label: "B", text: "It hides team mistakes" },
+      { label: "C", text: "It is only for marketing" },
+      { label: "D", text: "It reduces user participation" }
     ],
     correctAnswer: "A",
-    explanation: "Completing verified tasks increases user rewards and builds trust through engagement."
+    explanation: "Transparency allows the community to verify updates, ensuring accountability and trust."
   },
   {
-    id: 29,
-    question: "What is the goal of the Oblium quiz section?",
+    id: 37,
+    question: "How can new users start earning on Oblium?",
     options: [
-      { label: "A", text: "To educate the community about blockchain, transparency, and Oblium's mission" },
-      { label: "B", text: "To test random topics" },
-      { label: "C", text: "To waste users' time" },
-      { label: "D", text: "To reduce engagement" }
+      { label: "A", text: "By completing tasks, quizzes, referrals, and using boosters" },
+      { label: "B", text: "By waiting for a giveaway" },
+      { label: "C", text: "By hacking the system" },
+      { label: "D", text: "By doing nothing" }
     ],
     correctAnswer: "A",
-    explanation: "The quiz section helps users learn key concepts and earn rewards through education."
+    explanation: "Tasks and learning modules give every user a fair chance to earn, regardless of experience."
   },
   {
-    id: 30,
-    question: "How does ObliumChain encourage long-term commitment from users?",
+    id: 38,
+    question: "What is the meaning of \"community verification\" in Oblium?",
     options: [
-      { label: "A", text: "By offering consistent learning rewards and transparent updates" },
-      { label: "B", text: "By closing tasks early" },
-      { label: "C", text: "By reducing communication" },
-      { label: "D", text: "By hiding information" }
+      { label: "A", text: "Users help confirm tasks, content, and activities to prevent fraud" },
+      { label: "B", text: "Only admins verify everything" },
+      { label: "C", text: "Verification doesn't exist" },
+      { label: "D", text: "It is used to delete user accounts" }
     ],
     correctAnswer: "A",
-    explanation: "Oblium builds loyalty through consistent transparency, education, and community-based rewards."
+    explanation: "Community verification strengthens trust by ensuring that submitted activities are authentic."
+  },
+  {
+    id: 39,
+    question: "What does XP represent in the Oblium platform?",
+    options: [
+      { label: "A", text: "Experience points showing user engagement and credibility" },
+      { label: "B", text: "A new token" },
+      { label: "C", text: "A penalty system" },
+      { label: "D", text: "Data used only for marketing" }
+    ],
+    correctAnswer: "A",
+    explanation: "XP reflects how active and committed a user is, helping build a strong personal profile."
+  },
+  {
+    id: 40,
+    question: "Why does Oblium encourage global participation?",
+    options: [
+      { label: "A", text: "Because decentralization thrives when people from all regions contribute" },
+      { label: "B", text: "Because only one country should control Web3" },
+      { label: "C", text: "Because it wants limited growth" },
+      { label: "D", text: "Because it avoids multi-language support" }
+    ],
+    correctAnswer: "A",
+    explanation: "A global user base strengthens the network, increases knowledge-sharing, and expands adoption."
   }
 ]
 
@@ -218,8 +218,7 @@ export default function QuestionsPage() {
     setScore(correctCount)
 
     const pointsPerCorrect = 1000
-    const bonusPoints = correctCount === 10 ? 10000 : 0
-    const totalPoints = correctCount * pointsPerCorrect + bonusPoints
+    const totalPoints = correctCount * pointsPerCorrect
 
     const supabase = createClient()
 
@@ -282,7 +281,7 @@ export default function QuestionsPage() {
             Test Your Knowledge
           </h1>
           <p className="text-foreground/60">
-            Answer all 10 questions correctly to earn 20,000 points!
+            Answer all questions correctly to earn up to 10,000 points!
           </p>
         </div>
 
@@ -390,7 +389,7 @@ export default function QuestionsPage() {
 
               <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-full border border-cyan-500/30">
                 <span className="text-2xl font-black text-cyan-400">
-                  {score * 1000 + (score === 10 ? 10000 : 0)}
+                  {score * 1000}
                 </span>
                 <span className="text-foreground/60">points earned</span>
               </div>
