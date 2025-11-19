@@ -16,28 +16,28 @@ const newsItems: NewsItem[] = [
     id: 1,
     title: "New Quiz Available!",
     description: "Test your ObliumChain knowledge with 10 new questions! Answer all correctly to earn 20,000 points.",
-    date: "2025-01-16",
+    date: "2024-11-16", // Changed from 2025-01-16 to November 2024
     category: "update"
   },
   {
     id: 2,
     title: "Presale Coming Soon!",
     description: "OBLM token presale starts November 21, 2025. Be ready for the launch! Early participants get exclusive bonuses.",
-    date: "2025-01-15",
+    date: "2024-11-15", // Changed from 2025-01-15 to November 2024
     category: "news"
   },
   {
     id: 3,
     title: "New Boosters Available",
     description: "Check out our new multiplier boosters starting at just 0.035 SOL!",
-    date: "2025-01-14",
+    date: "2024-11-14", // Changed from 2025-01-14 to November 2024
     category: "update"
   },
   {
     id: 4,
     title: "Downtime Apology",
     description: "We apologize for the recent downtime. Our team has resolved the issues and implemented improvements to prevent future occurrences.",
-    date: "2025-01-13",
+    date: "2024-11-13", // Changed from 2025-01-13 to November 2024
     category: "news"
   },
 ]
