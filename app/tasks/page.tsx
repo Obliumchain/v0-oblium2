@@ -99,17 +99,33 @@ export default function TasksPage() {
     setCompletingTask(taskId)
 
     try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+
+      if (!user) {
+        alert("❌ Your session has expired. Please log in again.")
+        router.push("/auth")
+        return
+      }
+
       const response = await fetch("/api/tasks/complete", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify({ taskId }),
       })
 
       const data = await response.json()
 
       if (!response.ok) {
+        if (response.status === 401) {
+          alert("❌ Your session has expired. Please log in again.")
+          router.push("/auth")
+          return
+        }
         throw new Error(data.error || "Failed to complete task")
       }
 
