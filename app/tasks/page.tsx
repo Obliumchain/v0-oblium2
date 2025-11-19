@@ -22,7 +22,7 @@ interface Task {
   is_daily_repeatable: boolean
 }
 
-interface UserTask {
+interface UserTaskCompletion {
   task_id: string
 }
 
@@ -62,19 +62,18 @@ export default function TasksPage() {
 
       if (tasksError) throw tasksError
 
-      // Get completed tasks for this user
-      const { data: userTasks, error: userTasksError } = await supabase
-        .from("user_tasks")
+      const { data: userTaskCompletions, error: userTasksError } = await supabase
+        .from("task_completions")
         .select("task_id")
         .eq("user_id", user.id)
 
       if (userTasksError) throw userTasksError
 
       // Create a set of completed task IDs
-      const completed = new Set(userTasks?.map((ut: UserTask) => ut.task_id) || [])
+      const completed = new Set(userTaskCompletions?.map((tc) => tc.task_id) || [])
       setCompletedTasks(completed)
 
-      // Mark tasks as completed if they're in user_tasks
+      // Mark tasks as completed if they're in task_completions
       const tasksWithStatus =
         allTasks?.map((task) => ({
           ...task,
