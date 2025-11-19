@@ -26,11 +26,13 @@ export default function TasksPage() {
   const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set())
   const [openedTasks, setOpenedTasks] = useState<Set<string>>(new Set())
   const [completingTask, setCompletingTask] = useState<string | null>(null)
+  const [userId, setUserId] = useState<string | null>(null)
   const supabase = createClient()
   const { t } = useLanguage()
 
   useEffect(() => {
     loadTasks()
+    loadUser()
     const stored = localStorage.getItem("oblium_completed_tasks")
     if (stored) {
       try {
@@ -41,6 +43,33 @@ export default function TasksPage() {
       }
     }
   }, [])
+
+  const loadUser = async () => {
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      if (user) {
+        setUserId(user.id)
+        await loadCompletedTasks(user.id)
+      }
+    } catch (error) {
+      console.error("Error loading user:", error)
+    }
+  }
+
+  const loadCompletedTasks = async (uid: string) => {
+    try {
+      const { data, error } = await supabase.from("task_completions").select("task_id").eq("user_id", uid)
+
+      if (error) throw error
+
+      const completedIds = data?.map((c) => c.task_id) || []
+      setCompletedTasks(new Set(completedIds))
+    } catch (error) {
+      console.error("Error loading completed tasks:", error)
+    }
+  }
 
   const loadTasks = async () => {
     try {
@@ -75,11 +104,49 @@ export default function TasksPage() {
       return
     }
 
+    if (!userId) {
+      alert("❌ Please log in to claim rewards!")
+      return
+    }
+
     setCompletingTask(taskId)
 
     try {
       const task = tasks.find((t) => t.id === taskId)
       if (!task) throw new Error("Task not found")
+
+      const { error: completionError } = await supabase.from("task_completions").insert({
+        user_id: userId,
+        task_id: taskId,
+        points_awarded: task.reward,
+        completed_date: new Date().toISOString().split("T")[0],
+      })
+
+      if (completionError) {
+        if (completionError.code === "23505") {
+          throw new Error("You've already completed this task!")
+        }
+        throw completionError
+      }
+
+      const { error: pointsError } = await supabase.rpc("increment_points", {
+        user_id: userId,
+        points_to_add: task.reward,
+      })
+
+      if (pointsError) {
+        console.error("Points error:", pointsError)
+        const { data: profile } = await supabase.from("profiles").select("points").eq("id", userId).single()
+
+        if (profile) {
+          const { error: updateError } = await supabase
+            .from("profiles")
+            .update({ points: (profile.points || 0) + task.reward })
+            .eq("id", userId)
+
+          if (updateError) throw updateError
+        }
+      }
 
       const newCompleted = new Set(completedTasks)
       newCompleted.add(taskId)
