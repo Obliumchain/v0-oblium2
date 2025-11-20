@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useState, useEffect } from "react"
-import { useRouter } from 'next/navigation'
+import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { createClient } from "@/lib/supabase/client"
 import { LiquidCard } from "@/components/ui/liquid-card"
@@ -10,7 +10,6 @@ import { GlowButton } from "@/components/ui/glow-button"
 import { BackgroundAnimation } from "@/components/background-animation"
 import { useLanguage } from "@/lib/language-context"
 import { LanguageSelector } from "@/components/language-selector"
-
 
 function AuthPageContent() {
   const router = useRouter()
@@ -33,6 +32,7 @@ function AuthPageContent() {
       if (refCode) {
         setReferralCode(refCode)
         setIsSignUp(true)
+        console.log(`[v0] Referral code detected: ${refCode}`)
       }
     }
   }, [])
@@ -78,6 +78,11 @@ function AuthPageContent() {
           throw new Error("Nickname is required")
         }
 
+        const trimmedRefCode = referralCode.trim().toUpperCase()
+        if (trimmedRefCode && trimmedRefCode.length !== 5) {
+          throw new Error("Invalid referral code format. Code should be 5 characters.")
+        }
+
         const { error: signUpError, data } = await retryWithBackoff(() =>
           supabase.auth.signUp({
             email,
@@ -85,7 +90,7 @@ function AuthPageContent() {
             options: {
               data: {
                 nickname: nickname.trim(),
-                referral_code: referralCode.trim() || null,
+                referral_code: trimmedRefCode || null,
               },
             },
           }),
@@ -109,7 +114,7 @@ function AuthPageContent() {
 
         console.log("[v0] Signup successful, user ID:", data.user?.id)
 
-        if (data.user && referralCode.trim()) {
+        if (data.user && trimmedRefCode) {
           console.log("[v0] Waiting 3 seconds for profile creation before processing referral...")
           await new Promise((resolve) => setTimeout(resolve, 3000))
 
@@ -120,7 +125,7 @@ function AuthPageContent() {
               headers: {
                 "Content-Type": "application/json",
               },
-              body: JSON.stringify({ referralCode: referralCode.trim() }),
+              body: JSON.stringify({ referralCode: trimmedRefCode }),
             })
 
             const result = await response.json()
@@ -145,7 +150,7 @@ function AuthPageContent() {
           () => {
             router.push("/dashboard")
           },
-          referralCode.trim() ? 2000 : 500,
+          trimmedRefCode ? 2000 : 500,
         )
       } else {
         const { error: loginError } = await retryWithBackoff(() =>
@@ -190,8 +195,12 @@ function AuthPageContent() {
             <Image src="/logo.png" alt="Oblium Logo" width={64} height={64} className="mx-auto mb-4 drop-shadow-lg" />
             <h1 className="text-3xl font-display font-bold text-primary mb-2">OBLIUM</h1>
             <p className="text-foreground/60">{isSignUp ? t("createAccount") : t("enterMiningNetwork")}</p>
+            {referralCode && isSignUp && (
+              <div className="mt-3 p-3 bg-accent/10 border border-accent/30 rounded-lg">
+                <p className="text-sm text-accent font-bold">🎉 You've been invited! Sign up to earn bonus points!</p>
+              </div>
+            )}
           </div>
-
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -252,12 +261,13 @@ function AuthPageContent() {
                 <input
                   type="text"
                   value={referralCode}
-                  onChange={(e) => setReferralCode(e.target.value)}
-                  placeholder={t("referralCodePlaceholder")}
-                  className="w-full px-4 py-3 bg-background/50 border border-accent/30 rounded-lg text-foreground placeholder:text-foreground/30 focus:outline-none focus:border-accent focus:shadow-lg focus:shadow-accent/20 transition-all duration-300"
+                  onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+                  placeholder="XXXXX"
+                  maxLength={5}
+                  className="w-full px-4 py-3 bg-background/50 border border-accent/30 rounded-lg text-foreground placeholder:text-foreground/30 focus:outline-none focus:border-accent focus:shadow-lg focus:shadow-accent/20 transition-all duration-300 uppercase tracking-wider text-center text-lg font-mono"
                 />
                 <p className="text-xs text-foreground/50 mt-1">
-                  Enter a friend's referral code to earn 500 bonus points!
+                  Enter a friend's 5-character referral code to earn 500 bonus points!
                 </p>
               </div>
             )}
