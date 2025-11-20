@@ -202,6 +202,42 @@ export default function PresalePage() {
           )}
         </div>
 
+        <div className="glass-card p-6 border-2 border-accent/50 animate-fade-in-up bg-gradient-to-r from-accent/10 via-primary/10 to-accent/10">
+          <div className="flex items-start gap-4">
+            <div className="text-5xl animate-pulse">🎁</div>
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-2">
+                <h3 className="font-display font-bold text-xl text-foreground">Limited Time Offer!</h3>
+                <span className="px-3 py-1 bg-accent/20 border border-accent/40 rounded-full text-xs font-bold text-accent">
+                  FIRST 500 USERS
+                </span>
+              </div>
+              <p className="text-foreground/80 text-base mb-3">
+                Purchase any booster above <span className="font-bold text-accent">$20</span> and receive{" "}
+                <span className="font-display font-bold text-2xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                  300 OBLM tokens
+                </span>{" "}
+                for FREE!
+              </p>
+              <div className="flex items-center gap-2 text-sm text-foreground/60">
+                <span className="w-2 h-2 bg-primary rounded-full"></span>
+                <span>Tokens will be awarded on November 24th</span>
+              </div>
+              <div className="mt-3 pt-3 border-t border-border/50">
+                <a
+                  href="/booster"
+                  className="inline-flex items-center gap-2 text-accent hover:text-accent/80 transition-colors font-medium text-sm"
+                >
+                  <span>View Boosters</span>
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Current Balance */}
         <div className="glass-card p-8 text-center animate-fade-in-up stagger-1">
           <div className="text-foreground/60 text-sm mb-2">Your OBLM Token Balance</div>
