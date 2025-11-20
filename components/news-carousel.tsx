@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight } from "lucide-react"
 
 interface NewsItem {
   id: number
@@ -13,39 +13,50 @@ interface NewsItem {
 
 const newsItems: NewsItem[] = [
   {
+    id: 6,
+    title: "New Social Tasks Available!",
+    description:
+      "3 new X/Twitter engagement tasks are now live! Like, comment, and repost the latest posts to earn 1,000 points per task. Complete them all for 3,000 additional points!",
+    date: "2024-11-20",
+    category: "update",
+  },
+  {
     id: 5,
     title: "New Quiz Questions Available!",
-    description: "10 brand new quiz questions are now live! Test your knowledge about Oblium's ecosystem and earn 1,000 points per correct answer. Get all 10 right for a 10,000 point bonus!",
+    description:
+      "10 brand new quiz questions are now live! Test your knowledge about Oblium's ecosystem and earn 1,000 points per correct answer. Get all 10 right for a 10,000 point bonus!",
     date: "2024-11-19",
-    category: "update"
+    category: "update",
   },
   {
     id: 1,
     title: "New Quiz Available!",
     description: "Test your ObliumChain knowledge with 10 new questions! Answer all correctly to earn 20,000 points.",
     date: "2024-11-16",
-    category: "update"
+    category: "update",
   },
   {
     id: 2,
     title: "Presale Coming Soon!",
-    description: "OBLM token presale starts November 21, 2025. Be ready for the launch! Early participants get exclusive bonuses.",
+    description:
+      "OBLM token presale starts November 21, 2025. Be ready for the launch! Early participants get exclusive bonuses.",
     date: "2024-11-15",
-    category: "news"
+    category: "news",
   },
   {
     id: 3,
     title: "New Boosters Available",
     description: "Check out our new multiplier boosters starting at just 0.035 SOL!",
     date: "2024-11-14",
-    category: "update"
+    category: "update",
   },
   {
     id: 4,
     title: "Downtime Apology",
-    description: "We apologize for the recent downtime. Our team has resolved the issues and implemented improvements to prevent future occurrences.",
+    description:
+      "We apologize for the recent downtime. Our team has resolved the issues and implemented improvements to prevent future occurrences.",
     date: "2024-11-13",
-    category: "news"
+    category: "news",
   },
 ]
 
@@ -54,9 +65,7 @@ export function NewsCarousel() {
   const [isAutoPlaying, setIsAutoPlaying] = useState(true)
   const [activeTab, setActiveTab] = useState<"news" | "update" | "all">("all")
 
-  const filteredItems = activeTab === "all" 
-    ? newsItems 
-    : newsItems.filter(item => item.category === activeTab)
+  const filteredItems = activeTab === "all" ? newsItems : newsItems.filter((item) => item.category === activeTab)
 
   useEffect(() => {
     if (!isAutoPlaying || filteredItems.length === 0) return
@@ -97,19 +106,17 @@ export function NewsCarousel() {
     <div className="glass-card p-6">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <h3 className="font-display font-bold text-foreground text-lg">
-            📰 Latest
-          </h3>
+          <h3 className="font-display font-bold text-foreground text-lg">📰 Latest</h3>
           <div className="flex items-center gap-1 bg-foreground/5 rounded-lg p-1">
             <button
               onClick={() => setActiveTab("all")}
               type="button" // Added type button to prevent form submission
               className={`px-3 py-1.5 rounded text-xs font-medium transition-all ${
-                activeTab === "all" 
-                  ? "bg-cyan-500/20 text-cyan-400 shadow-sm" 
+                activeTab === "all"
+                  ? "bg-cyan-500/20 text-cyan-400 shadow-sm"
                   : "text-foreground/60 hover:text-foreground hover:bg-foreground/5"
               }`}
-              style={{ fontFamily: 'Quantico, sans-serif' }}
+              style={{ fontFamily: "Quantico, sans-serif" }}
             >
               All
             </button>
@@ -117,11 +124,11 @@ export function NewsCarousel() {
               onClick={() => setActiveTab("news")}
               type="button" // Added type button
               className={`px-3 py-1.5 rounded text-xs font-medium transition-all ${
-                activeTab === "news" 
-                  ? "bg-purple-500/20 text-purple-400 shadow-sm" 
+                activeTab === "news"
+                  ? "bg-purple-500/20 text-purple-400 shadow-sm"
                   : "text-foreground/60 hover:text-foreground hover:bg-foreground/5"
               }`}
-              style={{ fontFamily: 'Quantico, sans-serif' }}
+              style={{ fontFamily: "Quantico, sans-serif" }}
             >
               News
             </button>
@@ -129,11 +136,11 @@ export function NewsCarousel() {
               onClick={() => setActiveTab("update")}
               type="button" // Added type button
               className={`px-3 py-1.5 rounded text-xs font-medium transition-all ${
-                activeTab === "update" 
-                  ? "bg-cyan-500/20 text-cyan-400 shadow-sm" 
+                activeTab === "update"
+                  ? "bg-cyan-500/20 text-cyan-400 shadow-sm"
                   : "text-foreground/60 hover:text-foreground hover:bg-foreground/5"
               }`}
-              style={{ fontFamily: 'Quantico, sans-serif' }}
+              style={{ fontFamily: "Quantico, sans-serif" }}
             >
               Updates
             </button>
@@ -162,25 +169,21 @@ export function NewsCarousel() {
           className={`bg-gradient-to-br ${categoryColors[currentItem.category]} p-6 rounded-2xl border transition-all duration-500`}
           key={currentItem.id}
         >
-          <h4 className="font-display font-bold text-foreground text-base mb-2">
-            {currentItem.title}
-          </h4>
-          <p className="text-foreground/70 text-sm mb-3">
-            {currentItem.description}
-          </p>
+          <h4 className="font-display font-bold text-foreground text-base mb-2">{currentItem.title}</h4>
+          <p className="text-foreground/70 text-sm mb-3">{currentItem.description}</p>
           <div className="flex items-center justify-between">
             <p className="text-foreground/50 text-xs">
-              {new Date(currentItem.date).toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric'
+              {new Date(currentItem.date).toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
               })}
             </p>
-            <span className={`text-xs font-medium px-2 py-1 rounded ${
-              currentItem.category === "news" 
-                ? "bg-purple-500/20 text-purple-400" 
-                : "bg-cyan-500/20 text-cyan-400"
-            }`}>
+            <span
+              className={`text-xs font-medium px-2 py-1 rounded ${
+                currentItem.category === "news" ? "bg-purple-500/20 text-purple-400" : "bg-cyan-500/20 text-cyan-400"
+              }`}
+            >
               {currentItem.category.toUpperCase()}
             </span>
           </div>
@@ -196,9 +199,7 @@ export function NewsCarousel() {
               setIsAutoPlaying(false)
             }}
             className={`h-1.5 rounded-full transition-all duration-300 ${
-              index === currentIndex
-                ? "w-8 bg-primary"
-                : "w-1.5 bg-foreground/20 hover:bg-foreground/40"
+              index === currentIndex ? "w-8 bg-primary" : "w-1.5 bg-foreground/20 hover:bg-foreground/40"
             }`}
             aria-label={`Go to slide ${index + 1}`}
           />
