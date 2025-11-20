@@ -1,18 +1,18 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Flame, Clock } from 'lucide-react'
+import { Flame, Clock } from "lucide-react"
 
 export function PresaleCountdown() {
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
     hours: 0,
     minutes: 0,
-    seconds: 0
+    seconds: 0,
   })
 
   useEffect(() => {
-    const targetDate = new Date('2025-11-21T00:00:00Z').getTime()
+    const targetDate = new Date("2025-11-21T11:00:00Z").getTime()
 
     const updateCountdown = () => {
       const now = new Date().getTime()
@@ -27,7 +27,7 @@ export function PresaleCountdown() {
         days: Math.floor(distance / (1000 * 60 * 60 * 24)),
         hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
         minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
-        seconds: Math.floor((distance % (1000 * 60)) / 1000)
+        seconds: Math.floor((distance % (1000 * 60)) / 1000),
       })
     }
 
@@ -43,7 +43,7 @@ export function PresaleCountdown() {
         <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/30 to-blue-500/30 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-300" />
         <div className="relative glass-panel-strong p-4 md:p-6 min-w-[80px] md:min-w-[100px] text-center border-2 border-cyan-500/30 rounded-2xl">
           <div className="font-display font-black text-3xl md:text-5xl bg-gradient-to-br from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent animate-pulse">
-            {value.toString().padStart(2, '0')}
+            {value.toString().padStart(2, "0")}
           </div>
         </div>
       </div>
@@ -57,7 +57,7 @@ export function PresaleCountdown() {
     <div className="relative overflow-hidden glass-border-animated rounded-3xl">
       {/* Animated background gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 via-blue-500/5 to-purple-500/5 animate-pulse" />
-      
+
       <div className="relative glass-inner p-6 md:p-8">
         {/* Header with flame icon */}
         <div className="text-center mb-8">
@@ -67,13 +67,13 @@ export function PresaleCountdown() {
               PRESALE COMING SOON
             </span>
           </div>
-          
+
           <h2 className="font-display font-black text-2xl md:text-3xl mb-2 bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
             🔥 OBLM Presale Countdown
           </h2>
           <p className="text-foreground/70 text-sm flex items-center justify-center gap-2">
             <Clock className="w-4 h-4" />
-            Presale starts November 21, 2025
+            Presale starts November 21, 2025 at 11:00 UTC
           </p>
         </div>
 

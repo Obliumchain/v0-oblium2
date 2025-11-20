@@ -1,5 +1,5 @@
 import type React from "react"
-import { Quantico, Inter } from 'next/font/google'
+import { Quantico, Inter } from "next/font/google"
 import "./globals.css"
 import { LanguageProvider } from "@/lib/language-context"
 import { SolanaWalletProvider } from "@/lib/wallet/wallet-provider"
@@ -19,7 +19,8 @@ const inter = Inter({
 
 export const metadata = {
   title: "Oblium - Mine. Earn. Ascend.",
-  description: "Futuristic crypto mining dashboard powered by Solana",
+  description:
+    "Evolving into the AI-powered Oblium Chain — redefining crypto through intelligence, utility, and community", // Updated description
   generator: "v0.app",
   icons: {
     icon: [
