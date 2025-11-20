@@ -382,6 +382,16 @@ export default function DashboardPage() {
         </div>
       )}
 
+      <div className="relative rounded-3xl p-8 bg-gradient-to-br from-green-500/10 via-green-600/5 to-transparent border border-green-500/30 backdrop-blur-sm shadow-xl">
+        <div className="text-center">
+          <div className="text-4xl mb-2">✓</div>
+          <h3 className="font-display font-bold text-green-500 text-2xl mb-2">Referral Fixed!</h3>
+          <p className="text-foreground/80 text-sm">
+            The referral system is now working properly. Share your code and earn rewards!
+          </p>
+        </div>
+      </div>
+
       <div className="relative z-10 max-w-7xl mx-auto px-4 py-8">
         <div className="mb-8 animate-fade-in-up">
           <NewsCarousel />
@@ -511,7 +521,8 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="glass-card p-8 animate-fade-in-up stagger-9">
+        {/* Referral Section */}
+        <div className="relative rounded-3xl p-8 bg-gradient-to-br from-accent/10 via-accent/5 to-transparent border border-accent/30 backdrop-blur-sm shadow-xl">
           <h2 className="font-display font-bold text-accent mb-6" style={{ fontSize: "var(--text-base)" }}>
             {t("referFriends")}
           </h2>
@@ -523,11 +534,10 @@ export default function DashboardPage() {
                 <div className="text-2xl font-display font-bold text-accent">
                   {userProfile?.referral_code || "Loading..."}
                 </div>
-                <div className="text-xs text-foreground/60 mt-2">
-                  {referralCount} {referralCount === 1 ? "friend" : "friends"} referred · Earn 500 points per referral!
-                </div>
+                <div className="text-xs text-foreground/60 mt-2">Earn 500 points per referral!</div>
               </div>
             </div>
+
             <div className="flex flex-col gap-3 w-full md:w-auto">
               <GlowButton onClick={copyReferral} className="w-full md:w-auto" variant="accent">
                 {referralCopied ? `✓ ${t("copied")}` : t("copyCode")}
