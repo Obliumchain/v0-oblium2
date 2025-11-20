@@ -21,12 +21,32 @@ export default function PresalePage() {
   const [usdAmount, setUsdAmount] = useState<string>("7")
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
+  const [solPrice, setSolPrice] = useState<number | null>(null)
   const [presalePool, setPresalePool] = useState<{
     total_tokens: number
     tokens_sold: number
     tokens_remaining: number
     current_price: number
   } | null>(null)
+
+  useEffect(() => {
+    const fetchSolPrice = async () => {
+      try {
+        const response = await fetch("/api/solana-price")
+        const data = await response.json()
+        if (data.price) {
+          setSolPrice(data.price)
+        }
+      } catch (error) {
+        console.error("[v0] Failed to fetch SOL price:", error)
+      }
+    }
+
+    fetchSolPrice()
+    const interval = setInterval(fetchSolPrice, 30000) // Update every 30 seconds
+
+    return () => clearInterval(interval)
+  }, [])
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -44,7 +64,6 @@ export default function PresalePage() {
 
       setUserId(user.id)
 
-      // Load current token balance
       const { data: profile } = await supabase.from("profiles").select("oblm_token_balance").eq("id", user.id).single()
 
       if (profile) {
@@ -71,7 +90,6 @@ export default function PresalePage() {
 
     if (paymentStatus === "success" && tokensReceived) {
       setSuccess(`Successfully purchased ${Number.parseFloat(tokensReceived).toLocaleString()} OBLM tokens!`)
-      // Reload balance and pool
       const supabase = createClient()
       supabase
         .from("profiles")
@@ -97,6 +115,11 @@ export default function PresalePage() {
 
   const calculateTokens = (usd: number): number => {
     return usd / TOKEN_PRICE
+  }
+
+  const calculateSolAmount = (usd: number): number => {
+    if (!solPrice) return 0
+    return usd / solPrice
   }
 
   const handlePurchase = async () => {
@@ -126,7 +149,6 @@ export default function PresalePage() {
     try {
       console.log("[v0] Redirecting to payment app for presale...")
 
-      // Redirect to external payment application
       redirectToPaymentApp({
         userId,
         boosterId: "presale",
@@ -153,6 +175,7 @@ export default function PresalePage() {
   }
 
   const tokensToReceive = calculateTokens(Number.parseFloat(usdAmount) || 0)
+  const solAmount = calculateSolAmount(Number.parseFloat(usdAmount) || 0)
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-[#0a0015] to-background pb-32 lg:pb-8">
@@ -171,6 +194,12 @@ export default function PresalePage() {
           <p className="text-foreground/60 text-lg">
             Get OBLM tokens directly at presale price: ${TOKEN_PRICE} per token
           </p>
+          {solPrice && (
+            <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-success/10 border border-success/30 rounded-full">
+              <span className="w-2 h-2 bg-success rounded-full animate-pulse"></span>
+              <span className="text-success text-sm font-medium">Live SOL Price: ${solPrice.toFixed(2)}</span>
+            </div>
+          )}
         </div>
 
         {/* Current Balance */}
@@ -206,14 +235,22 @@ export default function PresalePage() {
               <p className="text-foreground/50 text-xs mt-1">Enter any amount $7 or more</p>
             </div>
 
-            {/* Simplified calculation display */}
             <div className="p-6 bg-primary/5 border border-primary/20 rounded-lg space-y-3">
               <div className="flex justify-between items-center">
-                <span className="text-foreground/60">You pay:</span>
+                <span className="text-foreground/60">You pay (USD):</span>
                 <span className="font-display font-bold text-foreground text-xl">
                   ${Number.parseFloat(usdAmount || "0").toFixed(2)}
                 </span>
               </div>
+              {solPrice && (
+                <>
+                  <div className="flex justify-between items-center">
+                    <span className="text-foreground/60">You pay (SOL):</span>
+                    <span className="font-display font-bold text-accent text-lg">◎ {solAmount.toFixed(6)} SOL</span>
+                  </div>
+                  <div className="text-xs text-foreground/40 text-right">@ ${solPrice.toFixed(2)} per SOL</div>
+                </>
+              )}
               <div className="h-px bg-border/50"></div>
               <div className="flex justify-between items-center">
                 <span className="text-foreground/60">You receive:</span>
@@ -257,11 +294,11 @@ export default function PresalePage() {
               )}
             </GlowButton>
 
-            {/* Info */}
             <div className="text-center text-xs text-foreground/50 space-y-1">
               <p>Tokens will be added to your profile after successful payment</p>
               <p>Minimum purchase: ${MIN_PURCHASE_USD}</p>
               <p>Presale price: ${TOKEN_PRICE} per OBLM token</p>
+              <p className="text-success/70">✓ SOL price updates every 30 seconds for fair pricing</p>
             </div>
           </div>
         </div>
@@ -280,8 +317,8 @@ export default function PresalePage() {
           </div>
           <div className="glass-card p-6 text-center">
             <div className="text-4xl mb-3">💎</div>
-            <h3 className="font-display font-bold text-foreground mb-2">Presale Price</h3>
-            <p className="text-foreground/60 text-sm">Get tokens at exclusive early price</p>
+            <h3 className="font-display font-bold text-foreground mb-2">Fair Pricing</h3>
+            <p className="text-foreground/60 text-sm">Real-time SOL price ensures fair conversion</p>
           </div>
         </div>
       </div>
