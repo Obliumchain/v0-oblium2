@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { Navigation } from "@/components/navigation"
 import { LiquidCard } from "@/components/ui/liquid-card"
@@ -9,10 +9,10 @@ import { GlowButton } from "@/components/ui/glow-button"
 import { CountdownTimer } from "@/components/ui/countdown-timer"
 import { BackgroundAnimation } from "@/components/background-animation"
 import { ConversionCountdown } from "@/components/conversion-countdown"
-import { NewsCarousel } from "@/components/news-carousel"
-import { PresaleCountdown } from "@/components/presale-countdown"
 import { WalletConnectTile } from "@/components/wallet-connect-tile"
 import { useLanguage } from "@/lib/language-context"
+import { NewsCarousel } from "@/components/news-carousel"
+import { PresaleCountdown } from "@/components/presale-countdown"
 
 interface UserProfile {
   id: string
@@ -142,37 +142,37 @@ export default function DashboardPage() {
 
   useEffect(() => {
     loadUserData()
-    
-    console.log('[v0] Dashboard URL params:', {
-      status: searchParams.get('status'),
-      wallet: searchParams.get('wallet'),
-      error: searchParams.get('error'),
-      allParams: Object.fromEntries(searchParams.entries())
+
+    console.log("[v0] Dashboard URL params:", {
+      status: searchParams.get("status"),
+      wallet: searchParams.get("wallet"),
+      error: searchParams.get("error"),
+      allParams: Object.fromEntries(searchParams.entries()),
     })
-    
-    const paymentStatus = searchParams.get('status')
-    const walletStatus = searchParams.get('wallet')
-    
-    if (walletStatus === 'connected') {
-      console.log('[v0] Wallet connection success detected')
+
+    const paymentStatus = searchParams.get("status")
+    const walletStatus = searchParams.get("wallet")
+
+    if (walletStatus === "connected") {
+      console.log("[v0] Wallet connection success detected")
       setShowWalletNotification(true)
-      
+
       setTimeout(async () => {
         await loadUserData()
         setShowWalletNotification(false)
-        router.replace('/dashboard')
+        router.replace("/dashboard")
       }, 2000)
-    } else if (paymentStatus === 'success') {
-      console.log('[v0] Payment success detected, refreshing booster data in 2 seconds...')
+    } else if (paymentStatus === "success") {
+      console.log("[v0] Payment success detected, refreshing booster data in 2 seconds...")
       setShowPaymentSuccess(true)
-      
+
       setTimeout(async () => {
         await loadUserData()
         setShowPaymentSuccess(false)
-        router.replace('/dashboard')
+        router.replace("/dashboard")
       }, 2000)
-    } else if (paymentStatus === 'failed') {
-      console.log('[v0] Payment failed:', searchParams.get('error'))
+    } else if (paymentStatus === "failed") {
+      console.log("[v0] Payment failed:", searchParams.get("error"))
     }
   }, [loadUserData, searchParams, router])
 
@@ -196,7 +196,16 @@ export default function DashboardPage() {
       let basePoints = 4000
 
       const multiplierBooster = activeBoosters
-        .filter((b) => b.type === "multiplier" || b.type === "combo")
+        .filter((b) => {
+          // Only consider multiplier or combo boosters
+          const isMultiplierType = b.type === "multiplier" || b.type === "combo"
+          // Must have a valid multiplier value greater than 1
+          const hasValidMultiplier = b.multiplier_value && b.multiplier_value > 1
+          // Must not be expired
+          const notExpired = new Date(b.expires_at) > new Date()
+
+          return isMultiplierType && hasValidMultiplier && notExpired
+        })
         .reduce(
           (highest, current) => {
             const currentMultiplier = current.multiplier_value || 1
@@ -206,6 +215,7 @@ export default function DashboardPage() {
           null as ActiveBooster | null,
         )
 
+      // Only apply multiplier if user actually has a valid booster
       if (multiplierBooster && multiplierBooster.multiplier_value) {
         basePoints *= multiplierBooster.multiplier_value
       }
@@ -215,6 +225,7 @@ export default function DashboardPage() {
         multiplier: multiplierBooster?.multiplier_value || 1,
         totalPoints: basePoints,
         boosterName: multiplierBooster?.name || "None",
+        hasActiveBooster: !!multiplierBooster,
       })
 
       const newPoints = userProfile.points + basePoints
@@ -379,10 +390,13 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {/* Total Points */}
           <div className="sm:col-span-2 glass-card p-6 text-center animate-fade-in-up stagger-1 hover:scale-105 transition-transform duration-300">
-            <div className="text-foreground/60 text-sm mb-2 font-display" style={{ fontSize: 'var(--text-sm)' }}>
+            <div className="text-foreground/60 text-sm mb-2 font-display" style={{ fontSize: "var(--text-sm)" }}>
               {t("totalPoints")}
             </div>
-            <div className="font-display font-black text-primary mb-2 animate-float" style={{ fontSize: 'var(--text-xl)' }}>
+            <div
+              className="font-display font-black text-primary mb-2 animate-float"
+              style={{ fontSize: "var(--text-xl)" }}
+            >
               {userProfile?.points.toLocaleString() || 0}
             </div>
             <div className="h-1 bg-gradient-to-r from-primary to-accent rounded-full mt-4" />
@@ -390,38 +404,37 @@ export default function DashboardPage() {
 
           {/* OBLM Tokens */}
           <div className="glass-card p-6 text-center animate-fade-in-up stagger-2 hover:scale-105 transition-transform duration-300">
-            <div className="text-foreground/60 text-sm mb-2 font-display" style={{ fontSize: 'var(--text-sm)' }}>
+            <div className="text-foreground/60 text-sm mb-2 font-display" style={{ fontSize: "var(--text-sm)" }}>
               {t("oblmTokens")}
             </div>
-            <div className="font-display font-bold text-accent animate-float" style={{ fontSize: 'var(--text-xl)' }}>
+            <div className="font-display font-bold text-accent animate-float" style={{ fontSize: "var(--text-xl)" }}>
               {oblm}
             </div>
             <div className="h-1 bg-gradient-to-r from-accent to-primary rounded-full mt-4" />
           </div>
 
           {/* Boosters */}
-          <div className="glass-card p-6 text-center animate-fade-in-up stagger-3 hover:scale-105 transition-transform duration-300 cursor-pointer"
-            onClick={() => router.push('/booster')}
+          <div
+            className="glass-card p-6 text-center animate-fade-in-up stagger-3 hover:scale-105 transition-transform duration-300 cursor-pointer"
+            onClick={() => router.push("/booster")}
           >
-            <div className="text-foreground/60 text-sm mb-2 font-display" style={{ fontSize: 'var(--text-sm)' }}>
+            <div className="text-foreground/60 text-sm mb-2 font-display" style={{ fontSize: "var(--text-sm)" }}>
               Boosters Available
             </div>
-            <div className="font-display font-black text-secondary mb-2" style={{ fontSize: 'var(--text-lg)' }}>
+            <div className="font-display font-black text-secondary mb-2" style={{ fontSize: "var(--text-lg)" }}>
               Starting at
             </div>
-            <div className="font-display font-bold text-primary" style={{ fontSize: 'var(--text-lg)' }}>
+            <div className="font-display font-bold text-primary" style={{ fontSize: "var(--text-lg)" }}>
               0.035 SOL
             </div>
             <div className="h-1 bg-gradient-to-r from-secondary to-primary rounded-full mt-4" />
-            <div className="mt-4 text-xs text-foreground/60">
-              Click to browse all boosters
-            </div>
+            <div className="mt-4 text-xs text-foreground/60">Click to browse all boosters</div>
           </div>
 
           {/* Wallet Connect Tile */}
           <div className="animate-fade-in-up stagger-4">
-            <WalletConnectTile 
-              userId={userProfile?.id || ''} 
+            <WalletConnectTile
+              userId={userProfile?.id || ""}
               walletAddress={userProfile?.wallet_address || null}
               onWalletUpdate={loadUserData}
             />
@@ -430,7 +443,7 @@ export default function DashboardPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           <div className="lg:col-span-2 glass-panel-strong p-8 animate-fade-in-up stagger-5">
-            <h2 className="font-display font-bold text-primary mb-6" style={{ fontSize: 'var(--text-lg)' }}>
+            <h2 className="font-display font-bold text-primary mb-6" style={{ fontSize: "var(--text-lg)" }}>
               {t("miningPanel")}
             </h2>
 
@@ -455,7 +468,7 @@ export default function DashboardPage() {
           </div>
 
           <div className="glass-panel-strong p-8 animate-fade-in-up stagger-6">
-            <h2 className="font-display font-bold text-success mb-6" style={{ fontSize: 'var(--text-base)' }}>
+            <h2 className="font-display font-bold text-success mb-6" style={{ fontSize: "var(--text-base)" }}>
               ⚡ {t("activeBoosters")}
             </h2>
 
@@ -499,7 +512,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="glass-card p-8 animate-fade-in-up stagger-9">
-          <h2 className="font-display font-bold text-accent mb-6" style={{ fontSize: 'var(--text-base)' }}>
+          <h2 className="font-display font-bold text-accent mb-6" style={{ fontSize: "var(--text-base)" }}>
             {t("referFriends")}
           </h2>
           <div className="flex flex-col md:flex-row items-center gap-6">
