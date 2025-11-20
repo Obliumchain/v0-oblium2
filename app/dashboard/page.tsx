@@ -382,16 +382,6 @@ export default function DashboardPage() {
         </div>
       )}
 
-      <div className="relative rounded-3xl p-8 bg-gradient-to-br from-green-500/10 via-green-600/5 to-transparent border border-green-500/30 backdrop-blur-sm shadow-xl">
-        <div className="text-center">
-          <div className="text-4xl mb-2">✓</div>
-          <h3 className="font-display font-bold text-green-500 text-2xl mb-2">Referral Fixed!</h3>
-          <p className="text-foreground/80 text-sm">
-            The referral system is now working properly. Share your code and earn rewards!
-          </p>
-        </div>
-      </div>
-
       <div className="relative z-10 max-w-7xl mx-auto px-4 py-8">
         <div className="mb-8 animate-fade-in-up">
           <NewsCarousel />

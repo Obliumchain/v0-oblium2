@@ -6,7 +6,7 @@ import { Navigation } from "@/components/navigation"
 import { BackgroundAnimation } from "@/components/background-animation"
 import { useLanguage } from "@/lib/language-context"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Crown } from 'lucide-react'
+import { Crown } from "lucide-react"
 
 interface LeaderboardEntry {
   rank: number
@@ -22,12 +22,20 @@ export default function LeaderboardPage() {
   const [isLoading, setIsLoading] = useState(true)
   const { t } = useLanguage()
 
+  const abbreviateNumber = (num: number, isMobile = false): string => {
+    if (!isMobile) return num.toLocaleString()
+
+    return `${Math.ceil(num / 1000)}K`
+  }
+
   useEffect(() => {
     const loadLeaderboard = async () => {
       try {
         const supabase = createClient()
 
-        const { data: { user } } = await supabase.auth.getUser()
+        const {
+          data: { user },
+        } = await supabase.auth.getUser()
         if (user) setCurrentUserId(user.id)
 
         const cachedData = sessionStorage.getItem("leaderboard_cache")
@@ -107,15 +115,16 @@ export default function LeaderboardPage() {
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 py-8">
         <div className="mb-12 text-center animate-fade-in-up">
-          <h1 className="font-display font-bold text-primary mb-2" style={{ fontSize: 'var(--text-xl)' }}>
+          <h1 className="font-display font-bold text-primary mb-2" style={{ fontSize: "var(--text-xl)" }}>
             {t("leaderboardTitle")}
           </h1>
-          <p className="text-foreground/60" style={{ fontSize: 'var(--text-sm)' }}>{t("leaderboardSubtitle")}</p>
+          <p className="text-foreground/60" style={{ fontSize: "var(--text-sm)" }}>
+            {t("leaderboardSubtitle")}
+          </p>
         </div>
 
         {top3.length >= 3 && (
           <div className="mb-12 animate-fade-in-up stagger-1">
-            
             {/* Mobile Pyramid Layout */}
             <div className="md:hidden flex flex-col items-center gap-4 mb-8">
               {/* First Place - Elevated at top center */}
@@ -135,19 +144,21 @@ export default function LeaderboardPage() {
                       <Crown className="w-10 h-10 text-yellow-400 fill-yellow-400 animate-float" />
                     </div>
                   </div>
-                  
-                  <div className={`inline-flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br ${getRankBadgeColor(1)} text-background font-display font-bold mb-3 shadow-lg`}>
+
+                  <div
+                    className={`inline-flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br ${getRankBadgeColor(1)} text-background font-display font-bold mb-3 shadow-lg`}
+                  >
                     1
                   </div>
-                  
-                  <h3 className="font-display font-bold text-primary mb-2" style={{ fontSize: 'var(--text-lg)' }}>
+
+                  <h3 className="font-display font-bold text-primary mb-2" style={{ fontSize: "var(--text-lg)" }}>
                     {top3[0]?.nickname}
                   </h3>
-                  
+
                   <div className="flex items-center justify-center gap-2 text-success">
                     <span className="text-2xl">✨</span>
-                    <span className="font-display font-bold" style={{ fontSize: 'var(--text-lg)' }}>
-                      {top3[0]?.points.toLocaleString()} pts
+                    <span className="font-display font-bold" style={{ fontSize: "var(--text-lg)" }}>
+                      {abbreviateNumber(top3[0]?.points, true)} pts
                     </span>
                   </div>
                 </div>
@@ -169,19 +180,24 @@ export default function LeaderboardPage() {
                         )}
                       </Avatar>
                     </div>
-                    
-                    <div className={`inline-flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br ${getRankBadgeColor(2)} text-background font-display font-bold mb-2`}>
+
+                    <div
+                      className={`inline-flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br ${getRankBadgeColor(2)} text-background font-display font-bold mb-2`}
+                    >
                       2
                     </div>
-                    
-                    <h3 className="font-display font-bold text-foreground mb-1 truncate" style={{ fontSize: 'var(--text-sm)' }}>
+
+                    <h3
+                      className="font-display font-bold text-foreground mb-1 truncate"
+                      style={{ fontSize: "var(--text-sm)" }}
+                    >
                       {top3[1]?.nickname}
                     </h3>
-                    
+
                     <div className="flex flex-col items-center gap-0.5 text-success">
                       <span className="text-base">✨</span>
-                      <span className="font-display font-bold" style={{ fontSize: 'var(--text-xs)' }}>
-                        {top3[1]?.points.toLocaleString()}
+                      <span className="font-display font-bold" style={{ fontSize: "var(--text-xs)" }}>
+                        {abbreviateNumber(top3[1]?.points, true)}
                       </span>
                     </div>
                   </div>
@@ -201,19 +217,24 @@ export default function LeaderboardPage() {
                         )}
                       </Avatar>
                     </div>
-                    
-                    <div className={`inline-flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br ${getRankBadgeColor(3)} text-background font-display font-bold mb-2`}>
+
+                    <div
+                      className={`inline-flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br ${getRankBadgeColor(3)} text-background font-display font-bold mb-2`}
+                    >
                       3
                     </div>
-                    
-                    <h3 className="font-display font-bold text-foreground mb-1 truncate" style={{ fontSize: 'var(--text-sm)' }}>
+
+                    <h3
+                      className="font-display font-bold text-foreground mb-1 truncate"
+                      style={{ fontSize: "var(--text-sm)" }}
+                    >
                       {top3[2]?.nickname}
                     </h3>
-                    
+
                     <div className="flex flex-col items-center gap-0.5 text-success">
                       <span className="text-base">✨</span>
-                      <span className="font-display font-bold" style={{ fontSize: 'var(--text-xs)' }}>
-                        {top3[2]?.points.toLocaleString()}
+                      <span className="font-display font-bold" style={{ fontSize: "var(--text-xs)" }}>
+                        {abbreviateNumber(top3[2]?.points, true)}
                       </span>
                     </div>
                   </div>
@@ -237,18 +258,20 @@ export default function LeaderboardPage() {
                       )}
                     </Avatar>
                   </div>
-                  
-                  <div className={`inline-flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br ${getRankBadgeColor(2)} text-background font-display font-bold mb-2`}>
+
+                  <div
+                    className={`inline-flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br ${getRankBadgeColor(2)} text-background font-display font-bold mb-2`}
+                  >
                     2
                   </div>
-                  
-                  <h3 className="font-display font-bold text-foreground mb-1" style={{ fontSize: 'var(--text-base)' }}>
+
+                  <h3 className="font-display font-bold text-foreground mb-1" style={{ fontSize: "var(--text-base)" }}>
                     {top3[1]?.nickname}
                   </h3>
-                  
+
                   <div className="flex items-center justify-center gap-1 text-success">
                     <span className="text-lg">✨</span>
-                    <span className="font-display font-bold" style={{ fontSize: 'var(--text-base)' }}>
+                    <span className="font-display font-bold" style={{ fontSize: "var(--text-base)" }}>
                       {top3[1]?.points.toLocaleString()} pts
                     </span>
                   </div>
@@ -272,18 +295,20 @@ export default function LeaderboardPage() {
                       <Crown className="w-10 h-10 text-yellow-400 fill-yellow-400 animate-float" />
                     </div>
                   </div>
-                  
-                  <div className={`inline-flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br ${getRankBadgeColor(1)} text-background font-display font-bold mb-3 shadow-lg`}>
+
+                  <div
+                    className={`inline-flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br ${getRankBadgeColor(1)} text-background font-display font-bold mb-3 shadow-lg`}
+                  >
                     1
                   </div>
-                  
-                  <h3 className="font-display font-bold text-primary mb-2" style={{ fontSize: 'var(--text-lg)' }}>
+
+                  <h3 className="font-display font-bold text-primary mb-2" style={{ fontSize: "var(--text-lg)" }}>
                     {top3[0]?.nickname}
                   </h3>
-                  
+
                   <div className="flex items-center justify-center gap-2 text-success">
                     <span className="text-2xl">✨</span>
-                    <span className="font-display font-bold" style={{ fontSize: 'var(--text-lg)' }}>
+                    <span className="font-display font-bold" style={{ fontSize: "var(--text-lg)" }}>
                       {top3[0]?.points.toLocaleString()} pts
                     </span>
                   </div>
@@ -304,18 +329,20 @@ export default function LeaderboardPage() {
                       )}
                     </Avatar>
                   </div>
-                  
-                  <div className={`inline-flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br ${getRankBadgeColor(3)} text-background font-display font-bold mb-2`}>
+
+                  <div
+                    className={`inline-flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br ${getRankBadgeColor(3)} text-background font-display font-bold mb-2`}
+                  >
                     3
                   </div>
-                  
-                  <h3 className="font-display font-bold text-foreground mb-1" style={{ fontSize: 'var(--text-base)' }}>
+
+                  <h3 className="font-display font-bold text-foreground mb-1" style={{ fontSize: "var(--text-base)" }}>
                     {top3[2]?.nickname}
                   </h3>
-                  
+
                   <div className="flex items-center justify-center gap-1 text-success">
                     <span className="text-lg">✨</span>
-                    <span className="font-display font-bold" style={{ fontSize: 'var(--text-base)' }}>
+                    <span className="font-display font-bold" style={{ fontSize: "var(--text-base)" }}>
                       {top3[2]?.points.toLocaleString()} pts
                     </span>
                   </div>
@@ -333,18 +360,21 @@ export default function LeaderboardPage() {
                 <div
                   key={entry.id}
                   className={`glass-card p-4 transition-all duration-300 hover:scale-[1.02] ${
-                    isCurrentUser ? 'border-2 border-success bg-success/5' : ''
+                    isCurrentUser ? "border-2 border-success bg-success/5" : ""
                   }`}
                   style={{ animationDelay: `${(index + 4) * 0.1}s` }}
                 >
                   <div className="flex items-center justify-between gap-4">
                     <div className="flex items-center gap-4 flex-1">
                       <div className="flex-shrink-0 w-12 text-center">
-                        <span className="font-display font-bold text-foreground/60" style={{ fontSize: 'var(--text-base)' }}>
+                        <span
+                          className="font-display font-bold text-foreground/60"
+                          style={{ fontSize: "var(--text-base)" }}
+                        >
                           {entry.rank}
                         </span>
                       </div>
-                      
+
                       <Avatar className="w-12 h-12 border-2 border-foreground/20">
                         {entry.avatar_url ? (
                           <AvatarImage src={entry.avatar_url || "/placeholder.svg"} alt={entry.nickname} />
@@ -354,16 +384,28 @@ export default function LeaderboardPage() {
                           </AvatarFallback>
                         )}
                       </Avatar>
-                      
+
                       <div className="flex-1 min-w-0">
-                        <h4 className="font-display font-bold text-foreground truncate" style={{ fontSize: 'var(--text-base)' }}>
+                        <h4
+                          className="font-display font-bold text-foreground truncate"
+                          style={{ fontSize: "var(--text-base)" }}
+                        >
                           {isCurrentUser ? t("you") || "You" : entry.nickname}
                         </h4>
                       </div>
                     </div>
-                    
+
                     <div className="flex-shrink-0">
-                      <span className={`font-display font-bold ${isCurrentUser ? 'text-success' : 'text-primary'}`} style={{ fontSize: 'var(--text-base)' }}>
+                      <span
+                        className={`font-display font-bold ${isCurrentUser ? "text-success" : "text-primary"} md:hidden`}
+                        style={{ fontSize: "var(--text-base)" }}
+                      >
+                        {abbreviateNumber(entry.points, true)} pts
+                      </span>
+                      <span
+                        className={`font-display font-bold ${isCurrentUser ? "text-success" : "text-primary"} hidden md:inline`}
+                        style={{ fontSize: "var(--text-base)" }}
+                      >
                         {entry.points.toLocaleString()} pts
                       </span>
                     </div>

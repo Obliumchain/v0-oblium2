@@ -13,6 +13,22 @@ interface NewsItem {
 
 const newsItems: NewsItem[] = [
   {
+    id: 8,
+    title: "Referral System Fixed!",
+    description:
+      "Great news! The referral system is now working properly. Share your unique 5-character code with friends and earn 500 points for each successful referral!",
+    date: "2024-11-20",
+    category: "update",
+  },
+  {
+    id: 7,
+    title: "Another X Task Added!",
+    description:
+      "New X/Twitter engagement task is now available! Like, comment, and repost to earn another 1,000 points.",
+    date: "2024-11-20",
+    category: "update",
+  },
+  {
     id: 6,
     title: "New Social Tasks Available!",
     description:
