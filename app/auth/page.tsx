@@ -125,7 +125,10 @@ function AuthPageContent() {
               headers: {
                 "Content-Type": "application/json",
               },
-              body: JSON.stringify({ referralCode: trimmedRefCode }),
+              body: JSON.stringify({
+                referralCode: trimmedRefCode,
+                userId: data.user.id, // Include user ID for new signups
+              }),
             })
 
             const result = await response.json()

@@ -13,14 +13,7 @@ export async function POST(request: NextRequest) {
       data: { user },
     } = await supabase.auth.getUser()
 
-    if (!user) {
-      console.log(`[v0][${errorId}] No authenticated user`)
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
-
-    console.log(`[v0][${errorId}] User authenticated: ${user.id}`)
-
-    const { referralCode } = await request.json()
+    const { referralCode, userId } = await request.json()
 
     if (!referralCode || typeof referralCode !== "string") {
       console.log(`[v0][${errorId}] Invalid referral code format`)
@@ -35,12 +28,41 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid referral code format", errorId }, { status: 400 })
     }
 
+    const targetUserId = userId || user?.id
+
+    if (!targetUserId) {
+      console.log(`[v0][${errorId}] No user ID available`)
+      return NextResponse.json({ error: "User not authenticated", errorId }, { status: 401 })
+    }
+
+    if (userId && !user) {
+      const { data: recentUser } = await supabase
+        .from("profiles")
+        .select("id, created_at")
+        .eq("id", userId)
+        .maybeSingle()
+
+      if (!recentUser) {
+        console.log(`[v0][${errorId}] User profile not found for provided ID`)
+        return NextResponse.json({ error: "Invalid user", errorId }, { status: 400 })
+      }
+
+      const userAge = Date.now() - new Date(recentUser.created_at).getTime()
+      if (userAge > 2 * 60 * 1000) {
+        // 2 minutes
+        console.log(`[v0][${errorId}] User account too old for referral (${userAge}ms)`)
+        return NextResponse.json({ error: "Referral can only be applied during signup", errorId }, { status: 400 })
+      }
+    }
+
+    console.log(`[v0][${errorId}] User authenticated: ${targetUserId}`)
+
     let profileCheckAttempts = 0
     let userProfile = null
-    const maxAttempts = 5 // Increased from 3
+    const maxAttempts = 5
 
     while (profileCheckAttempts < maxAttempts) {
-      const { data } = await supabase.from("profiles").select("id").eq("id", user.id).maybeSingle()
+      const { data } = await supabase.from("profiles").select("id").eq("id", targetUserId).maybeSingle()
 
       if (data) {
         userProfile = data
@@ -52,7 +74,7 @@ export async function POST(request: NextRequest) {
       console.log(`[v0][${errorId}] Profile not found yet, attempt ${profileCheckAttempts}/${maxAttempts}`)
 
       if (profileCheckAttempts < maxAttempts) {
-        await new Promise((resolve) => setTimeout(resolve, 1500)) // Wait 1.5 seconds between attempts
+        await new Promise((resolve) => setTimeout(resolve, 1500))
       }
     }
 
@@ -71,7 +93,7 @@ export async function POST(request: NextRequest) {
     const { data: existingReferral } = await supabase
       .from("referrals")
       .select("id")
-      .eq("referred_user_id", user.id)
+      .eq("referred_user_id", targetUserId)
       .maybeSingle()
 
     if (existingReferral) {
@@ -91,7 +113,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid referral code", errorId }, { status: 400 })
     }
 
-    if (referrerProfile.id === user.id) {
+    if (referrerProfile.id === targetUserId) {
       console.log(`[v0][${errorId}] Self-referral attempt blocked`)
       return NextResponse.json({ error: "You cannot use your own referral code", errorId }, { status: 400 })
     }
@@ -100,7 +122,7 @@ export async function POST(request: NextRequest) {
 
     const { data, error } = await supabase.rpc("process_referral_reward", {
       p_referrer_code: sanitizedCode,
-      p_new_user_id: user.id,
+      p_new_user_id: targetUserId,
     })
 
     if (error) {
