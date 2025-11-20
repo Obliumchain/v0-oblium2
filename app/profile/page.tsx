@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { useRouter } from 'next/navigation'
+import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { Navigation } from "@/components/navigation"
 import { LiquidCard } from "@/components/ui/liquid-card"
@@ -22,6 +22,7 @@ interface UserProfile {
   points: number
   task_completion_bonus_awarded: boolean
   avatar_url?: string
+  oblm_token_balance?: number
 }
 
 interface UserStats {
@@ -80,7 +81,9 @@ export default function ProfilePage() {
 
       const { data: profileData, error: profileError } = await supabase
         .from("profiles")
-        .select("id, nickname, created_at, wallet_address, referral_code, points, task_completion_bonus_awarded, avatar_url")
+        .select(
+          "id, nickname, created_at, wallet_address, referral_code, points, task_completion_bonus_awarded, avatar_url, oblm_token_balance",
+        )
         .eq("id", user.id)
         .single()
 
@@ -103,7 +106,7 @@ export default function ProfilePage() {
       if (profileData) {
         setProfile(profileData as UserProfile)
 
-        const oblTokens = profileData.task_completion_bonus_awarded ? 200 : 0
+        const oblTokens = profileData.oblm_token_balance || 0
 
         const { count: referralCount, error: referralError } = await supabase
           .from("referrals")
@@ -165,17 +168,17 @@ export default function ProfilePage() {
 
   useEffect(() => {
     loadProfile()
-    
+
     const params = new URLSearchParams(window.location.search)
-    const walletStatus = params.get('wallet')
-    
-    if (walletStatus === 'connected') {
-      console.log('[v0] Wallet connection success detected on profile')
+    const walletStatus = params.get("wallet")
+
+    if (walletStatus === "connected") {
+      console.log("[v0] Wallet connection success detected on profile")
       // Trigger a refresh after wallet connection
       setTimeout(() => {
         loadProfile()
         // Clean up URL
-        window.history.replaceState({}, '', '/profile')
+        window.history.replaceState({}, "", "/profile")
       }, 1000)
     }
   }, [loadProfile])
@@ -241,8 +244,12 @@ export default function ProfilePage() {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 pt-24 pb-8 space-y-8">
         <div className="mb-8 animate-fade-in-up">
-          <h1 className="font-display font-bold text-primary mb-2" style={{ fontSize: 'var(--text-xl)' }}>{t("profileTitle")}</h1>
-          <p className="text-foreground/60" style={{ fontSize: 'var(--text-sm)' }}>{t("profileSubtitle")}</p>
+          <h1 className="font-display font-bold text-primary mb-2" style={{ fontSize: "var(--text-xl)" }}>
+            {t("profileTitle")}
+          </h1>
+          <p className="text-foreground/60" style={{ fontSize: "var(--text-sm)" }}>
+            {t("profileSubtitle")}
+          </p>
         </div>
 
         <ConversionCountdown />
@@ -274,10 +281,21 @@ export default function ProfilePage() {
           )}
 
           <GlowButton onClick={handleLogout} className="w-full max-w-xs mx-auto" variant="destructive">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="inline-block mr-2">
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-              <polyline points="16 17 21 12 16 7"/>
-              <line x1="21" x2="9" y1="12" y2="12"/>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="inline-block mr-2"
+            >
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" x2="9" y1="12" y2="12" />
             </svg>
             {t("logout") || "Logout"}
           </GlowButton>
@@ -286,29 +304,49 @@ export default function ProfilePage() {
         {/* Stats Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 animate-fade-in-up stagger-2">
           <div className="glass-card p-6 text-center hover:scale-105 transition-transform duration-300">
-            <div className="text-foreground/60 text-sm mb-2" style={{ fontSize: 'var(--text-sm)' }}>{t("totalPointsLabel")}</div>
-            <div className="font-display font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent" style={{ fontSize: 'var(--text-lg)' }}>
+            <div className="text-foreground/60 text-sm mb-2" style={{ fontSize: "var(--text-sm)" }}>
+              {t("totalPointsLabel")}
+            </div>
+            <div
+              className="font-display font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent"
+              style={{ fontSize: "var(--text-lg)" }}
+            >
               {stats?.totalPoints.toLocaleString() || "0"}
             </div>
           </div>
 
           <div className="glass-card p-6 text-center hover:scale-105 transition-transform duration-300">
-            <div className="text-foreground/60 text-sm mb-2" style={{ fontSize: 'var(--text-sm)' }}>{t("oblmTokensLabel")}</div>
-            <div className="font-display font-bold bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent" style={{ fontSize: 'var(--text-lg)' }}>
+            <div className="text-foreground/60 text-sm mb-2" style={{ fontSize: "var(--text-sm)" }}>
+              {t("oblmTokensLabel")}
+            </div>
+            <div
+              className="font-display font-bold bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent"
+              style={{ fontSize: "var(--text-lg)" }}
+            >
               {stats?.oblTokens || "0"}
             </div>
           </div>
 
           <div className="glass-card p-6 text-center hover:scale-105 transition-transform duration-300">
-            <div className="text-foreground/60 text-sm mb-2" style={{ fontSize: 'var(--text-sm)' }}>{t("referralsLabel")}</div>
-            <div className="font-display font-bold bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent" style={{ fontSize: 'var(--text-lg)' }}>
+            <div className="text-foreground/60 text-sm mb-2" style={{ fontSize: "var(--text-sm)" }}>
+              {t("referralsLabel")}
+            </div>
+            <div
+              className="font-display font-bold bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent"
+              style={{ fontSize: "var(--text-lg)" }}
+            >
               {stats?.referralCount || "0"}
             </div>
           </div>
 
           <div className="glass-card p-6 text-center hover:scale-105 transition-transform duration-300">
-            <div className="text-foreground/60 text-sm mb-2" style={{ fontSize: 'var(--text-sm)' }}>{t("rankLabel")}</div>
-            <div className="font-display font-bold bg-gradient-to-r from-success to-accent bg-clip-text text-transparent" style={{ fontSize: 'var(--text-lg)' }}>
+            <div className="text-foreground/60 text-sm mb-2" style={{ fontSize: "var(--text-sm)" }}>
+              {t("rankLabel")}
+            </div>
+            <div
+              className="font-display font-bold bg-gradient-to-r from-success to-accent bg-clip-text text-transparent"
+              style={{ fontSize: "var(--text-lg)" }}
+            >
               #{stats?.rank || "0"}
             </div>
           </div>
@@ -316,8 +354,8 @@ export default function ProfilePage() {
 
         {/* Wallet Connect Tile */}
         <div className="animate-fade-in-up stagger-5 max-w-md mx-auto">
-          <WalletConnectTile 
-            userId={profile?.id || ''} 
+          <WalletConnectTile
+            userId={profile?.id || ""}
             walletAddress={profile?.wallet_address || null}
             onWalletUpdate={loadProfile}
           />

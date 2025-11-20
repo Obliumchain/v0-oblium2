@@ -23,6 +23,7 @@ interface UserProfile {
   has_auto_claim: boolean
   referral_code: string
   task_completion_bonus_awarded: boolean
+  oblm_token_balance: number
 }
 
 interface ActiveBooster {
@@ -68,7 +69,7 @@ export default function DashboardPage() {
       if (!profile) return
 
       setUserProfile(profile)
-      setOblm(profile.task_completion_bonus_awarded ? 200 : 0)
+      setOblm(profile.oblm_token_balance || 0)
 
       const cachedCount = sessionStorage.getItem(`referral_count_${user.id}`)
       if (cachedCount) {
@@ -232,7 +233,7 @@ export default function DashboardPage() {
       const now = new Date()
 
       setUserProfile({ ...userProfile, points: newPoints })
-      setOblm(userProfile.task_completion_bonus_awarded ? 200 : 0)
+      setOblm(userProfile.oblm_token_balance || 0)
       const fourHoursLater = new Date(now.getTime() + 4 * 60 * 60 * 1000)
       setNextClaim(fourHoursLater)
       setCanClaim(false)
@@ -249,7 +250,7 @@ export default function DashboardPage() {
       if (error) {
         console.error("[v0] Error updating points:", error)
         setUserProfile(userProfile)
-        setOblm(userProfile.task_completion_bonus_awarded ? 200 : 0)
+        setOblm(userProfile.oblm_token_balance || 0)
         setCanClaim(true)
       }
     } catch (error) {
@@ -297,7 +298,7 @@ export default function DashboardPage() {
 
     if (profile) {
       setUserProfile(profile)
-      setOblm(profile.task_completion_bonus_awarded ? 200 : 0)
+      setOblm(profile.oblm_token_balance || 0)
     }
   }
 
