@@ -10,6 +10,63 @@ import { CubeLoader } from "@/components/ui/cube-loader"
 import { redirectToPaymentApp } from "@/lib/payment-redirect"
 import { Clock } from "lucide-react"
 
+const PresaleEndedOverlay = () => {
+  return (
+    <div
+      className="fixed inset-0 z-[9999] bg-background/98 backdrop-blur-2xl flex items-center justify-center p-4"
+      style={{ pointerEvents: "all", touchAction: "none" }}
+    >
+      <div className="max-w-2xl w-full space-y-8 animate-fade-in-up">
+        <div className="text-center space-y-6">
+          <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-full border border-purple-500/30">
+            <span className="text-4xl">⏰</span>
+            <span className="text-purple-400 font-bold text-base md:text-lg font-display uppercase tracking-wider">
+              PRESALE ENDED
+            </span>
+          </div>
+
+          <h1 className="font-display font-black text-4xl md:text-6xl bg-gradient-to-r from-purple-400 via-pink-400 to-rose-400 bg-clip-text text-transparent">
+            Presale V1 Complete
+          </h1>
+
+          <p className="text-foreground/70 text-base md:text-lg font-display">Thank you for your participation!</p>
+        </div>
+
+        <div className="glass-card p-8 md:p-12 border-2 border-purple-500/30">
+          <div className="text-center space-y-6">
+            <div className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-2xl border border-purple-500/20">
+              <span className="text-purple-400 text-5xl">🚀</span>
+              <div className="text-left">
+                <p className="text-lg font-display font-bold text-foreground mb-1">Coming Soon</p>
+                <p className="text-2xl md:text-3xl font-display font-black bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                  Presale V2
+                </p>
+              </div>
+            </div>
+
+            <p className="text-foreground/60 text-base font-display max-w-md mx-auto">
+              The first presale phase has concluded. Stay tuned for announcements about Presale V2 with exciting new
+              opportunities!
+            </p>
+
+            <div className="pt-4">
+              <a
+                href="/dashboard"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-accent rounded-lg font-display font-bold hover:scale-105 transition-transform"
+              >
+                Return to Dashboard
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 const PresaleCountdownOverlay = () => {
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
@@ -17,27 +74,48 @@ const PresaleCountdownOverlay = () => {
     minutes: 0,
     seconds: 0,
   })
-  const [isExpired, setIsExpired] = useState(false)
+  const [isBeforeStart, setIsBeforeStart] = useState(true)
+  const [hasEnded, setHasEnded] = useState(false)
 
   useEffect(() => {
-    const targetDate = new Date("2025-11-21T11:00:00Z").getTime()
+    const startDate = new Date("2025-11-21T11:00:00Z").getTime()
+    const endDate = startDate + 15 * 24 * 60 * 60 * 1000 // 15 days after start
 
     const updateCountdown = () => {
       const now = new Date().getTime()
-      const distance = targetDate - now
 
-      if (distance < 0) {
-        setIsExpired(true)
-        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 })
-        return
+      // Check if presale hasn't started yet
+      if (now < startDate) {
+        const distance = startDate - now
+        setIsBeforeStart(true)
+        setHasEnded(false)
+
+        setTimeLeft({
+          days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+          hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+          minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+          seconds: Math.floor((distance % (1000 * 60)) / 1000),
+        })
       }
+      // Check if presale has ended
+      else if (now >= endDate) {
+        setIsBeforeStart(false)
+        setHasEnded(true)
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 })
+      }
+      // Presale is active - show time remaining
+      else {
+        const distance = endDate - now
+        setIsBeforeStart(false)
+        setHasEnded(false)
 
-      setTimeLeft({
-        days: Math.floor(distance / (1000 * 60 * 60 * 24)),
-        hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-        minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
-        seconds: Math.floor((distance % (1000 * 60)) / 1000),
-      })
+        setTimeLeft({
+          days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+          hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+          minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+          seconds: Math.floor((distance % (1000 * 60)) / 1000),
+        })
+      }
     }
 
     updateCountdown()
@@ -46,7 +124,15 @@ const PresaleCountdownOverlay = () => {
     return () => clearInterval(interval)
   }, [])
 
-  if (isExpired) return null
+  // Show ended overlay if presale has concluded
+  if (hasEnded) {
+    return <PresaleEndedOverlay />
+  }
+
+  // Don't show overlay if presale is active
+  if (!isBeforeStart) {
+    return null
+  }
 
   const TimeUnit = ({ value, label }: { value: number; label: string }) => (
     <div className="flex flex-col items-center">
@@ -108,6 +194,86 @@ const PresaleCountdownOverlay = () => {
               The presale will be accessible once the countdown reaches zero
             </p>
           </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const PresaleTimer = () => {
+  const [timeLeft, setTimeLeft] = useState({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+  })
+
+  useEffect(() => {
+    const startDate = new Date("2025-11-21T11:00:00Z").getTime()
+    const endDate = startDate + 15 * 24 * 60 * 60 * 1000 // 15 days after start
+
+    const updateCountdown = () => {
+      const now = new Date().getTime()
+      const distance = now >= startDate ? endDate - now : startDate - now
+
+      if (distance < 0) {
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 })
+        return
+      }
+
+      setTimeLeft({
+        days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+        minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+        seconds: Math.floor((distance % (1000 * 60)) / 1000),
+      })
+    }
+
+    updateCountdown()
+    const interval = setInterval(updateCountdown, 1000)
+
+    return () => clearInterval(interval)
+  }, [])
+
+  const TimeUnit = ({ value, label }: { value: number; label: string }) => (
+    <div className="flex flex-col items-center">
+      <div className="relative">
+        <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/30 to-blue-500/30 rounded-2xl blur-xl" />
+        <div className="relative glass-panel-strong p-4 md:p-8 min-w-[80px] md:min-w-[120px] text-center border-2 border-cyan-500/30 rounded-2xl">
+          <div className="font-display font-black text-3xl md:text-6xl bg-gradient-to-br from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent animate-pulse">
+            {value.toString().padStart(2, "0")}
+          </div>
+        </div>
+      </div>
+      <div className="text-xs md:text-base text-foreground/60 uppercase tracking-widest font-display mt-3 font-bold">
+        {label}
+      </div>
+    </div>
+  )
+
+  return (
+    <div className="max-w-4xl mx-auto px-4 pt-24 pb-4">
+      <div className="glass-card p-8 md:p-12 border-2 border-cyan-500/30">
+        <div className="flex justify-center gap-4 md:gap-8 mb-8">
+          <TimeUnit value={timeLeft.days} label="Days" />
+          <TimeUnit value={timeLeft.hours} label="Hours" />
+          <TimeUnit value={timeLeft.minutes} label="Mins" />
+          <TimeUnit value={timeLeft.seconds} label="Secs" />
+        </div>
+
+        <div className="text-center space-y-4">
+          <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 rounded-full border border-cyan-500/20">
+            <span className="text-cyan-400 text-xl">⚡</span>
+            <p className="text-sm md:text-base text-foreground/70 font-medium font-display">
+              {timeLeft.days > 0 ? "Presale is active" : "Presale starts soon"}
+            </p>
+          </div>
+
+          {timeLeft.days > 0 ? (
+            <p className="text-foreground/50 text-sm font-display">Time remaining until Presale V2 starts</p>
+          ) : (
+            <p className="text-foreground/50 text-sm font-display">Presale starts November 21, 2025 at 11:00 UTC</p>
+          )}
         </div>
       </div>
     </div>
@@ -289,7 +455,11 @@ export default function PresalePage() {
 
       <PresaleCountdownOverlay />
 
-      <div className="max-w-4xl mx-auto px-4 pt-24 pb-8 space-y-8">
+      <div className="max-w-4xl mx-auto px-4 pt-24 pb-4">
+        <PresaleTimer />
+      </div>
+
+      <div className="max-w-4xl mx-auto px-4 pb-8 space-y-8">
         {/* Header */}
         <div className="text-center mb-12 animate-fade-in-up">
           <div className="inline-block mb-4 px-4 py-2 bg-gradient-to-r from-primary/20 to-accent/20 border border-primary/30 rounded-full">
