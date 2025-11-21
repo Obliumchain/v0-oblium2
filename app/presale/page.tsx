@@ -375,6 +375,40 @@ export default function PresalePage() {
           </div>
         </div>
 
+        {/* TGE Unlock Information Banner */}
+        <div className="glass-card p-6 border-2 border-success/50 shadow-[0_0_20px_rgba(34,197,94,0.2)] animate-fade-in-up stagger-1 bg-gradient-to-br from-success/5 via-emerald-500/5 to-background">
+          <div className="flex items-center gap-4">
+            <div className="flex-shrink-0">
+              <div className="relative">
+                <div className="absolute inset-0 bg-success/30 rounded-full blur-lg"></div>
+                <div className="relative w-16 h-16 bg-gradient-to-br from-success to-emerald-600 rounded-full flex items-center justify-center">
+                  <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"
+                    />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-2">
+                <h3 className="font-display font-bold text-xl text-foreground">100% Unlocked at TGE</h3>
+                <span className="px-3 py-1 bg-success/20 border border-success/40 rounded-full text-xs font-bold text-success">
+                  NO VESTING
+                </span>
+              </div>
+              <p className="text-foreground/70 text-sm leading-relaxed">
+                All presale tokens are immediately accessible at Token Generation Event. No lock-up period, no vesting
+                schedule – your tokens, your control from day one.
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Current Balance */}
         <div className="glass-card p-8 text-center animate-fade-in-up stagger-1">
           <div className="text-foreground/60 text-sm mb-2">Your OBLM Token Balance</div>
