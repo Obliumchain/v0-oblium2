@@ -54,7 +54,7 @@ export function PresaleTimer() {
             </div>
           </div>
           <div>
-            <h3 className="font-display font-bold text-lg text-foreground">Presale Ends In</h3>
+            <h3 className="font-display font-bold text-lg text-foreground">Time remaining until Presale V1 ends</h3>
             <p className="text-foreground/60 text-sm">Limited time to participate</p>
           </div>
         </div>
