@@ -202,6 +202,7 @@ export default function PresalePage() {
           )}
         </div>
 
+        {/* Early Bird Bonus Card */}
         <div className="glass-card p-8 border-2 border-accent/50 shadow-[0_0_30px_rgba(0,240,255,0.3)] animate-fade-in-up bg-gradient-to-br from-accent/5 via-primary/5 to-background">
           <div className="flex flex-col md:flex-row items-center gap-6">
             <div className="flex-shrink-0">
@@ -216,7 +217,7 @@ export default function PresalePage() {
             <div className="flex-1 text-center md:text-left space-y-4">
               <div className="space-y-2">
                 <div className="flex flex-col md:flex-row items-center justify-center md:justify-start gap-3">
-                  <h3 className="font-display font-bold text-2xl md:text-3xl text-foreground">🎉 Early Bird Bonus</h3>
+                  <h3 className="font-display font-bold text-2xl md:text-3xl text-foreground">Early Bird Bonus</h3>
                   <span className="px-4 py-1.5 bg-gradient-to-r from-accent to-primary border-2 border-accent/60 rounded-full text-sm font-bold text-background shadow-lg">
                     FIRST 500 USERS ONLY
                   </span>
@@ -261,7 +262,7 @@ export default function PresalePage() {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-3 w-3 bg-accent"></span>
                 </span>
-                <span className="text-accent font-medium">Limited spots remaining • Act fast!</span>
+                <span className="text-accent font-display font-medium">Limited spots remaining</span>
               </div>
             </div>
           </div>
