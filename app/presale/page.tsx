@@ -202,37 +202,66 @@ export default function PresalePage() {
           )}
         </div>
 
-        <div className="glass-card p-6 border-2 border-accent/50 animate-fade-in-up bg-gradient-to-r from-accent/10 via-primary/10 to-accent/10">
-          <div className="flex items-start gap-4">
-            <div className="text-5xl animate-pulse">🎁</div>
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2">
-                <h3 className="font-display font-bold text-xl text-foreground">Limited Time Offer!</h3>
-                <span className="px-3 py-1 bg-accent/20 border border-accent/40 rounded-full text-xs font-bold text-accent">
-                  FIRST 500 USERS
-                </span>
+        <div className="glass-card p-8 border-2 border-accent/50 shadow-[0_0_30px_rgba(0,240,255,0.3)] animate-fade-in-up bg-gradient-to-br from-accent/5 via-primary/5 to-background">
+          <div className="flex flex-col md:flex-row items-center gap-6">
+            <div className="flex-shrink-0">
+              <div className="relative">
+                <div className="absolute inset-0 bg-accent/20 rounded-2xl blur-xl animate-pulse"></div>
+                <div className="relative w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-accent to-primary rounded-2xl flex items-center justify-center">
+                  <span className="text-4xl md:text-5xl">🎁</span>
+                </div>
               </div>
-              <p className="text-foreground/80 text-base mb-3">
-                Purchase any booster above <span className="font-bold text-accent">$20</span> and receive{" "}
-                <span className="font-display font-bold text-2xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                  300 OBLM tokens
-                </span>{" "}
-                for FREE!
-              </p>
-              <div className="flex items-center gap-2 text-sm text-foreground/60">
-                <span className="w-2 h-2 bg-primary rounded-full"></span>
-                <span>Tokens will be awarded on November 24th</span>
+            </div>
+
+            <div className="flex-1 text-center md:text-left space-y-4">
+              <div className="space-y-2">
+                <div className="flex flex-col md:flex-row items-center justify-center md:justify-start gap-3">
+                  <h3 className="font-display font-bold text-2xl md:text-3xl text-foreground">🎉 Early Bird Bonus</h3>
+                  <span className="px-4 py-1.5 bg-gradient-to-r from-accent to-primary border-2 border-accent/60 rounded-full text-sm font-bold text-background shadow-lg">
+                    FIRST 500 USERS ONLY
+                  </span>
+                </div>
               </div>
-              <div className="mt-3 pt-3 border-t border-border/50">
-                <a
-                  href="/booster"
-                  className="inline-flex items-center gap-2 text-accent hover:text-accent/80 transition-colors font-medium text-sm"
-                >
-                  <span>View Boosters</span>
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+
+              <div className="space-y-3">
+                <p className="text-foreground/90 text-lg leading-relaxed">
+                  Purchase <span className="font-bold text-accent text-xl">$20+</span> worth of OBLM tokens in the
+                  presale and receive an additional
+                </p>
+                <div className="inline-block px-6 py-3 bg-gradient-to-r from-accent/20 to-primary/20 border border-accent/40 rounded-xl">
+                  <span className="font-display font-black text-3xl md:text-4xl bg-gradient-to-r from-accent via-primary to-accent bg-clip-text text-transparent animate-shimmer">
+                    300 OBLM
+                  </span>
+                  <span className="text-foreground/80 text-lg ml-2">TOKENS FREE!</span>
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-3 pt-2">
+                <div className="flex items-center gap-2 text-sm text-foreground/70 bg-background/30 px-4 py-2 rounded-lg border border-border/30">
+                  <svg className="w-5 h-5 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                </a>
+                  <span>Only first 500 participants qualify</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-foreground/70 bg-background/30 px-4 py-2 rounded-lg border border-border/30">
+                  <svg className="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                  <span>Bonus awarded November 24th</span>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-center md:justify-start gap-2 text-sm">
+                <span className="relative flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-accent"></span>
+                </span>
+                <span className="text-accent font-medium">Limited spots remaining • Act fast!</span>
               </div>
             </div>
           </div>
