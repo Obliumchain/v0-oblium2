@@ -13,6 +13,14 @@ interface NewsItem {
 
 const newsItems: NewsItem[] = [
   {
+    id: 9,
+    title: "Presale is LIVE! Special 3000 Point Task!",
+    description:
+      "The OBLM presale has officially launched! Complete the new presale announcement task on X/Twitter to earn a special 3000 point reward - our highest task reward yet!",
+    date: "2024-11-21",
+    category: "news",
+  },
+  {
     id: 8,
     title: "Referral System Fixed!",
     description:
