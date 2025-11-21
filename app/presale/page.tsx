@@ -8,6 +8,111 @@ import { BackgroundAnimation } from "@/components/background-animation"
 import { GlowButton } from "@/components/ui/glow-button"
 import { CubeLoader } from "@/components/ui/cube-loader"
 import { redirectToPaymentApp } from "@/lib/payment-redirect"
+import { Clock } from "lucide-react"
+
+const PresaleCountdownOverlay = () => {
+  const [timeLeft, setTimeLeft] = useState({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+  })
+  const [isExpired, setIsExpired] = useState(false)
+
+  useEffect(() => {
+    const targetDate = new Date("2025-11-21T11:00:00Z").getTime()
+
+    const updateCountdown = () => {
+      const now = new Date().getTime()
+      const distance = targetDate - now
+
+      if (distance < 0) {
+        setIsExpired(true)
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 })
+        return
+      }
+
+      setTimeLeft({
+        days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+        minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+        seconds: Math.floor((distance % (1000 * 60)) / 1000),
+      })
+    }
+
+    updateCountdown()
+    const interval = setInterval(updateCountdown, 1000)
+
+    return () => clearInterval(interval)
+  }, [])
+
+  if (isExpired) return null
+
+  const TimeUnit = ({ value, label }: { value: number; label: string }) => (
+    <div className="flex flex-col items-center">
+      <div className="relative">
+        <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/30 to-blue-500/30 rounded-2xl blur-xl" />
+        <div className="relative glass-panel-strong p-4 md:p-8 min-w-[80px] md:min-w-[120px] text-center border-2 border-cyan-500/30 rounded-2xl">
+          <div className="font-display font-black text-3xl md:text-6xl bg-gradient-to-br from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent animate-pulse">
+            {value.toString().padStart(2, "0")}
+          </div>
+        </div>
+      </div>
+      <div className="text-xs md:text-base text-foreground/60 uppercase tracking-widest font-display mt-3 font-bold">
+        {label}
+      </div>
+    </div>
+  )
+
+  return (
+    <div
+      className="fixed inset-0 z-[9999] bg-background/98 backdrop-blur-2xl flex items-center justify-center p-4"
+      style={{ pointerEvents: "all", touchAction: "none" }}
+    >
+      <div className="max-w-3xl w-full space-y-8 animate-fade-in-up">
+        <div className="text-center space-y-6">
+          <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-orange-500/20 to-red-500/20 rounded-full border border-orange-500/30">
+            <span className="text-4xl animate-pulse">🔥</span>
+            <span className="text-orange-400 font-bold text-base md:text-lg font-display uppercase tracking-wider">
+              PRESALE COMING SOON
+            </span>
+          </div>
+
+          <h1 className="font-display font-black text-4xl md:text-6xl bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
+            OBLM Presale Countdown
+          </h1>
+
+          <p className="text-foreground/70 text-base md:text-lg flex items-center justify-center gap-2 font-display">
+            <Clock className="w-5 h-5" />
+            Presale starts November 21, 2025 at 11:00 UTC
+          </p>
+        </div>
+
+        <div className="glass-card p-8 md:p-12 border-2 border-cyan-500/30">
+          <div className="flex justify-center gap-4 md:gap-8 mb-8">
+            <TimeUnit value={timeLeft.days} label="Days" />
+            <TimeUnit value={timeLeft.hours} label="Hours" />
+            <TimeUnit value={timeLeft.minutes} label="Mins" />
+            <TimeUnit value={timeLeft.seconds} label="Secs" />
+          </div>
+
+          <div className="text-center space-y-4">
+            <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 rounded-full border border-cyan-500/20">
+              <span className="text-cyan-400 text-xl">⚡</span>
+              <p className="text-sm md:text-base text-foreground/70 font-medium font-display">
+                Be ready for launch! Early participants get exclusive bonuses.
+              </p>
+            </div>
+
+            <p className="text-foreground/50 text-sm font-display">
+              The presale will be accessible once the countdown reaches zero
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 const TOKEN_PRICE = 0.02 // $0.02 per OBLM token
 const MIN_PURCHASE_USD = 7 // $7 minimum
@@ -181,6 +286,8 @@ export default function PresalePage() {
     <div className="min-h-screen bg-gradient-to-br from-background via-[#0a0015] to-background pb-32 lg:pb-8">
       <BackgroundAnimation />
       <Navigation />
+
+      <PresaleCountdownOverlay />
 
       <div className="max-w-4xl mx-auto px-4 pt-24 pb-8 space-y-8">
         {/* Header */}

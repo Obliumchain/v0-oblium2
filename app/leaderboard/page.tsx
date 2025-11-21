@@ -23,9 +23,7 @@ export default function LeaderboardPage() {
   const { t } = useLanguage()
 
   const abbreviateNumber = (num: number, isMobile = false): string => {
-    if (!isMobile) return num.toLocaleString()
-
-    return `${Math.ceil(num / 1000)}K`
+    return num.toLocaleString()
   }
 
   useEffect(() => {
@@ -397,13 +395,7 @@ export default function LeaderboardPage() {
 
                     <div className="flex-shrink-0">
                       <span
-                        className={`font-display font-bold ${isCurrentUser ? "text-success" : "text-primary"} md:hidden`}
-                        style={{ fontSize: "var(--text-base)" }}
-                      >
-                        {abbreviateNumber(entry.points, true)} pts
-                      </span>
-                      <span
-                        className={`font-display font-bold ${isCurrentUser ? "text-success" : "text-primary"} hidden md:inline`}
+                        className={`font-display font-bold ${isCurrentUser ? "text-success" : "text-primary"}`}
                         style={{ fontSize: "var(--text-base)" }}
                       >
                         {entry.points.toLocaleString()} pts
