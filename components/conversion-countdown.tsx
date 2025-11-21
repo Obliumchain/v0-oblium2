@@ -65,6 +65,14 @@ export function ConversionCountdown() {
       <div className="text-center mb-4">
         <h3 className="text-lg font-display font-bold text-primary mb-1">Next Token Conversion</h3>
         <p className="text-xs text-foreground/60">December 9, 2025</p>
+        <div className="mt-3 space-y-2">
+          <div className="inline-block px-4 py-2 bg-accent/10 border border-accent/30 rounded-lg">
+            <p className="text-sm font-bold text-accent">10,000 Points = 250 OBLM</p>
+          </div>
+          <div className="text-xs text-orange-400 font-semibold bg-orange-500/10 px-3 py-1 rounded-lg border border-orange-500/30 inline-block">
+            ⚠️ Minimum 500 OBLM balance required to convert
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-4 gap-3">

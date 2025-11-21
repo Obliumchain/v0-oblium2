@@ -387,6 +387,19 @@ export default function ProfilePage() {
         <div className="glass-card p-8 animate-fade-in-up stagger-4">
           <h3 className="text-xl font-display font-bold text-success mb-6">{t("conversionHistoryTitle")}</h3>
 
+          <div className="mb-6 p-4 bg-accent/5 border border-accent/20 rounded-lg">
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <div>
+                <p className="text-sm font-semibold text-foreground/80 mb-1">Conversion Rate</p>
+                <p className="text-lg font-bold text-accent">10,000 Points = 250 OBLM</p>
+              </div>
+              <div className="text-right">
+                <p className="text-xs text-orange-400 font-semibold">⚠️ Minimum Balance Required</p>
+                <p className="text-sm font-bold text-orange-400">500 OBLM tokens</p>
+              </div>
+            </div>
+          </div>
+
           {conversions.length === 0 ? (
             <div className="text-center py-8 text-foreground/60">
               <p>{t("noConversionsYet")}</p>
