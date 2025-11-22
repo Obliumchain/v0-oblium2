@@ -395,7 +395,7 @@ export default function ProfilePage() {
               </div>
               <div className="text-right">
                 <p className="text-xs text-orange-400 font-semibold">⚠️ Minimum Balance Required</p>
-                <p className="text-sm font-bold text-orange-400">500 OBLM tokens</p>
+                <p className="text-sm font-bold text-orange-400">350 OBLM tokens</p>
               </div>
             </div>
           </div>
