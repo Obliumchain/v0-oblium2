@@ -281,7 +281,7 @@ const PresaleTimer = () => {
 }
 
 const TOKEN_PRICE = 0.02 // $0.02 per OBLM token
-const MIN_PURCHASE_USD = 4 // $4 minimum
+const MIN_PURCHASE_USD = 2 // $2 minimum
 
 export default function PresalePage() {
   const router = useRouter()
@@ -289,7 +289,7 @@ export default function PresalePage() {
   const [isPurchasing, setIsPurchasing] = useState(false)
   const [userId, setUserId] = useState<string | null>(null)
   const [tokenBalance, setTokenBalance] = useState<number>(0)
-  const [usdAmount, setUsdAmount] = useState<string>("4")
+  const [usdAmount, setUsdAmount] = useState<string>("2")
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [solPrice, setSolPrice] = useState<number | null>(null)
@@ -609,7 +609,7 @@ export default function PresalePage() {
                   placeholder={`${MIN_PURCHASE_USD}.00`}
                 />
               </div>
-              <p className="text-foreground/50 text-xs mt-1">Enter any amount $4 or more</p>
+              <p className="text-foreground/50 text-xs mt-1">Enter any amount $2 or more</p>
             </div>
 
             <div className="p-6 bg-primary/5 border border-primary/20 rounded-lg space-y-3">

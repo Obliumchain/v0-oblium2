@@ -1,12 +1,12 @@
-'use client'
+"use client"
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
-import { LiquidCard } from '@/components/ui/liquid-card'
-import { Navigation } from '@/components/navigation'
-import { Button } from '@/components/ui/button'
-import { CheckCircle2, XCircle, Award, Brain } from 'lucide-react'
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
+import { createClient } from "@/lib/supabase/client"
+import { LiquidCard } from "@/components/ui/liquid-card"
+import { Navigation } from "@/components/navigation"
+import { Button } from "@/components/ui/button"
+import { CheckCircle2, XCircle, Award, Brain } from "lucide-react"
 
 interface Question {
   id: number
@@ -16,129 +16,130 @@ interface Question {
   explanation: string
 }
 
-const CURRENT_QUIZ_VERSION = 3
+const CURRENT_QUIZ_VERSION = 4
 
 const questions: Question[] = [
   {
-    id: 31,
-    question: "What is the main purpose of Oblium's booster system?",
+    id: 41,
+    question: "What is the purpose of the Oblium referral system?",
     options: [
-      { label: "A", text: "To slow down point accumulation" },
-      { label: "B", text: "To help users multiply their points and gain higher token allocation" },
-      { label: "C", text: "To remove points from inactive users" },
-      { label: "D", text: "To limit new users" }
-    ],
-    correctAnswer: "B",
-    explanation: "Boosters give users an advantage by accelerating point growth, increasing their token allocation during conversion."
-  },
-  {
-    id: 32,
-    question: "What does the Oblium whitepaper provide?",
-    options: [
-      { label: "A", text: "A full breakdown of the project's vision, tokenomics, utilities, and roadmap" },
-      { label: "B", text: "Only memes" },
-      { label: "C", text: "Only the team members' birthdays" },
-      { label: "D", text: "A list of random crypto facts" }
+      { label: "A", text: "To reward users for bringing in new, active community members" },
+      { label: "B", text: "To punish inactive users" },
+      { label: "C", text: "To limit access to the platform" },
+      { label: "D", text: "To reduce user rewards" },
     ],
     correctAnswer: "A",
-    explanation: "The whitepaper is the foundation of the project, detailing everything from technology to governance."
+    explanation:
+      "The referral system helps Oblium grow organically by rewarding users who invite real, engaged participants.",
   },
   {
-    id: 33,
-    question: "What is the purpose of the Oblium Ambassador Program?",
+    id: 42,
+    question: "What does the Oblium Task Hub focus on?",
     options: [
-      { label: "A", text: "To empower community leaders to educate, promote, and support global adoption" },
-      { label: "B", text: "To restrict information" },
-      { label: "C", text: "To remove users from the platform" },
-      { label: "D", text: "To only reward influencers" }
+      { label: "A", text: "Educative missions, community activities, and transparent engagement" },
+      { label: "B", text: "Selling random NFTs" },
+      { label: "C", text: "Only gaming tasks" },
+      { label: "D", text: "Hiding important activities" },
     ],
     correctAnswer: "A",
-    explanation: "Ambassadors act as educators and representatives, helping Oblium grow across regions and communities."
+    explanation: "The Task Hub keeps users actively involved through meaningful, verifiable tasks.",
   },
   {
-    id: 34,
-    question: "What does \"community-first development\" mean for Oblium?",
+    id: 43,
+    question: "What happens when a user reaches a higher XP level?",
     options: [
-      { label: "A", text: "The team makes decisions based on community feedback and transparency" },
-      { label: "B", text: "Only developers decide everything" },
-      { label: "C", text: "No one is allowed to give feedback" },
-      { label: "D", text: "Updates are kept secret" }
+      { label: "A", text: "They gain more credibility, access to higher rewards, and better opportunities" },
+      { label: "B", text: "They lose their account" },
+      { label: "C", text: "Their rewards decrease" },
+      { label: "D", text: "Nothing changes" },
     ],
     correctAnswer: "A",
-    explanation: "Oblium ensures users are part of the growth process through open discussions and DAO-driven decisions."
+    explanation: "Higher XP reflects commitment and unlocks additional benefits within the ecosystem.",
   },
   {
-    id: 35,
-    question: "What is the Oblium Mainnet designed to achieve?",
+    id: 44,
+    question: "How does the Oblium presale benefit early supporters?",
     options: [
-      { label: "A", text: "High scalability, low fees, and transparent operations" },
-      { label: "B", text: "Slow transactions" },
-      { label: "C", text: "High gas fees" },
-      { label: "D", text: "Limited accessibility" }
+      { label: "A", text: "Early supporters gain allocation priority, lower entry prices, and bonus incentives" },
+      { label: "B", text: "They lose their tokens" },
+      { label: "C", text: "They get no advantages" },
+      { label: "D", text: "They only receive dust tokens" },
     ],
     correctAnswer: "A",
-    explanation: "The Mainnet aims to provide a fast, efficient, and open ecosystem for users and developers."
+    explanation: "Presales reward early believers with better pricing and long-term advantages.",
   },
   {
-    id: 36,
-    question: "Why is transparency important in the Oblium ecosystem?",
+    id: 45,
+    question: "What makes Oblium different from typical meme or hype tokens?",
     options: [
-      { label: "A", text: "It builds trust and shows users every decision made" },
-      { label: "B", text: "It hides team mistakes" },
-      { label: "C", text: "It is only for marketing" },
-      { label: "D", text: "It reduces user participation" }
+      { label: "A", text: "Its focus on transparency, education, real utility, and community-based growth" },
+      { label: "B", text: "It relies only on hype" },
+      { label: "C", text: "It has no use cases" },
+      { label: "D", text: "It hides important data" },
     ],
     correctAnswer: "A",
-    explanation: "Transparency allows the community to verify updates, ensuring accountability and trust."
+    explanation: "Oblium is built on authenticity and value, not temporary hype.",
   },
   {
-    id: 37,
-    question: "How can new users start earning on Oblium?",
+    id: 46,
+    question: "What is one of the key responsibilities of an Oblium Ambassador?",
     options: [
-      { label: "A", text: "By completing tasks, quizzes, referrals, and using boosters" },
-      { label: "B", text: "By waiting for a giveaway" },
-      { label: "C", text: "By hacking the system" },
-      { label: "D", text: "By doing nothing" }
+      { label: "A", text: "Educating their region about Web3 and Oblium's mission" },
+      { label: "B", text: "Removing users from the platform" },
+      { label: "C", text: "Controlling token prices" },
+      { label: "D", text: "Hiding updates" },
     ],
     correctAnswer: "A",
-    explanation: "Tasks and learning modules give every user a fair chance to earn, regardless of experience."
+    explanation: "Ambassadors are educators and community builders, helping spread accurate information globally.",
   },
   {
-    id: 38,
-    question: "What is the meaning of \"community verification\" in Oblium?",
+    id: 47,
+    question: 'What is the goal of Oblium\'s "Learn & Earn" model?',
     options: [
-      { label: "A", text: "Users help confirm tasks, content, and activities to prevent fraud" },
-      { label: "B", text: "Only admins verify everything" },
-      { label: "C", text: "Verification doesn't exist" },
-      { label: "D", text: "It is used to delete user accounts" }
+      { label: "A", text: "To reward users for improving their Web3 knowledge" },
+      { label: "B", text: "To distract users" },
+      { label: "C", text: "To make learning more difficult" },
+      { label: "D", text: "To reduce platform activity" },
     ],
     correctAnswer: "A",
-    explanation: "Community verification strengthens trust by ensuring that submitted activities are authentic."
+    explanation: "Users gain tokens and XP by learning, making education both fun and profitable.",
   },
   {
-    id: 39,
-    question: "What does XP represent in the Oblium platform?",
+    id: 48,
+    question: "How does Oblium ensure fairness during token conversion?",
     options: [
-      { label: "A", text: "Experience points showing user engagement and credibility" },
-      { label: "B", text: "A new token" },
-      { label: "C", text: "A penalty system" },
-      { label: "D", text: "Data used only for marketing" }
+      { label: "A", text: "Through a points-based system where higher contributors receive higher allocations" },
+      { label: "B", text: "Random selection" },
+      { label: "C", text: "Hidden calculations" },
+      { label: "D", text: "Team-only distribution" },
     ],
     correctAnswer: "A",
-    explanation: "XP reflects how active and committed a user is, helping build a strong personal profile."
+    explanation: "The transparent, merit-based system ensures rewards match effort and engagement.",
   },
   {
-    id: 40,
-    question: "Why does Oblium encourage global participation?",
+    id: 49,
+    question: "What does the Oblium roadmap represent?",
     options: [
-      { label: "A", text: "Because decentralization thrives when people from all regions contribute" },
-      { label: "B", text: "Because only one country should control Web3" },
-      { label: "C", text: "Because it wants limited growth" },
-      { label: "D", text: "Because it avoids multi-language support" }
+      { label: "A", text: "A clear plan of milestones, development stages, and future goals" },
+      { label: "B", text: "A collection of unrelated pictures" },
+      { label: "C", text: "A private team-only document" },
+      { label: "D", text: "A list of random ideas" },
     ],
     correctAnswer: "A",
-    explanation: "A global user base strengthens the network, increases knowledge-sharing, and expands adoption."
-  }
+    explanation: "The roadmap gives the community confidence by showing what is being built and when.",
+  },
+  {
+    id: 50,
+    question: "Why is the Oblium community considered the heart of the ecosystem?",
+    options: [
+      { label: "A", text: "Because users drive decisions, growth, education, and transparency" },
+      { label: "B", text: "Because the community has no role" },
+      { label: "C", text: "Because only the team controls everything" },
+      { label: "D", text: "Because users are not allowed to participate" },
+    ],
+    correctAnswer: "A",
+    explanation: "Oblium thrives through active community involvement — from tasks to governance.",
+  },
 ]
 
 export default function QuestionsPage() {
@@ -158,20 +159,22 @@ export default function QuestionsPage() {
 
   async function checkCompletion() {
     const supabase = createClient()
-    
-    const { data: { user } } = await supabase.auth.getUser()
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
     if (!user) {
-      router.push('/auth')
+      router.push("/auth")
       return
     }
 
     setUserId(user.id)
 
     const { data: completion } = await supabase
-      .from('quiz_completions')
-      .select('*')
-      .eq('user_id', user.id)
-      .eq('quiz_version', CURRENT_QUIZ_VERSION)
+      .from("quiz_completions")
+      .select("*")
+      .eq("user_id", user.id)
+      .eq("quiz_version", CURRENT_QUIZ_VERSION)
       .maybeSingle()
 
     if (completion) {
@@ -202,7 +205,7 @@ export default function QuestionsPage() {
 
   const handleSubmit = async () => {
     if (Object.keys(selectedAnswers).length < questions.length) {
-      alert('Please answer all questions before submitting.')
+      alert("Please answer all questions before submitting.")
       return
     }
 
@@ -223,7 +226,7 @@ export default function QuestionsPage() {
     const supabase = createClient()
 
     try {
-      const { error: quizError } = await supabase.from('quiz_completions').insert({
+      const { error: quizError } = await supabase.from("quiz_completions").insert({
         user_id: userId,
         answers: selectedAnswers,
         score: correctCount,
@@ -234,7 +237,7 @@ export default function QuestionsPage() {
 
       if (quizError) throw quizError
 
-      const { error: pointsError } = await supabase.rpc('increment_points', {
+      const { error: pointsError } = await supabase.rpc("increment_points", {
         user_id: userId,
         points_to_add: totalPoints,
       })
@@ -244,8 +247,8 @@ export default function QuestionsPage() {
       setShowResults(true)
       setHasCompleted(true)
     } catch (error) {
-      console.error('[v0] Quiz submission error:', error)
-      alert('Failed to submit quiz. Please try again.')
+      console.error("[v0] Quiz submission error:", error)
+      alert("Failed to submit quiz. Please try again.")
     } finally {
       setSubmitting(false)
     }
@@ -268,21 +271,19 @@ export default function QuestionsPage() {
   return (
     <div className="min-h-screen bg-background pb-32">
       <Navigation />
-      
+
       <div className="container mx-auto px-4 py-8 pt-32 max-w-4xl">
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-500/10 rounded-full mb-4">
             <Brain className="w-5 h-5 text-cyan-400" />
-            <span className="text-cyan-400 font-semibold" style={{ fontFamily: 'Quantico, sans-serif' }}>
+            <span className="text-cyan-400 font-semibold" style={{ fontFamily: "Quantico, sans-serif" }}>
               ObliumChain Quiz v{CURRENT_QUIZ_VERSION}
             </span>
           </div>
-          <h1 className="text-4xl font-black mb-2" style={{ fontFamily: 'Quantico, sans-serif' }}>
+          <h1 className="text-4xl font-black mb-2" style={{ fontFamily: "Quantico, sans-serif" }}>
             Test Your Knowledge
           </h1>
-          <p className="text-foreground/60">
-            Answer all questions correctly to earn up to 10,000 points!
-          </p>
+          <p className="text-foreground/60">Answer all questions correctly to earn up to 10,000 points!</p>
         </div>
 
         {!showResults ? (
@@ -292,9 +293,7 @@ export default function QuestionsPage() {
                 <span className="text-sm text-foreground/60">
                   Question {currentQuestion + 1} of {questions.length}
                 </span>
-                <span className="text-sm text-cyan-400 font-semibold">
-                  {Math.round(progress)}%
-                </span>
+                <span className="text-sm text-cyan-400 font-semibold">{Math.round(progress)}%</span>
               </div>
               <div className="h-2 bg-foreground/10 rounded-full overflow-hidden">
                 <div
@@ -305,7 +304,7 @@ export default function QuestionsPage() {
             </div>
 
             <LiquidCard className="p-8 mb-6">
-              <h2 className="text-xl font-bold mb-6" style={{ fontFamily: 'Quantico, sans-serif' }}>
+              <h2 className="text-xl font-bold mb-6" style={{ fontFamily: "Quantico, sans-serif" }}>
                 {currentQ.question}
               </h2>
 
@@ -316,16 +315,16 @@ export default function QuestionsPage() {
                     onClick={() => handleAnswerSelect(currentQ.id, option.label)}
                     className={`w-full text-left p-4 rounded-xl border-2 transition-all ${
                       selectedAnswers[currentQ.id] === option.label
-                        ? 'border-cyan-500 bg-cyan-500/10'
-                        : 'border-foreground/10 hover:border-cyan-500/50 hover:bg-foreground/5'
+                        ? "border-cyan-500 bg-cyan-500/10"
+                        : "border-foreground/10 hover:border-cyan-500/50 hover:bg-foreground/5"
                     }`}
                   >
                     <div className="flex items-center gap-3">
                       <div
                         className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${
                           selectedAnswers[currentQ.id] === option.label
-                            ? 'bg-cyan-500 text-white'
-                            : 'bg-foreground/10 text-foreground/60'
+                            ? "bg-cyan-500 text-white"
+                            : "bg-foreground/10 text-foreground/60"
                         }`}
                       >
                         {option.label}
@@ -338,11 +337,7 @@ export default function QuestionsPage() {
             </LiquidCard>
 
             <div className="flex items-center justify-between mb-8">
-              <Button
-                onClick={handlePrevious}
-                disabled={currentQuestion === 0}
-                variant="outline"
-              >
+              <Button onClick={handlePrevious} disabled={currentQuestion === 0} variant="outline">
                 Previous
               </Button>
 
@@ -352,10 +347,10 @@ export default function QuestionsPage() {
                     key={index}
                     className={`w-2 h-2 rounded-full ${
                       selectedAnswers[questions[index].id]
-                        ? 'bg-cyan-500'
+                        ? "bg-cyan-500"
                         : index === currentQuestion
-                        ? 'bg-cyan-500/50'
-                        : 'bg-foreground/20'
+                          ? "bg-cyan-500/50"
+                          : "bg-foreground/20"
                     }`}
                   />
                 ))}
@@ -367,7 +362,7 @@ export default function QuestionsPage() {
                   disabled={Object.keys(selectedAnswers).length < questions.length || submitting}
                   className="bg-gradient-to-r from-cyan-500 to-blue-500"
                 >
-                  {submitting ? 'Submitting...' : 'Submit Quiz'}
+                  {submitting ? "Submitting..." : "Submit Quiz"}
                 </Button>
               ) : (
                 <Button onClick={handleNext} disabled={!selectedAnswers[currentQ.id]}>
@@ -380,17 +375,15 @@ export default function QuestionsPage() {
           <>
             <LiquidCard className="p-8 text-center mb-6">
               <Award className="w-16 h-16 text-cyan-400 mx-auto mb-4" />
-              <h2 className="text-3xl font-black mb-2" style={{ fontFamily: 'Quantico, sans-serif' }}>
-                {score === 10 ? '🎉 Perfect Score!' : 'Quiz Completed!'}
+              <h2 className="text-3xl font-black mb-2" style={{ fontFamily: "Quantico, sans-serif" }}>
+                {score === 10 ? "🎉 Perfect Score!" : "Quiz Completed!"}
               </h2>
               <p className="text-foreground/60 mb-6">
                 You answered {score} out of {questions.length} questions correctly
               </p>
 
               <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-full border border-cyan-500/30">
-                <span className="text-2xl font-black text-cyan-400">
-                  {score * 1000}
-                </span>
+                <span className="text-2xl font-black text-cyan-400">{score * 1000}</span>
                 <span className="text-foreground/60">points earned</span>
               </div>
 
@@ -402,13 +395,13 @@ export default function QuestionsPage() {
             </LiquidCard>
 
             <div className="space-y-4">
-              <h3 className="text-xl font-bold mb-4" style={{ fontFamily: 'Quantico, sans-serif' }}>
+              <h3 className="text-xl font-bold mb-4" style={{ fontFamily: "Quantico, sans-serif" }}>
                 Review Answers
               </h3>
               {questions.map((q) => {
                 const userAnswer = selectedAnswers[q.id]
                 const isCorrect = userAnswer === q.correctAnswer
-                
+
                 return (
                   <LiquidCard key={q.id} className="p-6">
                     <div className="flex items-start gap-3 mb-4">
@@ -420,14 +413,16 @@ export default function QuestionsPage() {
                       <div className="flex-1">
                         <h4 className="font-bold mb-2">{q.question}</h4>
                         <p className="text-sm text-foreground/60 mb-2">
-                          Your answer: <span className={isCorrect ? 'text-green-400' : 'text-red-400'}>{userAnswer}</span>
+                          Your answer:{" "}
+                          <span className={isCorrect ? "text-green-400" : "text-red-400"}>{userAnswer}</span>
                           {!isCorrect && (
-                            <> | Correct answer: <span className="text-green-400">{q.correctAnswer}</span></>
+                            <>
+                              {" "}
+                              | Correct answer: <span className="text-green-400">{q.correctAnswer}</span>
+                            </>
                           )}
                         </p>
-                        <p className="text-sm text-cyan-400">
-                          📝 {q.explanation}
-                        </p>
+                        <p className="text-sm text-cyan-400">📝 {q.explanation}</p>
                       </div>
                     </div>
                   </LiquidCard>
@@ -436,7 +431,7 @@ export default function QuestionsPage() {
             </div>
 
             <div className="text-center mt-8 mb-8">
-              <Button onClick={() => router.push('/dashboard')} size="lg">
+              <Button onClick={() => router.push("/dashboard")} size="lg">
                 Back to Dashboard
               </Button>
             </div>
