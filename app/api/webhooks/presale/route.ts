@@ -138,6 +138,38 @@ export async function POST(request: NextRequest) {
 
     console.log(`[v0] [${errorId}] Starting database transaction...`)
 
+    // 0. Check presale pool and verify tokens are available
+    const { data: pool, error: poolError } = await supabase.from("presale_pool").select("*").single()
+
+    if (poolError || !pool) {
+      console.error(`[v0] [${errorId}] Presale pool not found or error:`, poolError)
+      return NextResponse.json(
+        {
+          error: "Presale pool not available",
+          details: poolError?.message || "Pool not initialized",
+          errorId,
+        },
+        { status: 500 },
+      )
+    }
+
+    if (pool.tokens_remaining < finalTokens) {
+      console.error(
+        `[v0] [${errorId}] Insufficient tokens in pool. Requested: ${finalTokens}, Available: ${pool.tokens_remaining}`,
+      )
+      return NextResponse.json(
+        {
+          error: "Insufficient tokens available",
+          requested: finalTokens,
+          available: pool.tokens_remaining,
+          errorId,
+        },
+        { status: 400 },
+      )
+    }
+
+    console.log(`[v0] [${errorId}] Pool check passed. Available: ${pool.tokens_remaining}, Requested: ${finalTokens}`)
+
     // 1. Create presale transaction record
     const { data: transaction, error: txError } = await supabase
       .from("presale_transactions")
@@ -210,11 +242,36 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    const newTokensSold = Number(pool.tokens_sold) + finalTokens
+    const newTokensRemaining = Number(pool.tokens_remaining) - finalTokens
+
+    console.log(
+      `[v0] [${errorId}] Updating presale pool: ${pool.tokens_sold} + ${finalTokens} = ${newTokensSold} sold, ${newTokensRemaining} remaining`,
+    )
+
+    const { error: poolUpdateError } = await supabase
+      .from("presale_pool")
+      .update({
+        tokens_sold: newTokensSold,
+        tokens_remaining: newTokensRemaining,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", pool.id)
+
+    if (poolUpdateError) {
+      console.error(`[v0] [${errorId}] Failed to update presale pool:`, poolUpdateError)
+      // Don't fail the transaction if pool update fails, but log it
+      console.error(`[v0] [${errorId}] WARNING: Tokens were credited but pool was not updated!`)
+    } else {
+      console.log(`[v0] [${errorId}] Presale pool updated successfully`)
+    }
+
     console.log(`[v0] [${errorId}] ====== PRESALE PROCESSED SUCCESSFULLY ======`)
     console.log(`[v0] [${errorId}] User: ${userId}`)
     console.log(`[v0] [${errorId}] Tokens: ${finalTokens}`)
     console.log(`[v0] [${errorId}] Amount: $${amountUsd}`)
     console.log(`[v0] [${errorId}] New Balance: ${newBalance}`)
+    console.log(`[v0] [${errorId}] Pool Tokens Remaining: ${newTokensRemaining}`)
 
     return NextResponse.json({
       success: true,
@@ -225,6 +282,7 @@ export async function POST(request: NextRequest) {
         amountUsd,
         newBalance,
         transactionId: transaction.id,
+        poolTokensRemaining: newTokensRemaining,
       },
     })
   } catch (error) {

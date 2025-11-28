@@ -1,13 +1,14 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from 'next/navigation'
+import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { Navigation } from "@/components/navigation"
 import { BackgroundAnimation } from "@/components/background-animation"
 import { GlowButton } from "@/components/ui/glow-button"
 import { CubeLoader } from "@/components/ui/cube-loader"
 import { redirectToPaymentApp } from "@/lib/payment-redirect"
+import { WalletConnectTile } from "@/components/wallet-connect-tile"
 
 const TOKEN_PRICE = 0.02 // $0.02 per OBLM token
 const MIN_PURCHASE_USD = 7 // $7 minimum
@@ -18,6 +19,7 @@ export default function PresalePage() {
   const [isPurchasing, setIsPurchasing] = useState(false)
   const [userId, setUserId] = useState<string | null>(null)
   const [tokenBalance, setTokenBalance] = useState<number>(0)
+  const [walletAddress, setWalletAddress] = useState<string | null>(null)
   const [usdAmount, setUsdAmount] = useState<string>("7")
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
@@ -31,9 +33,12 @@ export default function PresalePage() {
   useEffect(() => {
     const loadUserData = async () => {
       const supabase = createClient()
-      
-      const { data: { user }, error: authError } = await supabase.auth.getUser()
-      
+
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser()
+
       if (authError || !user) {
         router.push("/auth")
         return
@@ -44,18 +49,16 @@ export default function PresalePage() {
       // Load current token balance
       const { data: profile } = await supabase
         .from("profiles")
-        .select("oblm_token_balance")
+        .select("oblm_token_balance, wallet_address")
         .eq("id", user.id)
         .single()
 
       if (profile) {
         setTokenBalance(profile.oblm_token_balance || 0)
+        setWalletAddress(profile.wallet_address || null)
       }
 
-      const { data: pool } = await supabase
-        .from("presale_pool")
-        .select("*")
-        .single()
+      const { data: pool } = await supabase.from("presale_pool").select("*").single()
 
       if (pool) {
         setPresalePool(pool)
@@ -69,12 +72,12 @@ export default function PresalePage() {
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search)
-    const paymentStatus = urlParams.get('status')
-    const paymentError = urlParams.get('error')
-    const tokensReceived = urlParams.get('tokens')
+    const paymentStatus = urlParams.get("status")
+    const paymentError = urlParams.get("error")
+    const tokensReceived = urlParams.get("tokens")
 
-    if (paymentStatus === 'success' && tokensReceived) {
-      setSuccess(`Successfully purchased ${parseFloat(tokensReceived).toLocaleString()} OBLM tokens!`)
+    if (paymentStatus === "success" && tokensReceived) {
+      setSuccess(`Successfully purchased ${Number.parseFloat(tokensReceived).toLocaleString()} OBLM tokens!`)
       // Reload balance and pool
       const supabase = createClient()
       supabase
@@ -92,10 +95,10 @@ export default function PresalePage() {
         .then(({ data }) => {
           if (data) setPresalePool(data)
         })
-      window.history.replaceState({}, '', window.location.pathname)
-    } else if (paymentStatus === 'failed' && paymentError) {
+      window.history.replaceState({}, "", window.location.pathname)
+    } else if (paymentStatus === "failed" && paymentError) {
       setError(decodeURIComponent(paymentError))
-      window.history.replaceState({}, '', window.location.pathname)
+      window.history.replaceState({}, "", window.location.pathname)
     }
   }, [userId])
 
@@ -109,8 +112,8 @@ export default function PresalePage() {
       return
     }
 
-    const usd = parseFloat(usdAmount)
-    
+    const usd = Number.parseFloat(usdAmount)
+
     if (isNaN(usd) || usd < MIN_PURCHASE_USD) {
       setError(`Minimum purchase is $${MIN_PURCHASE_USD}`)
       return
@@ -129,11 +132,11 @@ export default function PresalePage() {
 
     try {
       console.log("[v0] Redirecting to payment app for presale...")
-      
+
       // Redirect to external payment application
       redirectToPaymentApp({
         userId,
-        boosterId: 'presale',
+        boosterId: "presale",
         amount: usd,
         boosterName: `${tokensToReceive.toLocaleString()} OBLM Tokens`,
         isPresale: true,
@@ -156,10 +159,8 @@ export default function PresalePage() {
     )
   }
 
-  const tokensToReceive = calculateTokens(parseFloat(usdAmount) || 0)
-  const percentageSold = presalePool 
-    ? (presalePool.tokens_sold / presalePool.total_tokens) * 100 
-    : 0
+  const tokensToReceive = calculateTokens(Number.parseFloat(usdAmount) || 0)
+  const percentageSold = presalePool ? (presalePool.tokens_sold / presalePool.total_tokens) * 100 : 0
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-[#0a0015] to-background pb-32 lg:pb-8">
@@ -184,14 +185,12 @@ export default function PresalePage() {
           <div className="glass-card p-6 animate-fade-in-up">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-display font-bold text-xl text-foreground">Presale Progress</h3>
-              <span className="text-foreground/60 text-sm">
-                {percentageSold.toFixed(2)}% Sold
-              </span>
+              <span className="text-foreground/60 text-sm">{percentageSold.toFixed(2)}% Sold</span>
             </div>
-            
+
             {/* Progress bar */}
             <div className="relative h-4 bg-background/50 rounded-full overflow-hidden mb-4">
-              <div 
+              <div
                 className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary to-accent rounded-full transition-all duration-500"
                 style={{ width: `${Math.min(percentageSold, 100)}%` }}
               />
@@ -252,7 +251,7 @@ export default function PresalePage() {
               <div className="flex justify-between items-center">
                 <span className="text-foreground/60">You pay:</span>
                 <span className="font-display font-bold text-foreground text-xl">
-                  ${parseFloat(usdAmount || "0").toFixed(2)}
+                  ${Number.parseFloat(usdAmount || "0").toFixed(2)}
                 </span>
               </div>
               <div className="h-px bg-border/50"></div>
@@ -284,7 +283,7 @@ export default function PresalePage() {
             {/* Purchase Button */}
             <GlowButton
               onClick={handlePurchase}
-              disabled={isPurchasing || parseFloat(usdAmount) < MIN_PURCHASE_USD}
+              disabled={isPurchasing || Number.parseFloat(usdAmount) < MIN_PURCHASE_USD}
               className="w-full"
               variant="primary"
             >
@@ -294,7 +293,7 @@ export default function PresalePage() {
                   Loading Secure Payment Gateway...
                 </span>
               ) : (
-                `Buy ${tokensToReceive.toLocaleString()} OBLM Tokens for $${parseFloat(usdAmount || "0").toFixed(2)}`
+                `Buy ${tokensToReceive.toLocaleString()} OBLM Tokens for $${Number.parseFloat(usdAmount || "0").toFixed(2)}`
               )}
             </GlowButton>
 
@@ -305,6 +304,25 @@ export default function PresalePage() {
               <p>Presale price: ${TOKEN_PRICE} per OBLM token</p>
             </div>
           </div>
+        </div>
+
+        {/* Wallet Connect Tile */}
+        <div className="animate-fade-in-up stagger-3 max-w-2xl mx-auto">
+          <WalletConnectTile
+            userId={userId || ""}
+            walletAddress={walletAddress}
+            onWalletUpdate={async () => {
+              const supabase = createClient()
+              const { data: profile } = await supabase
+                .from("profiles")
+                .select("wallet_address")
+                .eq("id", userId)
+                .single()
+              if (profile) {
+                setWalletAddress(profile.wallet_address || null)
+              }
+            }}
+          />
         </div>
 
         {/* Features */}

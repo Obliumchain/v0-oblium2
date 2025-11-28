@@ -9,9 +9,8 @@ import { GlowButton } from "@/components/ui/glow-button"
 import { BackgroundAnimation } from "@/components/background-animation"
 import { CubeLoader } from "@/components/ui/cube-loader"
 import { ConversionCountdown } from "@/components/conversion-countdown"
-import { WalletConnectTile } from "@/components/wallet-connect-tile"
-import { useLanguage } from "@/lib/language-context"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { useLanguage } from "@/lib/language-context"
 
 interface UserProfile {
   id: string
@@ -50,7 +49,7 @@ export default function ProfilePage() {
   const [referralLinkCopied, setReferralLinkCopied] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const { t } = useLanguage()
+  const { t } = useLanguage() // Use the declared hook
 
   const loadProfile = useCallback(async () => {
     const supabase = createClient()
@@ -350,15 +349,6 @@ export default function ProfilePage() {
               #{stats?.rank || "0"}
             </div>
           </div>
-        </div>
-
-        {/* Wallet Connect Tile */}
-        <div className="animate-fade-in-up stagger-5 max-w-md mx-auto">
-          <WalletConnectTile
-            userId={profile?.id || ""}
-            walletAddress={profile?.wallet_address || null}
-            onWalletUpdate={loadProfile}
-          />
         </div>
 
         {/* Referral Card */}

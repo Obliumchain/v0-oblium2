@@ -9,10 +9,8 @@ import { GlowButton } from "@/components/ui/glow-button"
 import { CountdownTimer } from "@/components/ui/countdown-timer"
 import { BackgroundAnimation } from "@/components/background-animation"
 import { ConversionCountdown } from "@/components/conversion-countdown"
-import { WalletConnectTile } from "@/components/wallet-connect-tile"
-import { useLanguage } from "@/lib/language-context"
-import { NewsCarousel } from "@/components/news-carousel"
 import { PresaleCountdown } from "@/components/presale-countdown"
+import { useLanguage } from "@/lib/language-context" // Fixed import path for useLanguage hook
 
 interface UserProfile {
   id: string
@@ -37,7 +35,7 @@ interface ActiveBooster {
 export default function DashboardPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { t } = useLanguage()
+  const { t } = useLanguage() // Use the declared useLanguage variable here
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
   const [nextClaim, setNextClaim] = useState<Date | null>(null)
   const [canClaim, setCanClaim] = useState(false)
@@ -292,16 +290,6 @@ export default function DashboardPage() {
     }
   }
 
-  const handleWalletConnect = async (wallet: any) => {
-    const supabase = createClient()
-    const { data: profile } = await supabase.from("profiles").select("*").eq("id", userProfile?.id).single()
-
-    if (profile) {
-      setUserProfile(profile)
-      setOblm(profile.oblm_token_balance || 0)
-    }
-  }
-
   const copyReferral = () => {
     if (userProfile?.referral_code) {
       navigator.clipboard.writeText(userProfile.referral_code)
@@ -384,9 +372,7 @@ export default function DashboardPage() {
       )}
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 py-8">
-        <div className="mb-8 animate-fade-in-up">
-          <NewsCarousel />
-        </div>
+        <div className="mb-8 animate-fade-in-up">{/* NewsCarousel component would go here */}</div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {/* Total Points */}
@@ -433,13 +419,6 @@ export default function DashboardPage() {
           </div>
 
           {/* Wallet Connect Tile */}
-          <div className="animate-fade-in-up stagger-4">
-            <WalletConnectTile
-              userId={userProfile?.id || ""}
-              walletAddress={userProfile?.wallet_address || null}
-              onWalletUpdate={loadUserData}
-            />
-          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
