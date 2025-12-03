@@ -10,7 +10,7 @@ Users can connect their Solana wallet through the payment app, and the wallet ad
 
 ### 1. Wallet Connection Page
 
-Create a page at `/wallet-connect` that:
+Create a page at `/wallet-connect` on **connect.obliumtoken.com** that:
 - Accepts URL parameters: `userId` and `redirectUrl`
 - Allows users to connect their Solana wallet
 - After successful connection, sends a webhook to Oblium
@@ -74,14 +74,15 @@ The `profiles` table includes:
 ## Testing
 
 1. User clicks "Connect Wallet" on dashboard or profile
-2. Redirected to payment app: `https://payment.obliumtoken.com/wallet-connect?userId=xxx&redirectUrl=xxx`
-3. User connects wallet on payment app
-4. Payment app sends webhook to Oblium
-5. Payment app redirects user back to Oblium
+2. Redirected to wallet connection app: `https://connect.obliumtoken.com/wallet-connect?userId=xxx&redirectUrl=xxx`
+3. User connects wallet on wallet connection app
+4. Wallet connection app sends webhook to Oblium
+5. Wallet connection app redirects user back to Oblium
 6. Wallet address appears on dashboard and profile
 
 ## Environment Variables
 
 Ensure these are configured:
+- `NEXT_PUBLIC_WALLET_CONNECT_APP_URL` - Wallet connection app URL (default: https://connect.obliumtoken.com)
 - `NEXT_PUBLIC_PAYMENT_APP_URL` - Payment app URL (default: https://payment.obliumtoken.com)
 - `WEBHOOK_SECRET` - Shared secret for HMAC signature verification

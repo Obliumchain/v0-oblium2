@@ -75,6 +75,7 @@ export default function PresalePage() {
     const paymentStatus = urlParams.get("status")
     const paymentError = urlParams.get("error")
     const tokensReceived = urlParams.get("tokens")
+    const walletConnected = urlParams.get("wallet")
 
     if (paymentStatus === "success" && tokensReceived) {
       setSuccess(`Successfully purchased ${Number.parseFloat(tokensReceived).toLocaleString()} OBLM tokens!`)
@@ -98,6 +99,21 @@ export default function PresalePage() {
       window.history.replaceState({}, "", window.location.pathname)
     } else if (paymentStatus === "failed" && paymentError) {
       setError(decodeURIComponent(paymentError))
+      window.history.replaceState({}, "", window.location.pathname)
+    } else if (walletConnected === "connected") {
+      const supabase = createClient()
+      supabase
+        .from("profiles")
+        .select("oblm_token_balance, wallet_address")
+        .eq("id", userId)
+        .single()
+        .then(({ data }) => {
+          if (data) {
+            setTokenBalance(data.oblm_token_balance || 0)
+            setWalletAddress(data.wallet_address || null)
+            setSuccess("Wallet connected successfully! You received 150 OBLM tokens.")
+          }
+        })
       window.history.replaceState({}, "", window.location.pathname)
     }
   }, [userId])
