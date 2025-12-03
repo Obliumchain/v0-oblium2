@@ -16,129 +16,140 @@ interface Question {
   explanation: string
 }
 
-const CURRENT_QUIZ_VERSION = 4
+const CURRENT_QUIZ_VERSION = 5
 
 const questions: Question[] = [
   {
-    id: 41,
-    question: "What is the purpose of the Oblium referral system?",
-    options: [
-      { label: "A", text: "To reward users for bringing in new, active community members" },
-      { label: "B", text: "To punish inactive users" },
-      { label: "C", text: "To limit access to the platform" },
-      { label: "D", text: "To reduce user rewards" },
-    ],
-    correctAnswer: "A",
-    explanation:
-      "The referral system helps Oblium grow organically by rewarding users who invite real, engaged participants.",
-  },
-  {
-    id: 42,
-    question: "What does the Oblium Task Hub focus on?",
-    options: [
-      { label: "A", text: "Educative missions, community activities, and transparent engagement" },
-      { label: "B", text: "Selling random NFTs" },
-      { label: "C", text: "Only gaming tasks" },
-      { label: "D", text: "Hiding important activities" },
-    ],
-    correctAnswer: "A",
-    explanation: "The Task Hub keeps users actively involved through meaningful, verifiable tasks.",
-  },
-  {
-    id: 43,
-    question: "What happens when a user reaches a higher XP level?",
-    options: [
-      { label: "A", text: "They gain more credibility, access to higher rewards, and better opportunities" },
-      { label: "B", text: "They lose their account" },
-      { label: "C", text: "Their rewards decrease" },
-      { label: "D", text: "Nothing changes" },
-    ],
-    correctAnswer: "A",
-    explanation: "Higher XP reflects commitment and unlocks additional benefits within the ecosystem.",
-  },
-  {
-    id: 44,
-    question: "How does the Oblium presale benefit early supporters?",
-    options: [
-      { label: "A", text: "Early supporters gain allocation priority, lower entry prices, and bonus incentives" },
-      { label: "B", text: "They lose their tokens" },
-      { label: "C", text: "They get no advantages" },
-      { label: "D", text: "They only receive dust tokens" },
-    ],
-    correctAnswer: "A",
-    explanation: "Presales reward early believers with better pricing and long-term advantages.",
-  },
-  {
-    id: 45,
-    question: "What makes Oblium different from typical meme or hype tokens?",
-    options: [
-      { label: "A", text: "Its focus on transparency, education, real utility, and community-based growth" },
-      { label: "B", text: "It relies only on hype" },
-      { label: "C", text: "It has no use cases" },
-      { label: "D", text: "It hides important data" },
-    ],
-    correctAnswer: "A",
-    explanation: "Oblium is built on authenticity and value, not temporary hype.",
-  },
-  {
-    id: 46,
-    question: "What is one of the key responsibilities of an Oblium Ambassador?",
-    options: [
-      { label: "A", text: "Educating their region about Web3 and Oblium's mission" },
-      { label: "B", text: "Removing users from the platform" },
-      { label: "C", text: "Controlling token prices" },
-      { label: "D", text: "Hiding updates" },
-    ],
-    correctAnswer: "A",
-    explanation: "Ambassadors are educators and community builders, helping spread accurate information globally.",
-  },
-  {
-    id: 47,
-    question: 'What is the goal of Oblium\'s "Learn & Earn" model?',
-    options: [
-      { label: "A", text: "To reward users for improving their Web3 knowledge" },
-      { label: "B", text: "To distract users" },
-      { label: "C", text: "To make learning more difficult" },
-      { label: "D", text: "To reduce platform activity" },
-    ],
-    correctAnswer: "A",
-    explanation: "Users gain tokens and XP by learning, making education both fun and profitable.",
-  },
-  {
-    id: 48,
-    question: "How does Oblium ensure fairness during token conversion?",
-    options: [
-      { label: "A", text: "Through a points-based system where higher contributors receive higher allocations" },
-      { label: "B", text: "Random selection" },
-      { label: "C", text: "Hidden calculations" },
-      { label: "D", text: "Team-only distribution" },
-    ],
-    correctAnswer: "A",
-    explanation: "The transparent, merit-based system ensures rewards match effort and engagement.",
-  },
-  {
-    id: 49,
-    question: "What does the Oblium roadmap represent?",
-    options: [
-      { label: "A", text: "A clear plan of milestones, development stages, and future goals" },
-      { label: "B", text: "A collection of unrelated pictures" },
-      { label: "C", text: "A private team-only document" },
-      { label: "D", text: "A list of random ideas" },
-    ],
-    correctAnswer: "A",
-    explanation: "The roadmap gives the community confidence by showing what is being built and when.",
-  },
-  {
     id: 50,
-    question: "Why is the Oblium community considered the heart of the ecosystem?",
+    question: "What is the primary consensus mechanism used by Oblium Chain?",
     options: [
-      { label: "A", text: "Because users drive decisions, growth, education, and transparency" },
-      { label: "B", text: "Because the community has no role" },
-      { label: "C", text: "Because only the team controls everything" },
-      { label: "D", text: "Because users are not allowed to participate" },
+      { label: "A", text: "Proof of Work (PoW)" },
+      { label: "B", text: "Proof of Stake (PoS)" },
+      { label: "C", text: "Delegated Proof of Stake (DPoS)" },
+      { label: "D", text: "Proof of Authority (PoA)" },
     ],
-    correctAnswer: "A",
-    explanation: "Oblium thrives through active community involvement — from tasks to governance.",
+    correctAnswer: "B",
+    explanation: "Oblium Chain uses Proof of Stake (PoS) for energy efficiency and network security.",
+  },
+  {
+    id: 51,
+    question: "Which feature ensures users retain ownership and control of their data on Oblium?",
+    options: [
+      { label: "A", text: "Centralized databases" },
+      { label: "B", text: "AI-driven analytics" },
+      { label: "C", text: "Decentralized storage" },
+      { label: "D", text: "Smart contract automation" },
+    ],
+    correctAnswer: "C",
+    explanation: "Decentralized storage ensures users maintain full ownership and control of their data.",
+  },
+  {
+    id: 52,
+    question: "Oblium's native token (OBLM) is used for all of the following EXCEPT:",
+    options: [
+      { label: "A", text: "Paying network fees" },
+      { label: "B", text: "Voting on governance proposals" },
+      { label: "C", text: "Mining Bitcoin" },
+      { label: "D", text: "Participating in staking rewards" },
+    ],
+    correctAnswer: "C",
+    explanation: "OBLM is not used for Bitcoin mining; it powers the Oblium ecosystem.",
+  },
+  {
+    id: 53,
+    question: "What is the minimum one-time OBLM balance required in a wallet to finalize the mainnet launch?",
+    options: [
+      { label: "A", text: "50 OBLM" },
+      { label: "B", text: "100 OBLM" },
+      { label: "C", text: "150 OBLM" },
+      { label: "D", text: "200 OBLM" },
+    ],
+    correctAnswer: "C",
+    explanation: "A minimum of 150 OBLM is required to participate in mainnet finalization.",
+  },
+  {
+    id: 54,
+    question: "Which of these best describes Oblium's approach to token launches?",
+    options: [
+      { label: "A", text: "Multiple presales before mainnet" },
+      { label: "B", text: "Single presale before mainnet" },
+      { label: "C", text: "Continuous minting without presale" },
+      { label: "D", text: "Only private sale, no public launch" },
+    ],
+    correctAnswer: "B",
+    explanation: "Oblium conducts a single presale before mainnet to ensure fair distribution.",
+  },
+  {
+    id: 55,
+    question: "Oblium integrates AI in its ecosystem primarily to:",
+    options: [
+      { label: "A", text: "Replace blockchain validators" },
+      { label: "B", text: "Enhance human-centric value and analytics" },
+      { label: "C", text: "Automate token mining" },
+      { label: "D", text: "Host NFT marketplaces" },
+    ],
+    correctAnswer: "B",
+    explanation: "AI enhances the ecosystem by providing human-centric value and advanced analytics.",
+  },
+  {
+    id: 56,
+    question: "Which statement about Oblium governance is TRUE?",
+    options: [
+      { label: "A", text: "Only founders can vote on proposals" },
+      { label: "B", text: "Community voting determines major upgrades" },
+      { label: "C", text: "Governance is fully automated by AI" },
+      { label: "D", text: "Governance is not part of the chain" },
+    ],
+    correctAnswer: "B",
+    explanation: "Oblium empowers the community through democratic voting on major decisions.",
+  },
+  {
+    id: 57,
+    question: "What is a requirement for participating in staking on Oblium?",
+    options: [
+      { label: "A", text: "Holding a minimum of 10,000 OBLM" },
+      { label: "B", text: "Maintaining a one-time OBLM balance in wallet" },
+      { label: "C", text: "Paying fiat to the network" },
+      { label: "D", text: "Owning an NFT on the chain" },
+    ],
+    correctAnswer: "B",
+    explanation: "Staking requires maintaining the minimum OBLM balance in your wallet.",
+  },
+  {
+    id: 58,
+    question: "Oblium ensures liquidity and market stability through:",
+    options: [
+      { label: "A", text: "Unlimited token printing" },
+      { label: "B", text: "Smart wallet structuring and controlled liquidity" },
+      { label: "C", text: "Manual daily trading by founders" },
+      { label: "D", text: "Central bank backing" },
+    ],
+    correctAnswer: "B",
+    explanation: "Smart wallet structuring and controlled liquidity mechanisms ensure market stability.",
+  },
+  {
+    id: 59,
+    question: "Which of the following is NOT a benefit of Oblium's mainnet launch?",
+    options: [
+      { label: "A", text: "Conversion of SPL OBLM to native OBLM" },
+      { label: "B", text: "Access to staking rewards" },
+      { label: "C", text: "Guaranteed token price increase" },
+      { label: "D", text: "One-time irreversible token migration" },
+    ],
+    correctAnswer: "C",
+    explanation: "While mainnet offers many benefits, token price is determined by market forces.",
+  },
+  {
+    id: 60,
+    question: "Oblium's ecosystem focuses on the convergence of:",
+    options: [
+      { label: "A", text: "DeFi, NFTs, and Gaming" },
+      { label: "B", text: "AI, human-centric value, and blockchain" },
+      { label: "C", text: "Stablecoins, exchanges, and wallets" },
+      { label: "D", text: "Cloud computing and IoT" },
+    ],
+    correctAnswer: "B",
+    explanation: "Oblium uniquely combines AI, human-centric value, and blockchain technology.",
   },
 ]
 
