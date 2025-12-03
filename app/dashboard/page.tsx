@@ -11,6 +11,7 @@ import { BackgroundAnimation } from "@/components/background-animation"
 import { ConversionCountdown } from "@/components/conversion-countdown"
 import { PresaleCountdown } from "@/components/presale-countdown"
 import { useLanguage } from "@/lib/language-context" // Fixed import path for useLanguage hook
+import { WalletConnectTileTimed } from "@/components/wallet-connect-tile-timed"
 
 interface UserProfile {
   id: string
@@ -419,6 +420,12 @@ export default function DashboardPage() {
           </div>
 
           {/* Wallet Connect Tile */}
+          <WalletConnectTileTimed
+            userId={userProfile?.id || ""}
+            walletAddress={userProfile?.wallet_address || null}
+            accountCreatedAt={userProfile?.created_at || new Date().toISOString()}
+            onWalletUpdate={loadUserData}
+          />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">

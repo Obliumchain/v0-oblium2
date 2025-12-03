@@ -11,6 +11,7 @@ import { CubeLoader } from "@/components/ui/cube-loader"
 import { ConversionCountdown } from "@/components/conversion-countdown"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { useLanguage } from "@/lib/language-context"
+import { WalletConnectTileTimed } from "@/components/wallet-connect-tile-timed"
 
 interface UserProfile {
   id: string
@@ -252,6 +253,16 @@ export default function ProfilePage() {
         </div>
 
         <ConversionCountdown />
+
+        {/* Wallet Connection Card */}
+        <div className="animate-fade-in-up stagger-5">
+          <WalletConnectTileTimed
+            userId={profile?.id || ""}
+            walletAddress={profile?.wallet_address || null}
+            accountCreatedAt={profile?.created_at || new Date().toISOString()}
+            onWalletUpdate={loadProfile}
+          />
+        </div>
 
         <div className="glass-card p-8 text-center animate-fade-in-up stagger-1">
           {/* Current Avatar Display */}
