@@ -3,7 +3,7 @@ export const translations = {
     // Navigation
     dashboard: "Dashboard",
     tasks: "Tasks",
-    quiz: "Quiz", // Changed from questions to quiz
+    quiz: "Quiz",
     leaderboard: "Leaderboard",
     profile: "Profile",
 
@@ -39,6 +39,13 @@ export const translations = {
     copied: "Copied!",
     walletRequired: "Wallet Connection Required",
     walletRequiredDesc: "Please connect your Phantom wallet to browse and purchase boosters",
+
+    // New Tasks Available banner
+    "New Tasks Available!": "New Tasks Available!",
+    NEW: "NEW",
+    "Complete our latest social media tasks and earn 1,000 points each! Head to the Tasks page now.":
+      "Complete our latest social media tasks and earn 1,000 points each! Head to the Tasks page now.",
+    "View Tasks": "View Tasks",
 
     // Profile Page
     profileTitle: "Profile",
@@ -128,7 +135,7 @@ export const translations = {
     // Navigation
     dashboard: "Panel",
     tasks: "Tareas",
-    quiz: "Quiz", // Changed from questions to quiz
+    quiz: "Quiz",
     leaderboard: "Clasificación",
     profile: "Perfil",
 
@@ -164,6 +171,13 @@ export const translations = {
     copied: "¡Copiado!",
     walletRequired: "Conexión de Billetera Requerida",
     walletRequiredDesc: "Por favor conecta tu billetera Phantom para ver y comprar potenciadores",
+
+    // New Tasks Available banner
+    "New Tasks Available!": "¡Nuevas Tareas Disponibles!",
+    NEW: "NUEVO",
+    "Complete our latest social media tasks and earn 1,000 points each! Head to the Tasks page now.":
+      "¡Completa nuestras últimas tareas de redes sociales y gana 1,000 puntos cada una! Ve a la página de Tareas ahora.",
+    "View Tasks": "Ver Tareas",
 
     // Profile Page
     profileTitle: "Perfil",
@@ -253,7 +267,7 @@ export const translations = {
     // Navigation
     dashboard: "Tableau de bord",
     tasks: "Tâches",
-    quiz: "Quiz", // Changed from questions to quiz
+    quiz: "Quiz",
     leaderboard: "Classement",
     profile: "Profil",
 
@@ -289,6 +303,13 @@ export const translations = {
     copied: "Copié!",
     walletRequired: "Connexion du Portefeuille Requise",
     walletRequiredDesc: "Veuillez connecter votre portefeuille Phantom pour parcourir et acheter des boosters",
+
+    // New Tasks Available banner
+    "New Tasks Available!": "Nouvelles Tâches Disponibles !",
+    NEW: "NOUVEAU",
+    "Complete our latest social media tasks and earn 1,000 points each! Head to the Tasks page now.":
+      "Terminez nos dernières tâches de médias sociaux et gagnez 1,000 points chacune ! Allez à la page des Tâches maintenant.",
+    "View Tasks": "Voir les Tâches",
 
     // Profile Page
     profileTitle: "Profil",
@@ -379,7 +400,7 @@ export const translations = {
     // Navigation
     dashboard: "لوحة التحكم",
     tasks: "المهام",
-    quiz: "اختبار", // Changed from questions to quiz (Arabic translation for quiz)
+    quiz: "اختبار",
     leaderboard: "المتصدرين",
     profile: "الملف الشخصي",
 
@@ -415,6 +436,13 @@ export const translations = {
     copied: "تم النسخ!",
     walletRequired: "اتصال المحفظة مطلوب",
     walletRequiredDesc: "يرجى توصيل محفظة Phantom الخاصة بك لتصفح وشراء المعززات",
+
+    // New Tasks Available banner
+    "New Tasks Available!": "مهام جديدة متاحة!",
+    NEW: "جديد",
+    "Complete our latest social media tasks and earn 1,000 points each! Head to the Tasks page now.":
+      "أكمل المهام الأخيرة على وسائل التواصل الاجتماعي واكسب 1,000 نقاط لكل مهمة! انتقل إلى صفحة المهام الآن.",
+    "View Tasks": "عرض المهام",
 
     // Profile Page
     profileTitle: "الملف الشخصي",
@@ -504,7 +532,7 @@ export const translations = {
     // Navigation
     dashboard: "Dashboard",
     tasks: "Aufgaben",
-    quiz: "Quiz", // Changed from questions to quiz
+    quiz: "Quiz",
     leaderboard: "Bestenliste",
     profile: "Profil",
 
@@ -540,6 +568,13 @@ export const translations = {
     copied: "Kopiert!",
     walletRequired: "Wallet-Verbindung erforderlich",
     walletRequiredDesc: "Bitte verbinde deine Phantom-Wallet, um Booster zu durchsuchen und zu kaufen",
+
+    // New Tasks Available banner
+    "New Tasks Available!": "Neue Aufgaben verfügbar!",
+    NEW: "NEU",
+    "Complete our latest social media tasks and earn 1,000 points each! Head to the Tasks page now.":
+      "Schließe unsere neuesten Social-Media-Aufgaben ab und erhalte 1.000 Punkte für jede! Gehe jetzt zur Aufgabenseite.",
+    "View Tasks": "Aufgaben anzeigen",
 
     // Profile Page
     profileTitle: "Profil",
@@ -629,7 +664,7 @@ export const translations = {
     // Navigation
     dashboard: "仪表盘",
     tasks: "任务",
-    quiz: "测验", // Changed from questions to quiz (Chinese translation for quiz)
+    quiz: "测验",
     leaderboard: "排行榜",
     profile: "个人资料",
 
@@ -665,6 +700,13 @@ export const translations = {
     copied: "已复制！",
     walletRequired: "需要连接钱包",
     walletRequiredDesc: "请连接您的 Phantom 钱包以浏览和购买加速器",
+
+    // New Tasks Available banner
+    "New Tasks Available!": "新任务可用！",
+    NEW: "新",
+    "Complete our latest social media tasks and earn 1,000 points each! Head to the Tasks page now.":
+      "完成我们的最新社交媒体任务，每个任务可赚取1,000积分！现在前往任务页面。",
+    "View Tasks": "查看任务",
 
     // Profile Page
     profileTitle: "个人资料",
