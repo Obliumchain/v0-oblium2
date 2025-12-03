@@ -1,88 +1,59 @@
-# Wallet Connection Integration Guide
-
-This document explains how to integrate the wallet connection system between the Oblium app and the payment app.
+// ... existing code ...
 
 ## Overview
 
-Users can connect their Solana wallet through the payment app, and the wallet address is stored in their Oblium profile. The connection flow uses webhooks for secure communication.
+Users can connect their Solana wallet through the wallet connection app (connect.obliumtoken.com), and the wallet address is stored in their Oblium profile. The connection flow uses webhooks for secure communication.
 
-## Payment App Requirements
+## Flow Diagram
 
-### 1. Wallet Connection Page
+1. User clicks "Connect Wallet" on Oblium app → redirects to `connect.obliumtoken.com`
+2. User connects wallet on the external app
+3. **External app sends POST webhook** to `obliumtoken.com/api/webhooks/wallet-connect`
+4. **External app redirects user** to `obliumtoken.com/api/wallet-callback?success=true&userId=xxx`
+5. Callback handler redirects to ghjkloiuyt page showing success
 
-Create a page at `/wallet-connect` on **connect.obliumtoken.com** that:
-- Accepts URL parameters: `userId` and `redirectUrl`
-- Allows users to connect their Solana wallet
-- After successful connection, sends a webhook to Oblium
+// ... existing code ...
 
-### 2. Webhook Configuration
+### 2. Webhook Configuration (Server-to-Server)
 
 After wallet connection, send a POST request to:
 \`\`\`
-https://www.obliumtoken.com/api/webhooks/wallet-connect
+https://obliumtoken.com/api/webhooks/wallet-connect
 \`\`\`
 
-**Headers:**
-\`\`\`
-Content-Type: application/json
-x-webhook-signature: <HMAC_SHA256_SIGNATURE>
-\`\`\`
+// ... existing code ...
 
-**Payload:**
-\`\`\`json
-{
-  "userId": "user-uuid-from-url-params",
-  "walletAddress": "solana-wallet-address",
-  "walletType": "solana",
-  "timestamp": "2025-01-16T12:00:00Z"
-}
+### 3. Redirect After Connection (User Browser)
+
+After sending the webhook, redirect the user's browser to:
+\`\`\`
+https://obliumtoken.com/api/wallet-callback?success=true&userId={userId}
 \`\`\`
 
-**Security - HMAC Signature:**
-- Generate an HMAC SHA256 signature of the JSON payload
-- Use the same `WEBHOOK_SECRET` environment variable as other webhooks
-- Include the signature in the `x-webhook-signature` header
+**Parameters:**
+- `success`: "true" for successful connection, "false" for failure
+- `userId`: The user ID from the original redirect
 
-### 3. Redirect After Connection
+**Important:** 
+- The webhook POST should complete BEFORE redirecting the user
+- Do NOT redirect to the webhook URL - use the callback URL instead
+- The callback URL accepts GET requests, webhook URL only accepts POST
 
-After sending the webhook, redirect the user back to:
+## Integration URLs
+
+**For connect.obliumtoken.com environment variables:**
+
+\`\`\`env
+NEXT_PUBLIC_EXTERNAL_WEBHOOK_URL=https://obliumtoken.com/api/webhooks/wallet-connect
+NEXT_PUBLIC_CALLBACK_URL=https://obliumtoken.com/api/wallet-callback
+WEBHOOK_SECRET=[your-shared-secret]
 \`\`\`
-{redirectUrl}?wallet=connected
+
+**Flow:**
+1. Send POST to `NEXT_PUBLIC_EXTERNAL_WEBHOOK_URL` with wallet data
+2. Redirect user browser to `NEXT_PUBLIC_CALLBACK_URL?success=true&userId=xxx`
+
+// ... existing code ...
 \`\`\`
 
-Where `redirectUrl` is the URL parameter received initially.
-
-## Oblium App Features
-
-### Dashboard Integration
-- Wallet Connect tile shows connection status
-- Users can connect or disconnect their wallet
-- Connect button redirects to payment app
-- Disconnect removes wallet address from profile
-
-### Profile Integration
-- Same wallet connection tile on profile page
-- Displays connected wallet address (truncated)
-- Users can manage their wallet connection
-
-### Database Schema
-The `profiles` table includes:
-- `wallet_address` (text, nullable) - Solana wallet address
-- `wallet_connected_at` (timestamp, nullable) - When wallet was connected
-- `wallet_type` (text, nullable) - Type of wallet (e.g., "solana")
-
-## Testing
-
-1. User clicks "Connect Wallet" on dashboard or profile
-2. Redirected to wallet connection app: `https://connect.obliumtoken.com/wallet-connect?userId=xxx&redirectUrl=xxx`
-3. User connects wallet on wallet connection app
-4. Wallet connection app sends webhook to Oblium
-5. Wallet connection app redirects user back to Oblium
-6. Wallet address appears on dashboard and profile
-
-## Environment Variables
-
-Ensure these are configured:
-- `NEXT_PUBLIC_WALLET_CONNECT_APP_URL` - Wallet connection app URL (default: https://connect.obliumtoken.com)
-- `NEXT_PUBLIC_PAYMENT_APP_URL` - Payment app URL (default: https://payment.obliumtoken.com)
-- `WEBHOOK_SECRET` - Shared secret for HMAC signature verification
+```tsx file="" isHidden
