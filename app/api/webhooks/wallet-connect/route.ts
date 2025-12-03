@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
 
     const { data: existingProfile, error: fetchError } = await supabase
       .from("profiles")
-      .select("id, nickname, wallet_address, oblm_token_balance")
+      .select("id, nickname, wallet_address, oblm_token_balance, wallet_bonus_claimed")
       .eq("id", userId)
       .single()
 
@@ -100,13 +100,15 @@ export async function POST(request: NextRequest) {
 
     console.log(`[v0] [${errorId}] Found user profile:`, existingProfile)
 
-    const isFirstConnection = !existingProfile.wallet_address
+    const isFirstConnection = !existingProfile.wallet_address && !existingProfile.wallet_bonus_claimed
     const currentBalance = existingProfile.oblm_token_balance || 0
     const bonusAmount = isFirstConnection ? 150 : 0
     const newBalance = currentBalance + bonusAmount
 
     console.log(`[v0] [${errorId}] Wallet connection bonus:`, {
       isFirstConnection,
+      hasWalletAddress: !!existingProfile.wallet_address,
+      bonusAlreadyClaimed: existingProfile.wallet_bonus_claimed,
       currentBalance,
       bonusAmount,
       newBalance,
@@ -119,6 +121,7 @@ export async function POST(request: NextRequest) {
         wallet_connected_at: new Date().toISOString(),
         wallet_type: walletType,
         oblm_token_balance: newBalance,
+        wallet_bonus_claimed: existingProfile.wallet_bonus_claimed || isFirstConnection, // Set flag to true if bonus was awarded
       })
       .eq("id", userId)
       .select()
