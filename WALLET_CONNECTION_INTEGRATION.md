@@ -56,4 +56,4 @@ WEBHOOK_SECRET=[your-shared-secret]
 // ... existing code ...
 \`\`\`
 
-```tsx file="" isHidden
+\`\`\`tsx file="" isHidden

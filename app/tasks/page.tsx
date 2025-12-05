@@ -8,6 +8,7 @@ import { BackgroundAnimation } from "@/components/background-animation"
 import { createClient } from "@/lib/supabase/client"
 import { useLanguage } from "@/lib/language-context"
 import { ExternalLink, Check } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 interface Task {
   id: string
@@ -27,8 +28,12 @@ export default function TasksPage() {
   const [openedTasks, setOpenedTasks] = useState<Set<string>>(new Set())
   const [completingTask, setCompletingTask] = useState<string | null>(null)
   const [userId, setUserId] = useState<string | null>(null)
+  const [walletAddress, setWalletAddress] = useState<string | null>(null)
+  const [timeRemaining, setTimeRemaining] = useState<number>(0)
+  const [canConnectWallet, setCanConnectWallet] = useState(false)
   const supabase = createClient()
   const { t } = useLanguage()
+  const router = useRouter()
 
   useEffect(() => {
     loadTasks()
@@ -44,6 +49,33 @@ export default function TasksPage() {
     }
   }, [])
 
+  useEffect(() => {
+    const calculateTimeRemaining = () => {
+      const envUnlockTime = process.env.NEXT_PUBLIC_WALLET_UNLOCK_TIME
+      if (!envUnlockTime) {
+        setCanConnectWallet(true)
+        setTimeRemaining(0)
+        return
+      }
+
+      const unlockTime = Date.parse(envUnlockTime) || Number.parseInt(envUnlockTime, 10)
+      const now = Date.now()
+      const remaining = unlockTime - now
+
+      if (remaining <= 0) {
+        setCanConnectWallet(true)
+        setTimeRemaining(0)
+      } else {
+        setCanConnectWallet(false)
+        setTimeRemaining(Math.ceil(remaining / 1000))
+      }
+    }
+
+    calculateTimeRemaining()
+    const interval = setInterval(calculateTimeRemaining, 1000)
+    return () => clearInterval(interval)
+  }, [])
+
   const loadUser = async () => {
     try {
       const {
@@ -52,6 +84,8 @@ export default function TasksPage() {
       if (user) {
         setUserId(user.id)
         await loadCompletedTasks(user.id)
+        const { data: profile } = await supabase.from("profiles").select("wallet_address").eq("id", user.id).single()
+        setWalletAddress(profile?.wallet_address || null)
       }
     } catch (error) {
       console.error("Error loading user:", error)
@@ -91,6 +125,11 @@ export default function TasksPage() {
   }
 
   const handleTaskClick = (task: Task) => {
+    if (task.title === "Connect Your Wallet") {
+      handleConnectWallet()
+      return
+    }
+
     if (!task.action_url) return
 
     setOpenedTasks((prev) => new Set(prev).add(task.id))
@@ -193,6 +232,24 @@ export default function TasksPage() {
     }
   }
 
+  const formatTime = (seconds: number) => {
+    const hours = Math.floor(seconds / 3600)
+    const minutes = Math.floor((seconds % 3600) / 60)
+    const secs = seconds % 60
+    return `${hours}h ${minutes}m ${secs}s`
+  }
+
+  const handleConnectWallet = () => {
+    if (!canConnectWallet) {
+      return
+    }
+
+    const walletConnectUrl = process.env.NEXT_PUBLIC_WALLET_CONNECT_APP_URL || "https://connect.obliumtoken.com"
+    const returnUrl = `${window.location.origin}/tasks?wallet=connected`
+    const connectUrl = `${walletConnectUrl}/wallet-connect?userId=${userId}&redirectUrl=${encodeURIComponent(returnUrl)}`
+    window.location.href = connectUrl
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background via-[#0a0015] to-background flex items-center justify-center">
@@ -230,12 +287,16 @@ export default function TasksPage() {
           {tasks.map((task) => {
             const isCompleted = completedTasks.has(task.id)
             const isOpened = openedTasks.has(task.id)
+            const isWalletTask = task.title === "Connect Your Wallet"
+            const walletTaskCompleted = isWalletTask && walletAddress !== null
 
             return (
               <LiquidCard
                 key={task.id}
                 className={`p-6 h-full flex flex-col transition-all duration-300 ${
-                  isCompleted ? "opacity-60 border-green-500/30" : "hover:border-primary/50 group"
+                  isCompleted || walletTaskCompleted
+                    ? "opacity-60 border-green-500/30"
+                    : "hover:border-primary/50 group"
                 }`}
               >
                 <div className="flex items-start justify-between mb-4">
@@ -247,8 +308,24 @@ export default function TasksPage() {
                       {getTaskTypeLabel(task.task_type)}
                     </span>
                   </div>
-                  {isCompleted ? (
+                  {isCompleted || walletTaskCompleted ? (
                     <Check className="w-5 h-5 text-green-500" />
+                  ) : isWalletTask ? (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="text-primary"
+                    >
+                      <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    </svg>
                   ) : (
                     <ExternalLink className="w-5 h-5 text-foreground/40 group-hover:text-primary transition-colors" />
                   )}
@@ -257,13 +334,37 @@ export default function TasksPage() {
                 <h3 className="font-display font-bold text-lg text-foreground mb-2">{task.title}</h3>
                 <p className="text-foreground/60 text-sm mb-4 flex-grow">{task.description}</p>
 
+                {isWalletTask && !walletTaskCompleted && (
+                  <div className="mb-4 p-3 bg-primary/10 border border-primary/30 rounded-lg">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xl">🎁</span>
+                      <span className="font-display font-bold text-primary text-sm">Bonus Rewards</span>
+                    </div>
+                    <div className="text-xs text-foreground/70">
+                      <div>• 10,000 Points</div>
+                      <div>• 150 OBLM Tokens</div>
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="text-primary font-display font-bold text-xl">{task.reward}</span>
                     <span className="text-foreground/60 text-xs">{t("pts")}</span>
                   </div>
-                  {isCompleted ? (
+                  {isCompleted || walletTaskCompleted ? (
                     <span className="text-green-500 text-sm font-semibold">Completed</span>
+                  ) : isWalletTask ? (
+                    canConnectWallet ? (
+                      <GlowButton size="sm" onClick={() => handleTaskClick(task)}>
+                        Connect Wallet
+                      </GlowButton>
+                    ) : (
+                      <div className="text-center">
+                        <div className="text-orange-500 text-xs font-semibold mb-1">Opens in</div>
+                        <div className="text-orange-500 text-xs font-mono">{formatTime(timeRemaining)}</div>
+                      </div>
+                    )
                   ) : isOpened ? (
                     <GlowButton
                       size="sm"
