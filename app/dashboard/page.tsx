@@ -13,6 +13,7 @@ import { PresaleCountdown } from "@/components/presale-countdown"
 import { useLanguage } from "@/lib/language-context" // Fixed import path for useLanguage hook
 import { WalletConnectTileTimed } from "@/components/wallet-connect-tile-timed"
 import { NewsBanner } from "@/components/news-banner"
+import { WalletReminderPopup } from "@/components/wallet-reminder-popup"
 
 interface UserProfile {
   id: string
@@ -325,6 +326,9 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-gradient-to-br from-background via-[#0a0015] to-background pb-32 lg:pb-8">
       <BackgroundAnimation />
       <Navigation />
+
+      {/* Wallet Reminder Popup for users without connected wallets */}
+      <WalletReminderPopup userId={userProfile?.id || ""} hasWallet={!!userProfile?.wallet_address} />
 
       {showPaymentSuccess && (
         <div className="fixed top-24 left-1/2 -translate-x-1/2 z-50 animate-scale-in">

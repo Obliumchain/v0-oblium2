@@ -12,6 +12,7 @@ import { ConversionCountdown } from "@/components/conversion-countdown"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { useLanguage } from "@/lib/language-context"
 import { WalletConnectTileTimed } from "@/components/wallet-connect-tile-timed"
+import { WalletReminderPopup } from "@/components/wallet-reminder-popup"
 
 interface UserProfile {
   id: string
@@ -240,6 +241,8 @@ export default function ProfilePage() {
     <div className="min-h-screen bg-gradient-to-br from-background via-[#0a0015] to-background pb-32 lg:pb-8">
       <BackgroundAnimation />
       <Navigation />
+
+      <WalletReminderPopup userId={profile?.id || ""} hasWallet={!!profile?.wallet_address} />
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 pt-24 pb-8 space-y-8">

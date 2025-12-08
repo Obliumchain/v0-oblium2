@@ -47,6 +47,10 @@ export const translations = {
       "Complete our latest social media tasks and earn 1,000 points each! Head to the Tasks page now.",
     "View Tasks": "View Tasks",
 
+    connectWalletReminder: "Connect Your Phantom Wallet",
+    connectWalletReminderDesc: "Use Phantom Browser to connect your wallet and earn",
+    remindLater: "Remind Me Later",
+
     // Profile Page
     profileTitle: "Profile",
     profileSubtitle: "Your mining journey",
@@ -178,6 +182,10 @@ export const translations = {
     "Complete our latest social media tasks and earn 1,000 points each! Head to the Tasks page now.":
       "¡Completa nuestras últimas tareas de redes sociales y gana 1,000 puntos cada una! Ve a la página de Tareas ahora.",
     "View Tasks": "Ver Tareas",
+
+    connectWalletReminder: "Conecta Tu Billetera Phantom",
+    connectWalletReminderDesc: "Usa el navegador Phantom para conectar tu billetera y ganar",
+    remindLater: "Recuérdamelo Más Tarde",
 
     // Profile Page
     profileTitle: "Perfil",
@@ -311,6 +319,10 @@ export const translations = {
       "Terminez nos dernières tâches de médias sociaux et gagnez 1,000 points chacune ! Allez à la page des Tâches maintenant.",
     "View Tasks": "Voir les Tâches",
 
+    connectWalletReminder: "Connectez Votre Portefeuille Phantom",
+    connectWalletReminderDesc: "Utilisez le navigateur Phantom pour connecter votre portefeuille et gagner",
+    remindLater: "Me le Rappeler Plus Tard",
+
     // Profile Page
     profileTitle: "Profil",
     profileSubtitle: "Votre voyage minier",
@@ -333,7 +345,7 @@ export const translations = {
     failed: "Échoué",
 
     // Tasks Page
-    tasksTitle: "Tâches et Récompenses",
+    tasksTitle: "Tâches & Récompenses",
     tasksSubtitle: "Complétez des missions pour des points bonus",
     completedLabel: "Terminé",
     pointsEarned: "Points Gagnés",
@@ -341,7 +353,7 @@ export const translations = {
     loadingTasks: "Chargement des tâches...",
     complete: "Compléter",
     processing: "Traitement...",
-    pts: "pts",
+    pts: "Pkt",
 
     // Leaderboard Page
     leaderboardTitle: "Classement Mondial",
@@ -365,36 +377,36 @@ export const translations = {
     passwordPlaceholder: "••••••••",
     repeatPassword: "Répéter le Mot de passe",
     referralCodeOptional: "Code de Parrainage (Optionnel)",
-    referralCodePlaceholder: "ex., REF-ABC12345",
+    referralCodePlaceholder: "z.B. REF-ABC12345",
     creatingAccount: "Création du compte...",
     connecting: "Connexion...",
     startMining: "Commencer le Minage",
     alreadyHaveAccount: "Vous avez déjà un compte?",
     newToOblium: "Nouveau sur Oblium?",
     signIn: "Se Connecter",
-    confirmationEmailSent: "Un email de confirmation sera envoyé pour vérifier votre compte.",
+    confirmationEmailSent: "Une Bestätigungs-E-Mail wird gesendet, um dein Konto zu verifizieren.",
 
     // Welcome Page
-    welcomeTagline: "Minez. Gagnez. Ascendez.",
+    welcomeTagline: "Mine. Verdiene. Aufsteigen.",
     welcomeDesc:
-      "Entrez dans le futur du minage crypto. Accumulez des points grâce au minage dédié, complétez des tâches et convertissez-les en jetons OBLM sur la blockchain Solana.",
-    learnMore: "En Savoir Plus",
-    minePoints: "Miner des Points",
-    minePointsDesc: "Réclamez toutes les 4 heures",
-    earnRewards: "Gagner des Récompenses",
-    earnRewardsDesc: "Complétez des tâches et parrainages",
-    convertToOBLM: "Convertir en OBLM",
-    convertToOBLMDesc: "Tous les 30 jours automatiquement",
+      "Betritt die Zukunft des Krypto-Minings. Sammle Punkte durch dediziertes Mining, erledige Aufgaben und wandle sie in OBLM-Token auf der Solana-Blockchain um.",
+    learnMore: "Mehr erfahren",
+    minePoints: "Punkte minen",
+    minePointsDesc: "Alle 4 Stunden beanspruchen",
+    earnRewards: "Belohnungen verdienen",
+    earnRewardsDesc: "Aufgaben und Empfehlungen abschließen",
+    convertToOBLM: "In OBLM umwandeln",
+    convertToOBLMDesc: "Alle 30 Tage automatisch",
 
     // Booster Shop
-    loadingBoosters: "Chargement des boosters...",
-    noBoostersAvailable: "Aucun booster disponible pour le moment.",
-    boostersWillAppear: "Les boosters apparaîtront ici une fois ajoutés au système.",
-    duration: "Durée",
-    type: "Type",
-    price: "Prix",
-    buyNow: "Acheter Maintenant",
-    connectWalletToBuy: "Connectez le portefeuille pour acheter",
+    loadingBoosters: "Lade Booster...",
+    noBoostersAvailable: "Derzeit sind keine Booster verfügbar.",
+    boostersWillAppear: "Booster werden hier angezeigt, sobald sie dem System hinzugefügt wurden.",
+    duration: "Dauer",
+    type: "Typ",
+    price: "Preis",
+    buyNow: "Jetzt kaufen",
+    connectWalletToBuy: "Verbinde Wallet zum Kaufen",
   },
   ar: {
     // Navigation
@@ -443,6 +455,10 @@ export const translations = {
     "Complete our latest social media tasks and earn 1,000 points each! Head to the Tasks page now.":
       "أكمل المهام الأخيرة على وسائل التواصل الاجتماعي واكسب 1,000 نقاط لكل مهمة! انتقل إلى صفحة المهام الآن.",
     "View Tasks": "عرض المهام",
+
+    connectWalletReminder: "قم بتوصيل محفظة Phantom الخاصة بك",
+    connectWalletReminderDesc: "استخدم متصفح Phantom لتوصيل محفظتك واكسب",
+    remindLater: "ذكرني لاحقًا",
 
     // Profile Page
     profileTitle: "الملف الشخصي",
@@ -573,8 +589,12 @@ export const translations = {
     "New Tasks Available!": "Neue Aufgaben verfügbar!",
     NEW: "NEU",
     "Complete our latest social media tasks and earn 1,000 points each! Head to the Tasks page now.":
-      "Schließe unsere neuesten Social-Media-Aufgaben ab und erhalte 1.000 Punkte für jede! Gehe jetzt zur Aufgabenseite.",
-    "View Tasks": "Aufgaben anzeigen",
+      "Erledige unsere neuesten Social-Media-Aufgaben und verdiene jeweils 1,000 Punkte! Gehe jetzt zur Aufgabenseite.",
+    "View Tasks": "Aufgaben ansehen",
+
+    connectWalletReminder: "Verbinde Deine Phantom-Wallet",
+    connectWalletReminderDesc: "Verwende den Phantom-Browser, um deine Wallet zu verbinden und zu verdienen",
+    remindLater: "Später erinnern",
 
     // Profile Page
     profileTitle: "Profil",
@@ -705,8 +725,12 @@ export const translations = {
     "New Tasks Available!": "新任务可用！",
     NEW: "新",
     "Complete our latest social media tasks and earn 1,000 points each! Head to the Tasks page now.":
-      "完成我们的最新社交媒体任务，每个任务可赚取1,000积分！现在前往任务页面。",
+      "完成我们最新的社交媒体任务，每个任务赚取1,000积分！立即前往任务页面。",
     "View Tasks": "查看任务",
+
+    connectWalletReminder: "连接您的Phantom钱包",
+    connectWalletReminderDesc: "使用Phantom浏览器连接您的钱包并赚取",
+    remindLater: "稍后提醒我",
 
     // Profile Page
     profileTitle: "个人资料",
