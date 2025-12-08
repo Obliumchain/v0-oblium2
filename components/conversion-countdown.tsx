@@ -70,7 +70,7 @@ export function ConversionCountdown() {
 
       if (!response.ok) {
         // Don't show error for insufficient balance/points - it's expected
-        if (data.error?.includes("Insufficient")) {
+        if (data.error?.includes("Insufficient") || data.error?.includes("wallet")) {
           console.log("[v0] User does not meet conversion criteria:", data.error)
           setConversionComplete(true)
           return
@@ -137,7 +137,7 @@ export function ConversionCountdown() {
             <p className="text-sm font-bold text-accent">10,000 Points = 250 OBLM</p>
           </div>
           <div className="text-xs text-orange-400 font-semibold bg-orange-500/10 px-3 py-1 rounded-lg border border-orange-500/30 inline-block">
-            ⚠️ Minimum 350 OBLM balance required to convert
+            ⚠️ Connected wallet required to convert
           </div>
           <div className="text-xs text-muted-foreground">Gas fee: 50 OBLM tokens deducted after conversion</div>
         </div>

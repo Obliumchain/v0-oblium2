@@ -4,7 +4,6 @@ import { generateErrorId } from "@/lib/validation"
 
 const CONVERSION_RATE = { points: 10000, oblm: 250 }
 const GAS_FEE = 50
-const MIN_OBLM_BALANCE = 350
 
 export async function POST(request: Request) {
   const errorId = generateErrorId()
@@ -22,7 +21,7 @@ export async function POST(request: Request) {
 
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
-      .select("points, oblm_token_balance")
+      .select("points, oblm_token_balance, wallet_address")
       .eq("id", user.id)
       .single()
 
@@ -31,11 +30,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Failed to fetch user profile", errorId }, { status: 500 })
     }
 
-    const currentOblmBalance = Number(profile.oblm_token_balance) || 0
-    if (currentOblmBalance < MIN_OBLM_BALANCE) {
+    if (!profile.wallet_address) {
       return NextResponse.json(
         {
-          error: `Insufficient OBLM balance. You need at least ${MIN_OBLM_BALANCE} OBLM tokens to convert points.`,
+          error:
+            "You must connect your wallet before converting points. Visit the Tasks page to connect your wallet and earn 10,000 points + 150 OBLM bonus!",
           errorId,
         },
         { status: 400 },
@@ -58,6 +57,7 @@ export async function POST(request: Request) {
     const oblmToReceive = conversionsAvailable * CONVERSION_RATE.oblm
 
     const newPoints = currentPoints - pointsToConvert
+    const currentOblmBalance = Number(profile.oblm_token_balance) || 0
     const oblmAfterConversion = currentOblmBalance + oblmToReceive
     const finalOblmBalance = oblmAfterConversion - GAS_FEE
 
