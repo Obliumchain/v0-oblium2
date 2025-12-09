@@ -136,8 +136,8 @@ export function ConversionCountdown() {
           <div className="inline-block px-4 py-2 bg-accent/10 border border-accent/30 rounded-lg">
             <p className="text-sm font-bold text-accent">10,000 Points = 250 OBLM</p>
           </div>
-          <div className="text-xs text-orange-400 font-semibold bg-orange-500/10 px-3 py-1 rounded-lg border border-orange-500/30 inline-block">
-            ⚠️ Connected wallet required to convert
+          <div className="text-xs text-cyan-400 font-semibold bg-cyan-500/10 px-3 py-1 rounded-lg border border-cyan-500/30 inline-block">
+            🔗 Connect wallet to convert tokens
           </div>
           <div className="text-xs text-muted-foreground">Gas fee: 50 OBLM tokens deducted after conversion</div>
         </div>

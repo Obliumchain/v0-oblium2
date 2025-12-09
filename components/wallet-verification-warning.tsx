@@ -64,13 +64,13 @@ export function WalletVerificationWarning({
   }
 
   return (
-    <LiquidCard className="p-6 border-2 border-blue-500/30 bg-blue-500/5 hover:scale-[1.02] transition-all duration-300">
-      <div className="flex items-start gap-4">
-        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center flex-shrink-0">
+    <LiquidCard className="p-4 border border-blue-500/30 bg-blue-500/5 hover:scale-[1.01] transition-all duration-300">
+      <div className="flex items-start gap-3">
+        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center flex-shrink-0">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="28"
-            height="28"
+            width="20"
+            height="20"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -85,36 +85,34 @@ export function WalletVerificationWarning({
           </svg>
         </div>
 
-        <div className="flex-1">
-          <h3 className="font-display font-bold text-blue-400 text-xl mb-2">{t("claimYourRewards")}</h3>
+        <div className="flex-1 min-w-0">
+          <h3 className="font-display font-bold text-blue-400 text-lg mb-2">{t("claimYourRewards")}</h3>
 
-          <div className="space-y-3">
-            <p className="text-foreground/80 text-sm">{t("connectWalletToClaimDesc")}</p>
+          <div className="space-y-2">
+            <p className="text-foreground/80 text-xs">{t("connectWalletToClaimDesc")}</p>
 
-            <div className="p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg">
-              <div className="text-xs text-foreground/60 mb-2 text-center">{t("timeToClaimRewards")}</div>
+            <div className="p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+              <div className="text-xs text-foreground/60 mb-1 text-center">{t("timeToClaimRewards")}</div>
               <div className="text-center">
-                <div className="text-3xl font-display font-bold text-blue-400">{formatTime(timeRemaining)}</div>
+                <div className="text-2xl font-display font-bold text-blue-400">{formatTime(timeRemaining)}</div>
               </div>
             </div>
 
-            <div className="p-3 bg-cyan-500/10 border border-cyan-500/30 rounded-lg">
-              <div className="flex items-start gap-2">
-                <span className="text-lg mt-0.5">🎁</span>
-                <div>
-                  <p className="text-sm font-semibold text-cyan-400 mb-1">{t("howToClaimRewards")}</p>
-                  <ol className="text-xs text-foreground/70 space-y-1 list-decimal list-inside">
-                    <li>{t("claimStep1")}</li>
-                    <li>{t("claimStep2")}</li>
-                    <li>{t("claimStep3")}</li>
-                    <li>{t("claimStep4")}</li>
-                  </ol>
-                </div>
-              </div>
-            </div>
+            <details className="p-2 bg-cyan-500/10 border border-cyan-500/30 rounded-lg">
+              <summary className="text-xs font-semibold text-cyan-400 cursor-pointer list-none flex items-center gap-2">
+                <span>🎁</span>
+                <span>{t("howToClaimRewards")}</span>
+              </summary>
+              <ol className="text-xs text-foreground/70 space-y-0.5 list-decimal list-inside mt-2 pl-2">
+                <li>{t("claimStep1")}</li>
+                <li>{t("claimStep2")}</li>
+                <li>{t("claimStep3")}</li>
+                <li>{t("claimStep4")}</li>
+              </ol>
+            </details>
           </div>
 
-          <GlowButton onClick={onConnectClick} className="w-full mt-4">
+          <GlowButton onClick={onConnectClick} className="w-full mt-3 py-2 text-sm">
             {t("connectWalletToClaim")}
           </GlowButton>
         </div>
