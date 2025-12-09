@@ -28,6 +28,9 @@ export default function PresalePage() {
     tokens_sold: number
     tokens_remaining: number
     current_price: number
+    version?: number
+    version_name?: string
+    is_active?: boolean
   } | null>(null)
 
   useEffect(() => {
@@ -58,7 +61,7 @@ export default function PresalePage() {
         setWalletAddress(profile.wallet_address || null)
       }
 
-      const { data: pool } = await supabase.from("presale_pool").select("*").single()
+      const { data: pool } = await supabase.from("presale_pool").select("*").eq("is_active", true).single()
 
       if (pool) {
         setPresalePool(pool)
@@ -187,10 +190,12 @@ export default function PresalePage() {
         {/* Header */}
         <div className="text-center mb-12 animate-fade-in-up">
           <div className="inline-block mb-4 px-4 py-2 bg-gradient-to-r from-primary/20 to-accent/20 border border-primary/30 rounded-full">
-            <span className="text-primary font-display font-bold text-sm">🔥 PRESALE ACTIVE</span>
+            <span className="text-primary font-display font-bold text-sm">
+              🔥 {presalePool?.version_name?.toUpperCase() || "PRESALE"} ACTIVE
+            </span>
           </div>
           <h1 className="font-display font-bold text-5xl bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent mb-4">
-            OBLM Token Presale
+            OBLM Token Presale {presalePool?.version ? `V${presalePool.version}` : ""}
           </h1>
           <p className="text-foreground/60 text-lg">
             Get OBLM tokens directly at presale price: ${TOKEN_PRICE} per token
