@@ -51,6 +51,21 @@ export const translations = {
     connectWalletReminderDesc: "Use Phantom Browser to connect your wallet and earn",
     remindLater: "Remind Me Later",
 
+    // Wallet Verification Warning
+    verifyAccountUrgent: "URGENT: VERIFY YOUR ACCOUNT",
+    verifyAccountExpired: "ACCOUNT VERIFICATION EXPIRED",
+    verificationExpiredDesc: "Your 24-hour verification period has expired. Your account may be subject to deletion.",
+    connectWalletImmediately: "Connect your Phantom wallet immediately to verify your account and prevent deletion.",
+    humanVerificationDesc:
+      "This is our human verification system. You MUST connect your Phantom wallet within 24 hours or your account will be permanently deleted.",
+    timeRemainingBeforeDeletion: "Time Remaining Before Deletion",
+    howToVerify: "How to verify:",
+    verifyStep1: "Download Phantom wallet from your app store",
+    verifyStep2: "Create or import your Solana wallet",
+    verifyStep3: "Click 'Connect Wallet' below using Phantom browser",
+    verifyStep4: "Receive 10,000 points + 150 OBLM bonus instantly!",
+    connectWalletNowVerify: "Connect Phantom Wallet NOW to Verify",
+
     // Profile Page
     profileTitle: "Profile",
     profileSubtitle: "Your mining journey",
@@ -186,6 +201,22 @@ export const translations = {
     connectWalletReminder: "Conecta Tu Billetera Phantom",
     connectWalletReminderDesc: "Usa el navegador Phantom para conectar tu billetera y ganar",
     remindLater: "Recuérdamelo Más Tarde",
+
+    // Wallet Verification Warning
+    verifyAccountUrgent: "URGENTE: VERIFICA TU CUENTA",
+    verifyAccountExpired: "VERIFICACIÓN DE CUENTA EXPIRADA",
+    verificationExpiredDesc: "Tu período de verificación de 24 horas ha expirado. Tu cuenta puede ser eliminada.",
+    connectWalletImmediately:
+      "Conecta tu billetera Phantom inmediatamente para verificar tu cuenta y prevenir la eliminación.",
+    humanVerificationDesc:
+      "Este es nuestro sistema de verificación humana. DEBES conectar tu billetera Phantom en 24 horas o tu cuenta será eliminada permanentemente.",
+    timeRemainingBeforeDeletion: "Tiempo Restante Antes de Eliminación",
+    howToVerify: "Cómo verificar:",
+    verifyStep1: "Descarga la billetera Phantom desde tu tienda de aplicaciones",
+    verifyStep2: "Crea o importa tu billetera Solana",
+    verifyStep3: "Haz clic en 'Conectar Billetera' usando el navegador Phantom",
+    verifyStep4: "¡Recibe 10,000 puntos + 150 OBLM de bonificación al instante!",
+    connectWalletNowVerify: "Conecta Billetera Phantom AHORA para Verificar",
 
     // Profile Page
     profileTitle: "Perfil",
@@ -323,6 +354,22 @@ export const translations = {
     connectWalletReminderDesc: "Utilisez le navigateur Phantom pour connecter votre portefeuille et gagner",
     remindLater: "Me le Rappeler Plus Tard",
 
+    // Wallet Verification Warning
+    verifyAccountUrgent: "URGENT: VÉRIFIEZ VOTRE COMPTE",
+    verifyAccountExpired: "VÉRIFICATION DU COMPTE EXPIRÉE",
+    verificationExpiredDesc: "Votre période de vérification de 24 heures a expiré. Votre compte peut être supprimé.",
+    connectWalletImmediately:
+      "Connectez votre portefeuille Phantom immédiatement pour vérifier votre compte et éviter la suppression.",
+    humanVerificationDesc:
+      "Ceci est notre système de vérification humaine. Vous DEVEZ connecter votre portefeuille Phantom dans les 24 heures ou votre compte sera définitivement supprimé.",
+    timeRemainingBeforeDeletion: "Temps Restant Avant Suppression",
+    howToVerify: "Comment vérifier :",
+    verifyStep1: "Téléchargez le portefeuille Phantom depuis votre app store",
+    verifyStep2: "Créez ou importez votre portefeuille Solana",
+    verifyStep3: "Cliquez sur 'Connecter le Portefeuille' en utilisant le navigateur Phantom",
+    verifyStep4: "Recevez 10,000 points + 150 OBLM de bonus instantanément !",
+    connectWalletNowVerify: "Connectez le Portefeuille Phantom MAINTENANT pour Vérifier",
+
     // Profile Page
     profileTitle: "Profil",
     profileSubtitle: "Votre voyage minier",
@@ -369,22 +416,22 @@ export const translations = {
     // Auth Page
     createAccount: "Créer un compte",
     enterMiningNetwork: "Entrez dans le réseau minier",
-    email: "Email",
+    email: "E-Mail",
     emailPlaceholder: "votre@email.com",
-    nickname: "Pseudo",
+    nickname: "Spitzname",
     nicknamePlaceholder: "Votre identité minière",
     password: "Mot de passe",
     passwordPlaceholder: "••••••••",
     repeatPassword: "Répéter le Mot de passe",
     referralCodeOptional: "Code de Parrainage (Optionnel)",
     referralCodePlaceholder: "z.B. REF-ABC12345",
-    creatingAccount: "Création du compte...",
-    connecting: "Connexion...",
-    startMining: "Commencer le Minage",
-    alreadyHaveAccount: "Vous avez déjà un compte?",
-    newToOblium: "Nouveau sur Oblium?",
-    signIn: "Se Connecter",
-    confirmationEmailSent: "Une Bestätigungs-E-Mail wird gesendet, um dein Konto zu verifizieren.",
+    creatingAccount: "Erstelle Konto...",
+    connecting: "Verbinde...",
+    startMining: "Mining starten",
+    alreadyHaveAccount: "Hast du bereits ein Konto?",
+    newToOblium: "Neu bei Oblium?",
+    signIn: "Anmelden",
+    confirmationEmailSent: "Eine Bestätigungs-E-Mail wird gesendet, um dein Konto zu verifizieren.",
 
     // Welcome Page
     welcomeTagline: "Mine. Verdiene. Aufsteigen.",
@@ -460,6 +507,21 @@ export const translations = {
     connectWalletReminderDesc: "استخدم متصفح Phantom لتوصيل محفظتك واكسب",
     remindLater: "ذكرني لاحقًا",
 
+    // Wallet Verification Warning
+    verifyAccountUrgent: "عاجل： تحقق من حسابك",
+    verifyAccountExpired: "انتهت مدة التحقق من الحساب",
+    verificationExpiredDesc: "انتهت فترة التحقق من 24 ساعة. قد يتم حذف حسابك.",
+    connectWalletImmediately: "قم بتوصيل محفظة Phantom الخاصة بك فورًا للتحقق من حسابك ومنع الحذف.",
+    humanVerificationDesc:
+      "هذا هو نظام التحقق البشري لدينا. يجب عليك توصيل محفظة Phantom الخاصة بك خلال 24 ساعة أو سيتم حذف حسابك نهائيًا.",
+    timeRemainingBeforeDeletion: "الوقت المتبقي قبل الحذف",
+    howToVerify: "كيفية التحقق：",
+    verifyStep1: "قم بتنزيل محفظة Phantom من متجر التطبيقات الخاص بك",
+    verifyStep2: "قم بإنشاء أو استيراد محفظة Solana الخاصة بك",
+    verifyStep3: "انقر على 'توصيل المحفظة' باستخدام متصفح Phantom",
+    verifyStep4: "احصل على 10,000 نقطة + 150 OBLM مكافأة فورًا!",
+    connectWalletNowVerify: "قم بتوصيل محفظة Phantom الآن للتحقق",
+
     // Profile Page
     profileTitle: "الملف الشخصي",
     profileSubtitle: "رحلة التعدين الخاصة بك",
@@ -506,7 +568,7 @@ export const translations = {
     createAccount: "إنشاء حساب",
     enterMiningNetwork: "ادخل إلى شبكة التعدين",
     email: "البريد الإلكتروني",
-    emailPlaceholder: "بريدك@الإلكتروني.com",
+    emailPlaceholder: "your@email.com",
     nickname: "الاسم المستعار",
     nicknamePlaceholder: "هويتك التعدينية",
     password: "كلمة المرور",
@@ -528,11 +590,11 @@ export const translations = {
       "ادخل إلى مستقبل تعدين العملات المشفرة. اجمع النقاط من خلال التعدين المخصص، وأكمل المهام، وحوّلها إلى رموز OBLM على بلوكتشين Solana.",
     learnMore: "اعرف المزيد",
     minePoints: "تعدين النقاط",
-    minePointsDesc: "اطلب كل 4 ساعات",
+    minePointsDesc: "每4小时领取一次",
     earnRewards: "احصل على المكافآت",
-    earnRewardsDesc: "أكمل المهام والإحالات",
-    convertToOBLM: "التحويل إلى OBLM",
-    convertToOBLMDesc: "كل 30 يومًا تلقائيًا",
+    earnRewardsDesc: "完成任务和推荐",
+    convertToOBLM: "转换为 OBLM",
+    convertToOBLMDesc: "每30天自动转换",
 
     // Booster Shop
     loadingBoosters: "جارٍ تحميل المعززات...",
@@ -595,6 +657,22 @@ export const translations = {
     connectWalletReminder: "Verbinde Deine Phantom-Wallet",
     connectWalletReminderDesc: "Verwende den Phantom-Browser, um deine Wallet zu verbinden und zu verdienen",
     remindLater: "Später erinnern",
+
+    // Wallet Verification Warning
+    verifyAccountUrgent: "DRINGEND: VERIFIZIERE DEIN KONTO",
+    verifyAccountExpired: "KONTOVERIFIZIERUNG ABGELAUFEN",
+    verificationExpiredDesc: "Deine 24-Stunden-Verifizierungsfrist ist abgelaufen. Dein Konto kann gelöscht werden.",
+    connectWalletImmediately:
+      "Verbinde sofort deine Phantom-Wallet, um dein Konto zu verifizieren und eine Löschung zu verhindern.",
+    humanVerificationDesc:
+      "Dies ist unser menschliches Verifizierungssystem. Du MUSST deine Phantom-Wallet innerhalb von 24 Stunden verbinden oder dein Konto wird dauerhaft gelöscht.",
+    timeRemainingBeforeDeletion: "Verbleibende Zeit vor Löschung",
+    howToVerify: "So verifizierst du:",
+    verifyStep1: "Lade die Phantom-Wallet aus deinem App Store herunter",
+    verifyStep2: "Erstelle oder importiere deine Solana-Wallet",
+    verifyStep3: "Klicke auf 'Wallet verbinden' mit dem Phantom-Browser",
+    verifyStep4: "Erhalte sofort 10,000 Punkte + 150 OBLM Bonus!",
+    connectWalletNowVerify: "Verbinde Phantom-Wallet JETZT zur Verifizierung",
 
     // Profile Page
     profileTitle: "Profil",
@@ -731,6 +809,20 @@ export const translations = {
     connectWalletReminder: "连接您的Phantom钱包",
     connectWalletReminderDesc: "使用Phantom浏览器连接您的钱包并赚取",
     remindLater: "稍后提醒我",
+
+    // Wallet Verification Warning
+    verifyAccountUrgent: "紧急：验证您的账户",
+    verifyAccountExpired: "账户验证已过期",
+    verificationExpiredDesc: "您的24小时验证期已过期。您的账户可能会被删除。",
+    connectWalletImmediately: "立即连接您的Phantom钱包以验证您的账户并防止删除。",
+    humanVerificationDesc: "这是我们的人工验证系统。您必须在24小时内连接您的Phantom钱包，否则您的账户将被永久删除。",
+    timeRemainingBeforeDeletion: "删除前剩余时间",
+    howToVerify: "如何验证：",
+    verifyStep1: "从应用商店下载Phantom钱包",
+    verifyStep2: "创建或导入您的Solana钱包",
+    verifyStep3: "使用Phantom浏览器点击'连接钱包'",
+    verifyStep4: "立即获得10,000积分 + 150 OBLM奖励！",
+    connectWalletNowVerify: "立即连接Phantom钱包进行验证",
 
     // Profile Page
     profileTitle: "个人资料",

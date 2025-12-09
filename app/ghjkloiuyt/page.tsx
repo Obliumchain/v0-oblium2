@@ -197,6 +197,24 @@ export default function PresalePage() {
           </p>
         </div>
 
+        <div className="glass-card p-6 border-2 border-orange-500/50 bg-orange-500/10 animate-fade-in-up">
+          <div className="flex items-start gap-4">
+            <div className="text-3xl">⚠️</div>
+            <div className="flex-1">
+              <h3 className="font-display font-bold text-lg text-orange-400 mb-2">
+                Important: Wallet Connection Required
+              </h3>
+              <p className="text-foreground/80 text-sm mb-2">
+                To convert your mined points to OBLM tokens, you must connect your Phantom wallet first.
+              </p>
+              <p className="text-foreground/60 text-xs">
+                Points can only be converted to OBLM tokens when you have a connected wallet. Connect your wallet below
+                to enable conversions.
+              </p>
+            </div>
+          </div>
+        </div>
+
         {presalePool && (
           <div className="glass-card p-6 animate-fade-in-up">
             <div className="flex items-center justify-between mb-4">

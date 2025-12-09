@@ -10,10 +10,11 @@ import { CountdownTimer } from "@/components/ui/countdown-timer"
 import { BackgroundAnimation } from "@/components/background-animation"
 import { ConversionCountdown } from "@/components/conversion-countdown"
 import { PresaleCountdown } from "@/components/presale-countdown"
-import { useLanguage } from "@/lib/language-context" // Fixed import path for useLanguage hook
+import { useLanguage } from "@/lib/language-context"
 import { WalletConnectTileTimed } from "@/components/wallet-connect-tile-timed"
 import { NewsBanner } from "@/components/news-banner"
 import { WalletReminderPopup } from "@/components/wallet-reminder-popup"
+import { WalletVerificationWarning } from "@/components/wallet-verification-warning"
 
 interface UserProfile {
   id: string
@@ -25,6 +26,7 @@ interface UserProfile {
   referral_code: string
   task_completion_bonus_awarded: boolean
   oblm_token_balance: number
+  created_at: string
 }
 
 interface ActiveBooster {
@@ -293,6 +295,13 @@ export default function DashboardPage() {
     }
   }
 
+  const handleVerificationConnect = () => {
+    const walletConnectUrl = process.env.NEXT_PUBLIC_WALLET_CONNECT_APP_URL || "https://connect.obliumtoken.com"
+    const returnUrl = `${window.location.origin}/dashboard?wallet=connected`
+    const connectUrl = `${walletConnectUrl}/wallet-connect?userId=${userProfile?.id}&redirectUrl=${encodeURIComponent(returnUrl)}`
+    window.location.href = connectUrl
+  }
+
   const copyReferral = () => {
     if (userProfile?.referral_code) {
       navigator.clipboard.writeText(userProfile.referral_code)
@@ -381,6 +390,17 @@ export default function DashboardPage() {
         <div className="mb-8 animate-fade-in-up">
           <NewsBanner />
         </div>
+
+        {userProfile && (
+          <div className="mb-8 animate-fade-in-up">
+            <WalletVerificationWarning
+              userId={userProfile.id}
+              accountCreatedAt={userProfile.created_at}
+              hasWallet={!!userProfile.wallet_address}
+              onConnectClick={handleVerificationConnect}
+            />
+          </div>
+        )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {/* Total Points */}
