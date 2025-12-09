@@ -66,6 +66,18 @@ export const translations = {
     verifyStep4: "Receive 10,000 points + 150 OBLM bonus instantly!",
     connectWalletNowVerify: "Connect Phantom Wallet NOW to Verify",
 
+    // Reward Claiming
+    claimYourRewards: "Claim Your Welcome Rewards",
+    connectWalletToClaimDesc:
+      "Connect your Phantom wallet within 24 hours to claim your 10,000 points + 150 OBLM welcome bonus and start converting your mined points!",
+    timeToClaimRewards: "Time Remaining to Claim",
+    howToClaimRewards: "How to claim your rewards:",
+    claimStep1: "Download Phantom wallet from your app store",
+    claimStep2: "Create or import your Solana wallet",
+    claimStep3: "Click the button below to connect using Phantom browser",
+    claimStep4: "Instantly receive 10,000 points + 150 OBLM tokens!",
+    connectWalletToClaim: "Connect Wallet to Claim Rewards",
+
     // Profile Page
     profileTitle: "Profile",
     profileSubtitle: "Your mining journey",
@@ -217,6 +229,18 @@ export const translations = {
     verifyStep3: "Haz clic en 'Conectar Billetera' usando el navegador Phantom",
     verifyStep4: "¡Recibe 10,000 puntos + 150 OBLM de bonificación al instante!",
     connectWalletNowVerify: "Conecta Billetera Phantom AHORA para Verificar",
+
+    // Reward Claiming
+    claimYourRewards: "Reclama Tus Recompensas de Bienvenida",
+    connectWalletToClaimDesc:
+      "Conecta tu billetera Phantom en 24 horas para reclamar tu bonificación de bienvenida de 10,000 puntos + 150 OBLM y comienza a convertir tus puntos minados.",
+    timeToClaimRewards: "Tiempo Restante para Reclamar",
+    howToClaimRewards: "Cómo reclamar tus recompensas:",
+    claimStep1: "Descarga la billetera Phantom desde tu tienda de aplicaciones",
+    claimStep2: "Crea o importa tu billetera Solana",
+    claimStep3: "Haz clic en el botón de abajo para conectar usando el navegador Phantom",
+    claimStep4: "¡Recibe instantáneamente 10,000 puntos + 150 OBLM tokens!",
+    connectWalletToClaim: "Conectar Billetera para Reclamar Recompensas",
 
     // Profile Page
     profileTitle: "Perfil",
@@ -370,6 +394,18 @@ export const translations = {
     verifyStep4: "Recevez 10,000 points + 150 OBLM de bonus instantanément !",
     connectWalletNowVerify: "Connectez le Portefeuille Phantom MAINTENANT pour Vérifier",
 
+    // Reward Claiming
+    claimYourRewards: "Réclamez Vos Récompenses de Bienvenue",
+    connectWalletToClaimDesc:
+      "Connectez votre portefeuille Phantom dans les 24 heures pour réclamer votre bonus de bienvenue de 10,000 points + 150 OBLM et commencer à convertir vos points minés.",
+    timeToClaimRewards: "Temps Restant pour Réclamer",
+    howToClaimRewards: "Comment réclamer vos récompenses :",
+    claimStep1: "Téléchargez le portefeuille Phantom depuis votre app store",
+    claimStep2: "Créez ou importez votre portefeuille Solana",
+    claimStep3: "Cliquez sur le bouton ci-dessous pour connecter avec le navigateur Phantom",
+    claimStep4: "Recevez instantanément 10,000 points + 150 OBLM tokens !",
+    connectWalletToClaim: "Connecter le Portefeuille pour Réclamer les Récompenses",
+
     // Profile Page
     profileTitle: "Profil",
     profileSubtitle: "Votre voyage minier",
@@ -521,6 +557,18 @@ export const translations = {
     verifyStep3: "انقر على 'توصيل المحفظة' باستخدام متصفح Phantom",
     verifyStep4: "احصل على 10,000 نقطة + 150 OBLM مكافأة فورًا!",
     connectWalletNowVerify: "قم بتوصيل محفظة Phantom الآن للتحقق",
+
+    // Reward Claiming
+    claimYourRewards: "اطلب مكافآت الترحيب الخاصة بك",
+    connectWalletToClaimDesc:
+      "قم بتوصيل محفظة Phantom الخاصة بك في غضون 24 ساعة للمطالبة بمكافأة الترحيب الخاصة بك 10,000 نقطة + 150 OBLM وابدأ في تحويل نقاطك المُستخرجة!",
+    timeToClaimRewards: "الوقت المتبقي للمطالبة",
+    howToClaimRewards: "كيفية المطالبة بمكافآتك:",
+    claimStep1: "قم بتنزيل محفظة Phantom من متجر التطبيقات الخاص بك",
+    claimStep2: "قم بإنشاء أو استيراد محفظة Solana الخاصة بك",
+    claimStep3: "انقر على الزر أدناه للاتصال باستخدام متصفح Phantom",
+    claimStep4: "احصل على 10,000 نقطة + 150 OBLM توكن على الفور!",
+    connectWalletToClaim: "توصيل المحفظة للمطالبة بالمكافآت",
 
     // Profile Page
     profileTitle: "الملف الشخصي",
@@ -674,6 +722,18 @@ export const translations = {
     verifyStep4: "Erhalte sofort 10,000 Punkte + 150 OBLM Bonus!",
     connectWalletNowVerify: "Verbinde Phantom-Wallet JETZT zur Verifizierung",
 
+    // Reward Claiming
+    claimYourRewards: "Fordere Deine Willkommensbelohnungen an",
+    connectWalletToClaimDesc:
+      "Verbinde deine Phantom-Wallet innerhalb von 24 Stunden, um deinen Willkommensbonus von 10,000 Punkten + 150 OBLM zu erhalten und beginne deine geminten Punkte zu konvertieren!",
+    timeToClaimRewards: "Verbleibende Zeit zum Anfordern",
+    howToClaimRewards: "So forderst du deine Belohnungen an:",
+    claimStep1: "Lade die Phantom-Wallet aus deinem App Store herunter",
+    claimStep2: "Erstelle oder importiere deine Solana-Wallet",
+    claimStep3: "Klicke auf die Schaltfläche unten, um mit dem Phantom-Browser zu verbinden",
+    claimStep4: "Erhalte sofort 10,000 Punkte + 150 OBLM Token!",
+    connectWalletToClaim: "Wallet Verbinden um Belohnungen zu Erhalten",
+
     // Profile Page
     profileTitle: "Profil",
     profileSubtitle: "Deine Mining-Reise",
@@ -823,6 +883,18 @@ export const translations = {
     verifyStep3: "使用Phantom浏览器点击'连接钱包'",
     verifyStep4: "立即获得10,000积分 + 150 OBLM奖励！",
     connectWalletNowVerify: "立即连接Phantom钱包进行验证",
+
+    // Reward Claiming
+    claimYourRewards: "领取您的欢迎奖励",
+    connectWalletToClaimDesc:
+      "在24小时内连接您的Phantom钱包，领取您的10,000积分 + 150 OBLM欢迎奖励，并开始转换您挖掘的积分！",
+    timeToClaimRewards: "剩余领取时间",
+    howToClaimRewards: "如何领取您的奖励：",
+    claimStep1: "从应用商店下载Phantom钱包",
+    claimStep2: "创建或导入您的Solana钱包",
+    claimStep3: "点击下方按钮使用Phantom浏览器连接",
+    claimStep4: "立即获得10,000积分 + 150 OBLM代币！",
+    connectWalletToClaim: "连接钱包领取奖励",
 
     // Profile Page
     profileTitle: "个人资料",
